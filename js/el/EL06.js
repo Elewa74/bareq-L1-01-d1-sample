@@ -1,17 +1,18 @@
 /* EL06 · أغنّي (أنشودة الميم) — خطوتان داخل المسرح (تصميم v2):
-   (١) الأنشودة vid-103 (مُصيَّرة بلا شخصيات مقصوصة، ٩٦ نبضة/د): عند الطرق يتوقّف الإيقاع وتظهر ○○/○□ للمس (gme-109)
+   (١) الأنشودة vid-103 — غناءٌ حقيقيّ (Eleven Music v2.5، ٩٦ نبضة/د): عند الطرق يتوقّف الإيقاع وتظهر ○○/○□ للمس (gme-109)
        ثانيتين (لـ٤–٦ حتى «أَكْمِلْ»)؛ الكلمات في النصّ المصاحب فقط (زرّ «النص المصاحب»).
-   (٢) «أغنّي وحدي»: مسار الآلات وشريط صور الأسطر يتقدّم مع الإيقاع (بلا كلمات، بلا تسجيل). */
+   (٢) «أغنّي وحدي»: مسار الآلات (الغناء مفصول بـ demucs) وشريط صور الأسطر يتقدّم مع الإيقاع (بلا كلمات، بلا تسجيل). */
 (function () {
   const NSTEPS = 2; // الأنشودة · أغنّي وحدي (مؤشّر موحّد)
+  // v0-9: الأنشودة غناءٌ حقيقيّ (Eleven Music) — أزمنة سرير الآلات (نفس خطّ vid-103: طرق ٢٩٫٩٥ و٥٢٫٤٥)
   const STRIP = [
-    { img: 'img-001', pos: '50% 62%', from: 3.2, to: 10.0, aria: 'ماءْ' },
-    { img: 'img-120', pos: '18% 82%', zoom: 1.9, from: 10.0, to: 16.8, aria: 'صَحْنٌ' },
-    { img: 'img-101', pos: '50% 34%', zoom: 1.6, from: 27.7, to: 34.4, aria: 'فَمُ سَيْفٍ' },
-    { glyph: 'م', from: 34.4, to: 40.2, aria: 'الحَرْفُ م' },
-    { img: 'img-122', pos: '60% 60%', from: 46.4, to: 66, aria: 'ماءْ' },
+    { img: 'img-001', pos: '50% 62%', from: 10.0, to: 14.66, aria: 'ماءْ' },
+    { img: 'img-120', pos: '18% 82%', zoom: 1.9, from: 14.66, to: 29.95, aria: 'صَحْنٌ' },
+    { img: 'img-101', pos: '50% 34%', zoom: 1.6, from: 37.39, to: 43.21, aria: 'فَمُ سَيْفٍ' },
+    { glyph: 'م', from: 43.21, to: 46.43, aria: 'الحَرْفُ م' },
+    { img: 'img-122', pos: '60% 60%', from: 46.43, to: 67, aria: 'ماءْ' },
   ];
-  const REFRAIN = [[16.8, 27.7], [40.2, 46.4]];
+  const REFRAIN = [[29.95, 36.9], [52.45, 59.2]];
 
   function css() {
     if (document.getElementById('st-EL06')) return;
@@ -52,7 +53,7 @@
     const brq = h('div.e6-brq', { 'aria-hidden': 'true' }, h('img', { src: BQ.char.BRQ, alt: '' }));
     scr.append(refrain, strip, h('div.e6-ctl', null, pp, rp), brq);
     let bed = null, raf = 0, t0 = 0, pausedAt = 0, ended = false, alive = true, lastBeat = -1;
-    const DUR = 65;
+    const DUR = 66.5;
     const now = () => (bed && bed.el ? bed.el.currentTime : ((pausedAt || performance.now()) / 1000 - t0));
     const isPaused = () => (bed && bed.el ? bed.el.paused : !!pausedAt);
     const setPP = () => { const p = isPaused() && !ended; pp.replaceChildren(BQ.icon(p || ended ? 'play' : 'pause'), h('span', null, ended ? 'غنِّ مرّة أخرى' : p ? 'تشغيل' : 'إيقاف')); brq.style.animationPlayState = p ? 'paused' : ''; };
@@ -97,14 +98,14 @@
   }
 
   const lyricsNode = () => {
-    const ids = ['01', '02', '01', '03', '04', '05', '06', '07', '08', '09', '10', '04', '05', '11', '12', '13', '04', '05'];
-    const li = ids.map((n) => { const L = BQ.line('bariq_L1-01_d1-EL06_' + n + '_ar'); return L ? '<li><b>' + L.sp + ':</b> ' + L.t + '</li>' : ''; }).join('');
-    return BQ.h('div', { html: '<p><b>كلمات الأنشودة:</b></p><ol class="vp-lyrics" style="font:400 15px/1.9 var(--ff-child);padding-inline-start:1.2em">' + li + '</ol>' });
+    const ids = ['01', '02', '01', '04', '05', '06', '05', '08', '09', '10', '11', '12'];
+    const li = ids.map((n) => { const L = BQ.line('bariq_L1-01_song_' + n + '_ar'); return L ? '<li>' + L.t + '</li>' : ''; }).join('');
+    return BQ.h('div', { html: '<p><b>كلمات الأنشودة (كما تُغنّى):</b></p><ol class="vp-lyrics" style="font:400 15px/1.9 var(--ff-child);padding-inline-start:1.2em">' + li + '</ol>' });
   };
 
   BQ.register('EL06', {
     hero: 'img-111',
-    cover: 'غنّيا معاً «مْـ… ماءٌ!»، وتوقّفا عند الطرق.',
+    cover: 'غنّيا معاً «مْـ… الماءُ في الصَّحْنِ»، وتوقّفا عند الطرق.',
     render(stage, ctx) {
       css();
       const V = BQ.video;

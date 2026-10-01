@@ -1,0 +1,769 @@
+{
+ "_meta": {
+  "date": "2026-10-01",
+  "model": "eleven_v4 (free trial) · emotion/delivery tags",
+  "flow": "https://elevenlabs.io/app/flows/UfazRIkirRyYdB1z5d6t",
+  "song_flow": "https://elevenlabs.io/app/flows/O4nS4A6E5V0kXNObnx63",
+  "backup": "/home/claude/web/v4/audio_before_v4/",
+  "note": "Instructions/feedback = Habibah; character dialogue = approved Kalemon voices. Target sound «مْـ» generated untagged. Selection by ASR alignment (faster-whisper) between 2 takes."
+ },
+ "files": {
+  "bariq_L1-01_ins-where_ar": {
+   "speaker": "حبيبة",
+   "voice_name": "Habibah w4LX7bK479eHGM1k15Em",
+   "model": "eleven_v4",
+   "take": "g0_A",
+   "tagged_text": "[curious] [warmly] أَيْنَ هَذا الصَّوْتُ؟",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_ins-same_ar": {
+   "speaker": "حبيبة",
+   "voice_name": "Habibah w4LX7bK479eHGM1k15Em",
+   "model": "eleven_v4",
+   "take": "g0_A",
+   "tagged_text": "[curious] [warmly] هَلْ هُما صَوْتٌ واحِدٌ؟",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_key_ar": {
+   "speaker": "حبيبة",
+   "voice_name": "Habibah w4LX7bK479eHGM1k15Em",
+   "model": "eleven_v4",
+   "take": "g0_A",
+   "tagged_text": "[happy] [excited] سَمِعْتُ فَرْقاً!",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_d1-EL02_04_ar": {
+   "speaker": "حبيبة",
+   "voice_name": "Habibah w4LX7bK479eHGM1k15Em",
+   "model": "eleven_v4",
+   "take": "g0_A",
+   "tagged_text": "[softly] [warmly] هَيّا، أَصْغوا مَرَّةً أُخْرى!",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_d1-FB_04_ar": {
+   "speaker": "حبيبة",
+   "voice_name": "Habibah w4LX7bK479eHGM1k15Em",
+   "model": "eleven_v4",
+   "take": "g0_A",
+   "tagged_text": "[softly] [slowly] أَصْغوا: [short pause] هَذا، [short pause] وَهَذا.",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_fb-yes_ar": {
+   "speaker": "حبيبة",
+   "voice_name": "Habibah w4LX7bK479eHGM1k15Em",
+   "model": "eleven_v4",
+   "take": "g0_A",
+   "tagged_text": "[excited] [warmly] نَعَمْ! هَذا هُوَ!",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_ins-say_ar": {
+   "speaker": "حبيبة",
+   "voice_name": "Habibah w4LX7bK479eHGM1k15Em",
+   "model": "eleven_v4",
+   "take": "g0_A",
+   "tagged_text": "[happy] [warmly] قولوا مَعي، هَيّا!",
+   "status": "v4_generated_draft"
+  },
+  "L1-01_d1_s2_03": {
+   "speaker": "حبيبة",
+   "voice_name": "Habibah w4LX7bK479eHGM1k15Em",
+   "model": "eleven_v4",
+   "take": "g0_A",
+   "tagged_text": "[curious] [warmly] هَيّا: ما هَذا؟",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_d1-EL03_03_ar": {
+   "speaker": "حبيبة",
+   "voice_name": "Habibah w4LX7bK479eHGM1k15Em",
+   "model": "eleven_v4",
+   "take": "g0_A",
+   "tagged_text": "[curious] [warmly] هَيّا: أَيْنَ الميمُ؟",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_d1-FB_03_ar": {
+   "speaker": "حبيبة",
+   "voice_name": "Habibah w4LX7bK479eHGM1k15Em",
+   "model": "eleven_v4",
+   "take": "g0_A",
+   "tagged_text": "[excited] [warmly] نَعَمْ! هَذا صَوْتُ الميمِ.",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_ins-listen_ar": {
+   "speaker": "حبيبة",
+   "voice_name": "Habibah w4LX7bK479eHGM1k15Em",
+   "model": "eleven_v4",
+   "take": "g0_A",
+   "tagged_text": "[softly] [warmly] هَيّا، أَصْغوا مَعي!",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_d1-EL05_03_ar": {
+   "speaker": "حبيبة",
+   "voice_name": "Habibah w4LX7bK479eHGM1k15Em",
+   "model": "eleven_v4",
+   "take": "g1_A",
+   "tagged_text": "[curious] [warmly] هَيّا: أَيْنَ هَذا؟",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_fb-retry_ar": {
+   "speaker": "حبيبة",
+   "voice_name": "Habibah w4LX7bK479eHGM1k15Em",
+   "model": "eleven_v4",
+   "take": "g1_A",
+   "tagged_text": "[gently] [warmly] جَرِّبْ مَرَّةً أُخْرى.",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_d1-FB_01_ar": {
+   "speaker": "حبيبة",
+   "voice_name": "Habibah w4LX7bK479eHGM1k15Em",
+   "model": "eleven_v4",
+   "take": "g1_A",
+   "tagged_text": "[excited] [warmly] نَعَمْ! سَمِعْتَ فَرْقاً!",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_L2-recall_01_ar": {
+   "speaker": "حبيبة",
+   "voice_name": "Habibah w4LX7bK479eHGM1k15Em",
+   "model": "eleven_v4",
+   "take": "g1_A",
+   "tagged_text": "[curious] [warmly] هَيّا: أَيْنَ الماءُ؟",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_d1-FB_05_ar": {
+   "speaker": "حبيبة",
+   "voice_name": "Habibah w4LX7bK479eHGM1k15Em",
+   "model": "eleven_v4",
+   "take": "g1_A",
+   "tagged_text": "[excited] [warmly] نَعَمْ! الماءُ في الصَّحْنِ!",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_d1-EL08_02_ar": {
+   "speaker": "حبيبة",
+   "voice_name": "Habibah w4LX7bK479eHGM1k15Em",
+   "model": "eleven_v4",
+   "take": "g1_A",
+   "tagged_text": "[curious] [warmly] أَيْنَ صَوْتُ الميمِ؟",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_d1-EL08_03_ar": {
+   "speaker": "حبيبة",
+   "voice_name": "Habibah w4LX7bK479eHGM1k15Em",
+   "model": "eleven_v4",
+   "take": "g1_A",
+   "tagged_text": "[curious] [warmly] أَيُّ صَوْتٍ لَكَ؟",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_d1-EL02_03_ar": {
+   "speaker": "حبيبة",
+   "voice_name": "Habibah w4LX7bK479eHGM1k15Em",
+   "model": "eleven_v4",
+   "take": "g1_A",
+   "tagged_text": "[curious] [warmly] هَيّا: مَنْ هُناكَ؟",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_d1-FB_02_ar": {
+   "speaker": "حبيبة",
+   "voice_name": "Habibah w4LX7bK479eHGM1k15Em",
+   "model": "eleven_v4",
+   "take": "g1_B",
+   "tagged_text": "[excited] [warmly] نَعَمْ! هُما صَوْتٌ واحِدٌ.",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_L1-close_01_ar": {
+   "speaker": "حبيبة",
+   "voice_name": "Habibah w4LX7bK479eHGM1k15Em",
+   "model": "eleven_v4",
+   "take": "g1_A",
+   "tagged_text": "[curious] [warmly] أَيْنَ الماءُ في بَيْتِكُمْ؟",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_d1-scr05_01_ar": {
+   "speaker": "حبيبة",
+   "voice_name": "Habibah w4LX7bK479eHGM1k15Em",
+   "model": "eleven_v4",
+   "take": "g1_A",
+   "tagged_text": "[curious] [warmly] هَذا الحَرْفُ مَعَ مَنْ؟",
+   "status": "v4_generated_draft"
+  },
+  "L1-01_d1_s1_01": {
+   "speaker": "بارق",
+   "voice_name": "Kalemon - Faris (provisional Bariq) y0x9gSWlTTk7jkX8aQVv",
+   "model": "eleven_v4",
+   "take": "g2_A",
+   "tagged_text": "[excited] سَمِعْتُ فَرْقاً!",
+   "status": "v4_generated_draft"
+  },
+  "L1-01_d1_s2_01": {
+   "speaker": "بارق",
+   "voice_name": "Kalemon - Faris (provisional Bariq) y0x9gSWlTTk7jkX8aQVv",
+   "model": "eleven_v4",
+   "take": "g2_A",
+   "tagged_text": "[happy] مَرْحَباً… أَنا بارِقٌ!",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_d1-EL02_02_ar": {
+   "speaker": "بارق",
+   "voice_name": "Kalemon - Faris (provisional Bariq) y0x9gSWlTTk7jkX8aQVv",
+   "model": "eleven_v4",
+   "take": "g2_A",
+   "tagged_text": "[curious] ما هَذا الصَّوْتُ؟",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_d1-scr06_01_ar": {
+   "speaker": "بارق",
+   "voice_name": "Kalemon - Faris (provisional Bariq) y0x9gSWlTTk7jkX8aQVv",
+   "model": "eleven_v4",
+   "take": "g2_A",
+   "tagged_text": "[happy] الماءُ هُنا، في الصَّحْنِ!",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_d1-EL02_01_ar": {
+   "speaker": "بارق",
+   "voice_name": "Kalemon - Faris (provisional Bariq) y0x9gSWlTTk7jkX8aQVv",
+   "model": "eleven_v4",
+   "take": "g2_A",
+   "tagged_text": "[warmly] هُما صَوْتٌ واحِدٌ.",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_d1-EL02_05_ar": {
+   "speaker": "بارق",
+   "voice_name": "Kalemon - Faris (provisional Bariq) y0x9gSWlTTk7jkX8aQVv",
+   "model": "eleven_v4",
+   "take": "g2_B",
+   "tagged_text": "[warmly] هُما صَوْتٌ واحِدٌ.",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_d1-EL03_02_ar": {
+   "speaker": "بارق",
+   "voice_name": "Kalemon - Faris (provisional Bariq) y0x9gSWlTTk7jkX8aQVv",
+   "model": "eleven_v4",
+   "take": "g2_B",
+   "tagged_text": "[warmly] هَذا حَرْفُ الميمِ.",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_d1-EL06_05_ar": {
+   "speaker": "بارق",
+   "voice_name": "Kalemon - Faris (provisional Bariq) y0x9gSWlTTk7jkX8aQVv",
+   "model": "eleven_v4",
+   "take": "g2_A",
+   "tagged_text": "[excited] سَمِعْتُ فَرْقاً!",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_d1-EL06_11_ar": {
+   "speaker": "بارق",
+   "voice_name": "Kalemon - Faris (provisional Bariq) y0x9gSWlTTk7jkX8aQVv",
+   "model": "eleven_v4",
+   "take": "g2_A",
+   "tagged_text": "[happy] الماءُ هُنا، في الصَّحْنِ!",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_d1-EL09_02_ar": {
+   "speaker": "بارق",
+   "voice_name": "Kalemon - Faris (provisional Bariq) y0x9gSWlTTk7jkX8aQVv",
+   "model": "eleven_v4",
+   "take": "g2_A",
+   "tagged_text": "[happy] هَذا صَوْتُ الماءِ!",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_d1-EL09_04_ar": {
+   "speaker": "بارق",
+   "voice_name": "Kalemon - Faris (provisional Bariq) y0x9gSWlTTk7jkX8aQVv",
+   "model": "eleven_v4",
+   "take": "g2_A",
+   "tagged_text": "[curious] مَنْ هُناكَ؟ سَيْفٌ؟",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_d1-EL11_02_ar": {
+   "speaker": "بارق",
+   "voice_name": "Kalemon - Faris (provisional Bariq) y0x9gSWlTTk7jkX8aQVv",
+   "model": "eleven_v4",
+   "take": "g2_A",
+   "tagged_text": "[excited] هُنا! في الصَّحْنِ!",
+   "status": "v4_generated_draft"
+  },
+  "L1-01_d1_s2_02": {
+   "speaker": "ماجد",
+   "voice_name": "Kalemon - Majed CpwMp3DOS7KlEPXlhPK1",
+   "model": "eleven_v4",
+   "take": "g3_A",
+   "tagged_text": "[happy] مَرْحَباً، أَنا ماجِدٌ!",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_intro-1_06_ar": {
+   "speaker": "ماجد",
+   "voice_name": "Kalemon - Majed CpwMp3DOS7KlEPXlhPK1",
+   "model": "eleven_v4",
+   "take": "g3_A",
+   "tagged_text": "[softly] هَيّا، أَصْغوا مَعي!",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_d1-scr02_01_ar": {
+   "speaker": "ماجد",
+   "voice_name": "Kalemon - Majed CpwMp3DOS7KlEPXlhPK1",
+   "model": "eleven_v4",
+   "take": "g3_A",
+   "tagged_text": "[happy] مَرْحَباً يا سَيْفُ!",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_intro-1_08_ar": {
+   "speaker": "ماجد",
+   "voice_name": "Kalemon - Majed CpwMp3DOS7KlEPXlhPK1",
+   "model": "eleven_v4",
+   "take": "g3_A",
+   "tagged_text": "[warmly] هَذا صَوْتُ الماءِ.",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_intro-1_16_ar": {
+   "speaker": "ماجد",
+   "voice_name": "Kalemon - Majed CpwMp3DOS7KlEPXlhPK1",
+   "model": "eleven_v4",
+   "take": "g3_A",
+   "tagged_text": "[happy] الميمُ في الماءِ!",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_intro-1_18_ar": {
+   "speaker": "ماجد",
+   "voice_name": "Kalemon - Majed CpwMp3DOS7KlEPXlhPK1",
+   "model": "eleven_v4",
+   "take": "g3_A",
+   "tagged_text": "[curious] هَلْ هُما صَوْتٌ واحِدٌ؟",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_intro-1_20_ar": {
+   "speaker": "ماجد",
+   "voice_name": "Kalemon - Majed CpwMp3DOS7KlEPXlhPK1",
+   "model": "eleven_v4",
+   "take": "g3_A",
+   "tagged_text": "[excited] سَمِعْتُ فَرْقاً!",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_L1-build_01_ar": {
+   "speaker": "ماجد",
+   "voice_name": "Kalemon - Majed CpwMp3DOS7KlEPXlhPK1",
+   "model": "eleven_v4",
+   "take": "g3_A",
+   "tagged_text": "[warmly] هَذا فَمُ سَيْفٍ.",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_d1-EL03_01_ar": {
+   "speaker": "ماجد",
+   "voice_name": "Kalemon - Majed CpwMp3DOS7KlEPXlhPK1",
+   "model": "eleven_v4",
+   "take": "g3_A",
+   "tagged_text": "[happy] الميمُ في الفَمِ!",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_d1-EL05_01_ar": {
+   "speaker": "ماجد",
+   "voice_name": "Kalemon - Majed CpwMp3DOS7KlEPXlhPK1",
+   "model": "eleven_v4",
+   "take": "g3_A",
+   "tagged_text": "[warmly] هَذِهِ بَوْصَلَةُ سَيْفٍ.",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_d1-EL05_02_ar": {
+   "speaker": "ماجد",
+   "voice_name": "Kalemon - Majed CpwMp3DOS7KlEPXlhPK1",
+   "model": "eleven_v4",
+   "take": "single_A (م صوتاً «مْـ» لا اسماً)",
+   "tagged_text": "[warmly] هَذِهِ الميمُ: م.",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_d1-EL06_02_ar": {
+   "speaker": "ماجد",
+   "voice_name": "Kalemon - Majed CpwMp3DOS7KlEPXlhPK1",
+   "model": "eleven_v4",
+   "take": "g4_A",
+   "tagged_text": "[warmly] الماءُ في الصَّحْنِ.",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_d1-EL06_03_ar": {
+   "speaker": "ماجد",
+   "voice_name": "Kalemon - Majed CpwMp3DOS7KlEPXlhPK1",
+   "model": "eleven_v4",
+   "take": "g4_A",
+   "tagged_text": "[warmly] هَذا صَوْتُ الماءِ.",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_d1-EL06_04_ar": {
+   "speaker": "ماجد",
+   "voice_name": "Kalemon - Majed CpwMp3DOS7KlEPXlhPK1",
+   "model": "eleven_v4",
+   "take": "g4_A",
+   "tagged_text": "[excited] سَمِعْتُ فَرْقاً!",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_d1-EL06_06_ar": {
+   "speaker": "ماجد",
+   "voice_name": "Kalemon - Majed CpwMp3DOS7KlEPXlhPK1",
+   "model": "eleven_v4",
+   "take": "g4_A",
+   "tagged_text": "[softly] هَيّا، أَصْغوا مَعي!",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_d1-EL06_08_ar": {
+   "speaker": "ماجد",
+   "voice_name": "Kalemon - Majed CpwMp3DOS7KlEPXlhPK1",
+   "model": "eleven_v4",
+   "take": "g4_A",
+   "tagged_text": "[warmly] هَذا فَمُ سَيْفٍ.",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_d1-EL06_10_ar": {
+   "speaker": "ماجد",
+   "voice_name": "Kalemon - Majed CpwMp3DOS7KlEPXlhPK1",
+   "model": "eleven_v4",
+   "take": "g4_A",
+   "tagged_text": "[happy] الميمُ في الماءِ!",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_d1-EL08_01_ar": {
+   "speaker": "ماجد",
+   "voice_name": "Kalemon - Majed CpwMp3DOS7KlEPXlhPK1",
+   "model": "eleven_v4",
+   "take": "g4_B",
+   "tagged_text": "[curious] هَذِهِ بَوْصَلَةُ مَنْ؟",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_d1-EL09_01_ar": {
+   "speaker": "ماجد",
+   "voice_name": "Kalemon - Majed CpwMp3DOS7KlEPXlhPK1",
+   "model": "eleven_v4",
+   "take": "g4_A",
+   "tagged_text": "[curious] يا بارِقُ، ما هَذا؟",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_d1-EL09_03_ar": {
+   "speaker": "ماجد",
+   "voice_name": "Kalemon - Majed CpwMp3DOS7KlEPXlhPK1",
+   "model": "eleven_v4",
+   "take": "g4_A",
+   "tagged_text": "[curious] نَعَمْ! وَما هَذا؟",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_intro-1_09_ar": {
+   "speaker": "ماجد",
+   "voice_name": "Kalemon - Majed CpwMp3DOS7KlEPXlhPK1",
+   "model": "eleven_v4",
+   "take": "g4_A",
+   "tagged_text": "[warmly] الماءُ في الصَّحْنِ.",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_d1-EL11_01_ar": {
+   "speaker": "ماجد",
+   "voice_name": "Kalemon - Majed CpwMp3DOS7KlEPXlhPK1",
+   "model": "eleven_v4",
+   "take": "g4_A",
+   "tagged_text": "[curious] يا بارِقُ، أَيْنَ الماءُ؟",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_intro-1_02_ar": {
+   "speaker": "سيف",
+   "voice_name": "Kalemon - Sayf KmgyFUv0cWhcmjMjg7Fx",
+   "model": "eleven_v4",
+   "take": "g5_A",
+   "tagged_text": "[happy] مَرْحَباً، أَنا سَيْفٌ!",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_intro-1_05_ar": {
+   "speaker": "سيف",
+   "voice_name": "Kalemon - Sayf KmgyFUv0cWhcmjMjg7Fx",
+   "model": "eleven_v4",
+   "take": "g5_A",
+   "tagged_text": "[happy] بَوْصَلَتي إِلى الأَصْواتِ!",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_intro-1_10_ar": {
+   "speaker": "سيف",
+   "voice_name": "Kalemon - Sayf KmgyFUv0cWhcmjMjg7Fx",
+   "model": "eleven_v4",
+   "take": "g5_A",
+   "tagged_text": "[warmly] ماءٌ… ماءٌ… ماءٌ.",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_intro-1_12_ar": {
+   "speaker": "سيف",
+   "voice_name": "Kalemon - Sayf KmgyFUv0cWhcmjMjg7Fx",
+   "model": "eleven_v4",
+   "take": "g5_A",
+   "tagged_text": "مْمْمْ… مْمْمْ… [warmly] ماءٌ!",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_intro-1_13_ar": {
+   "speaker": "سيف",
+   "voice_name": "Kalemon - Sayf KmgyFUv0cWhcmjMjg7Fx",
+   "model": "eleven_v4",
+   "take": "g5_A",
+   "tagged_text": "[warmly] هَذا صَوْتُ الميمِ.",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_intro-1_14_ar": {
+   "speaker": "سيف",
+   "voice_name": "Kalemon - Sayf KmgyFUv0cWhcmjMjg7Fx",
+   "model": "eleven_v4",
+   "take": "g5_A",
+   "tagged_text": "[happy] قولوا مَعي: ماءٌ!",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_L1-build_02_ar": {
+   "speaker": "سيف",
+   "voice_name": "Kalemon - Sayf KmgyFUv0cWhcmjMjg7Fx",
+   "model": "eleven_v4",
+   "take": "g5_A",
+   "tagged_text": "مْمْمْ… مْمْمْ… [warmly] الميمُ في الفَمِ!",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_L1-build_03_ar": {
+   "speaker": "سيف",
+   "voice_name": "Kalemon - Sayf KmgyFUv0cWhcmjMjg7Fx",
+   "model": "eleven_v4",
+   "take": "single_A (م صوتاً «مْـ» لا اسماً)",
+   "tagged_text": "[warmly] هَذِهِ الميمُ: م.",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_vocab-w1_01_ar": {
+   "speaker": "سيف",
+   "voice_name": "Kalemon - Sayf KmgyFUv0cWhcmjMjg7Fx",
+   "model": "eleven_v4",
+   "take": "g5_A",
+   "tagged_text": "[warmly] ماء.",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_vocab-w1_02_ar": {
+   "speaker": "سيف",
+   "voice_name": "Kalemon - Sayf KmgyFUv0cWhcmjMjg7Fx",
+   "model": "eleven_v4",
+   "take": "single_A",
+   "tagged_text": "مْمْمْ… [warmly] ماء.",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_vocab-w1_ar": {
+   "speaker": "سيف",
+   "voice_name": "Kalemon - Sayf KmgyFUv0cWhcmjMjg7Fx",
+   "model": "eleven_v4",
+   "take": "single_A",
+   "tagged_text": "[warmly] ماء. [pause] مْمْمْ… ماء. [pause] الماءُ في الصَّحْنِ.",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_d1-EL06_01_ar": {
+   "speaker": "سيف",
+   "voice_name": "Kalemon - Sayf KmgyFUv0cWhcmjMjg7Fx",
+   "model": "eleven_v4",
+   "take": "g6_A",
+   "tagged_text": "مْمْمْ… مْمْمْ… [warmly] ماءٌ!",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_d1-EL06_07_ar": {
+   "speaker": "سيف",
+   "voice_name": "Kalemon - Sayf KmgyFUv0cWhcmjMjg7Fx",
+   "model": "eleven_v4",
+   "take": "g6_A",
+   "tagged_text": "مْمْمْ… مْمْمْ… [warmly] الميمُ في الفَمِ!",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_d1-EL06_09_ar": {
+   "speaker": "سيف",
+   "voice_name": "Kalemon - Sayf KmgyFUv0cWhcmjMjg7Fx",
+   "model": "eleven_v4",
+   "take": "g6_A",
+   "tagged_text": "[warmly] هَذِهِ الميمُ: م.",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_d1-EL06_12_ar": {
+   "speaker": "سيف",
+   "voice_name": "Kalemon - Sayf KmgyFUv0cWhcmjMjg7Fx",
+   "model": "eleven_v4",
+   "take": "g6_B",
+   "tagged_text": "[happy] قولوا مَعي: ماءٌ!",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_d1-EL06_13_ar": {
+   "speaker": "سيف",
+   "voice_name": "Kalemon - Sayf KmgyFUv0cWhcmjMjg7Fx",
+   "model": "eleven_v4",
+   "take": "g6_A",
+   "tagged_text": "مْمْمْ… [warmly] ماءٌ! مْمْمْ… ماءٌ!",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_intro-1_03_ar": {
+   "speaker": "سيف",
+   "voice_name": "Kalemon - Sayf KmgyFUv0cWhcmjMjg7Fx",
+   "model": "eleven_v4",
+   "take": "single_A",
+   "tagged_text": "[warmly] هَذِهِ بَوْصَلَتي مَعي.",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_d1-EL09_05_ar": {
+   "speaker": "سيف",
+   "voice_name": "Kalemon - Sayf KmgyFUv0cWhcmjMjg7Fx",
+   "model": "eleven_v4",
+   "take": "g6_A",
+   "tagged_text": "[excited] نَعَمْ! أَنا سَيْفٌ!",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_d1-EL09_06_ar": {
+   "speaker": "سيف",
+   "voice_name": "Kalemon - Sayf KmgyFUv0cWhcmjMjg7Fx",
+   "model": "eleven_v4",
+   "take": "g6_A",
+   "tagged_text": "[happy] بَوْصَلَتي إِلى الماءِ!",
+   "status": "v4_generated_draft"
+  },
+  "L1-01_d2_s5_03": {
+   "speaker": "سيف",
+   "voice_name": "Kalemon - Sayf KmgyFUv0cWhcmjMjg7Fx",
+   "model": "eleven_v4",
+   "take": "g6_A",
+   "tagged_text": "[warmly] ماء.",
+   "status": "v4_generated_draft"
+  },
+  "bariq_L1-01_snd-m_ar": {
+   "speaker": "سيف",
+   "voice_name": "Kalemon - Sayf KmgyFUv0cWhcmjMjg7Fx",
+   "model": "eleven_v4",
+   "take": "g7_A",
+   "tagged_text": "مْمْمْ",
+   "status": "v4_generated_draft"
+  },
+  "L1-01_d2_s5_01": {
+   "speaker": "سيف",
+   "voice_name": "Kalemon - Sayf KmgyFUv0cWhcmjMjg7Fx",
+   "model": "eleven_v4",
+   "take": "g7_A",
+   "tagged_text": "مْمْمْ",
+   "status": "v4_generated_draft"
+  },
+  "L1-01_aud-104_mix_v01": {
+   "speaker": null,
+   "voice_name": "unlisted in lines.json (kept)",
+   "text": null,
+   "duration_s": 30.024,
+   "mean_db": -20.7,
+   "status": "kept"
+  },
+  "bariq_L1-01_music-song-bed": {
+   "speaker": null,
+   "voice_name": "Eleven Music v2.5 song_A — instrumental stem (demucs htdemucs) + 2 knock stops",
+   "status": "v0-9"
+  },
+  "bariq_L1-01_music-story-bed": {
+   "speaker": "مؤثّر",
+   "voice_name": "designed sfx/music (kept from earlier production)",
+   "text": "موسيقى خلفية للمقطع: ماريمبا ناعمة وجرس خفيف، ٨٤ نبضة/د، تنخفض تحت الحوار وتصمت في الوقفات (≈ ١١٥ ث)",
+   "duration_s": 115.032,
+   "mean_db": -23.1,
+   "status": "kept"
+  },
+  "bariq_L1-01_sfx-card-flip": {
+   "speaker": "مؤثّر",
+   "voice_name": "designed sfx/music (kept from earlier production)",
+   "text": "خشخشة ورقة خفيفة: انقلاب البطاقة",
+   "duration_s": 0.576,
+   "mean_db": -27.1,
+   "status": "kept"
+  },
+  "bariq_L1-01_sfx-check-done": {
+   "speaker": "مؤثّر",
+   "voice_name": "designed sfx/music (kept from earlier production)",
+   "text": "نغمة محايدة واحدة: تلوين دائرة ✓ (تُسمَع بعد كل جواب صواباً كان أو غيره)",
+   "duration_s": 0.624,
+   "mean_db": -22.1,
+   "status": "kept"
+  },
+  "bariq_L1-01_sfx-compass-b": {
+   "speaker": "مؤثّر",
+   "voice_name": "designed sfx/music (kept from earlier production)",
+   "text": "تكّة غطاء بوصلة نحاسية — لقطة ثانية (_b)",
+   "duration_s": 1.032,
+   "mean_db": -28.9,
+   "status": "kept"
+  },
+  "bariq_L1-01_sfx-compass-bead": {
+   "speaker": "مؤثّر",
+   "voice_name": "designed sfx/music (kept from earlier production)",
+   "text": "رنّة خافتة: خرزة في حلقة البوصلة تُضاء (تقدّم لا درجة)",
+   "duration_s": 0.696,
+   "mean_db": -22.7,
+   "status": "kept"
+  },
+  "bariq_L1-01_sfx-compass": {
+   "speaker": "مؤثّر",
+   "voice_name": "synth: numpy+ffmpeg (procedural sfx v03)",
+   "text": "تكّة غطاء بوصلة نحاسية",
+   "duration_s": 0.496,
+   "mean_db": -28.3,
+   "status": "new"
+  },
+  "bariq_L1-01_sfx-curtain": {
+   "speaker": "مؤثّر",
+   "voice_name": "designed sfx/music (kept from earlier production)",
+   "text": "سحب ستارة كتّان على قضيب خشبيّ (١ ث)",
+   "duration_s": 1.032,
+   "mean_db": -25.9,
+   "status": "kept"
+  },
+  "bariq_L1-01_sfx-door-knock-b": {
+   "speaker": "مؤثّر",
+   "voice_name": "designed sfx/music (kept from earlier production)",
+   "text": "طرقتان على باب خشبي — لقطة ثانية (_b)",
+   "duration_s": 1.536,
+   "mean_db": -24.0,
+   "status": "kept"
+  },
+  "bariq_L1-01_sfx-door-knock": {
+   "speaker": "مؤثّر",
+   "voice_name": "synth: numpy+ffmpeg (procedural sfx v03)",
+   "text": "طرقتان على باب خشبي",
+   "duration_s": 1.149,
+   "mean_db": -19.2,
+   "status": "new"
+  },
+  "bariq_L1-01_sfx-needle": {
+   "speaker": "مؤثّر",
+   "voice_name": "designed sfx/music (kept from earlier production)",
+   "text": "دوران إبرة البوصلة ثم توقّفها بتكّة خفيفة (١٫٥ ث)",
+   "duration_s": 1.536,
+   "mean_db": -26.3,
+   "status": "kept"
+  },
+  "bariq_L1-01_sfx-song-drops": {
+   "speaker": "مؤثّر",
+   "voice_name": "designed sfx/music (kept from earlier production)",
+   "text": "أربع نقرات جرس خشبيّ صغير كقطرات ماء (مقدّمة الأنشودة · ٢ ث)",
+   "duration_s": 2.04,
+   "mean_db": -23.5,
+   "status": "kept"
+  },
+  "bariq_L1-01_sfx-tile-snap": {
+   "speaker": "مؤثّر",
+   "voice_name": "designed sfx/music (kept from earlier production)",
+   "text": "نقرة ناعمة: استقرار بطاقة في موضعها (غير تقويمية)",
+   "duration_s": 0.264,
+   "mean_db": -17.2,
+   "status": "kept"
+  },
+  "bariq_L1-01_sfx-water-drops": {
+   "speaker": "مؤثّر",
+   "voice_name": "synth: numpy+ffmpeg (procedural sfx v03)",
+   "text": "قطرات ماء تتساقط في صحن (٢ ث)",
+   "duration_s": 2.038,
+   "mean_db": -19.1,
+   "status": "new"
+  },
+  "bariq_L1-01_sfx-water-pour-1s": {
+   "speaker": "مؤثّر",
+   "voice_name": "synth: numpy+ffmpeg (procedural sfx v03)",
+   "text": "ماء يُصَبّ (١ ث)",
+   "duration_s": 1.045,
+   "mean_db": -17.3,
+   "status": "new"
+  },
+  "bariq_L1-01_sfx-water-pour": {
+   "speaker": "مؤثّر",
+   "voice_name": "synth: numpy+ffmpeg (procedural sfx v03)",
+   "text": "ماء يُصَبّ من إبريق فخّاريّ في صحن (٣ ث)",
+   "duration_s": 3.03,
+   "mean_db": -18.3,
+   "status": "new"
+  }
+ }
+}
