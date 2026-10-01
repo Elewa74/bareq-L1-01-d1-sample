@@ -61,6 +61,10 @@
   };
   BQ.hasImg = (id) => !!D.assets[norm(id)];
   BQ.char = { BRQ: 'media/img/comp_cut_BRQ_huefix.webp', MAJ: 'media/img/comp_cut_MAJ.webp', SAY: 'media/img/comp_cut_SAY.webp' };
+  /* [brq-anim v1] بارق المتحرّك (Grok i2v → WebP شفّاف): idle · talk · cheer · clap · wave · point · think — مع صورة ثابتة لكلّ حالة */
+  BQ.char.MOTIONS = ['idle', 'talk', 'cheer', 'clap', 'wave', 'point', 'think'];
+  BQ.char.anim = (s) => 'media/brq/brq_' + (BQ.char.MOTIONS.includes(s) ? s : 'idle') + '.webp';
+  BQ.char.still = (s) => 'media/brq/brq_' + (BQ.char.MOTIONS.includes(s) ? s : 'idle') + '_still.webp';
   BQ.line = (id) => D.lines[id] || null;
   const audioSet = new Set(D.audio);
   BQ.hasAudio = (id) => audioSet.has(id);
@@ -254,13 +258,30 @@
     return { el, set, get i() { return cur; }, n };
   };
 
-  /** بارق يطلّ من حافّة المسرح ويقول سطراً */
+  /** [brq-anim v1] بارق متحرّك: <span.bq-brq><img></span> بإطار ثابت بنسبة الصورة القديمة؛ el.brq(state) يبدّل الحالة.
+   *  prefers-reduced-motion ← الصورة الثابتة للحالة نفسها. */
+  let brqPre = false;
+  UI.brq = function (state, cls, settle) {
+    if (!brqPre) { brqPre = true; if (!BQ.reduced()) ['talk', 'cheer', 'think', 'idle'].forEach((s) => { const i = new Image(); i.src = BQ.char.anim(s); }); }
+    const img = h('img', { alt: '', decoding: 'async', draggable: 'false' });
+    const el = h('span.bq-brq' + (cls ? '.' + cls : ''), { 'aria-hidden': 'true' }, img);
+    el.brq = (s) => { s = BQ.char.MOTIONS.includes(s) ? s : 'idle'; if (el.dataset.s === s) return el; el.dataset.s = s; img.src = BQ.reduced() ? BQ.char.still(s) : BQ.char.anim(s); return el; };
+    el.brq(state || 'idle');
+    if (settle) setTimeout(() => el.brq('idle'), settle); // يهدأ بعد مدّة
+    return el;
+  };
+  const MOOD = (id) => (/fb-yes|FB_0[35]|EL06_05/.test(id || '') ? 'cheer' : /retry/.test(id || '') ? 'think' : '');
+
+  /** بارق يطلّ من حافّة المسرح ويقول سطراً — يتكلّم أثناء السطر، ثم opt.mood (cheer|think|clap…) ثم يهدأ ويخرج */
   UI.bariq = async function (stage, lineId, opt) {
     opt = opt || {};
-    const pop = h('div.bq-bariq' + (opt.side === 'left' ? '.left' : ''), { 'aria-hidden': 'true' }, h('img', { src: BQ.char.BRQ, alt: '' }));
+    const brq = UI.brq(lineId ? 'talk' : 'wave');
+    const pop = h('div.bq-bariq.has-anim' + (opt.side === 'left' ? '.left' : ''), { 'aria-hidden': 'true' }, brq);
     stage.append(pop);
     requestAnimationFrame(() => pop.classList.add('in'));
     if (lineId) await BQ.audio.play(lineId); else await BQ.sleep(opt.ms || 1400);
+    const mood = opt.mood || MOOD(lineId);
+    if (mood) { brq.brq(mood); if (opt.mood) await BQ.sleep(opt.moodMs || 900); } else brq.brq('idle');
     pop.classList.remove('in'); setTimeout(() => pop.remove(), 450);
   };
 
@@ -273,7 +294,7 @@
     const nextBtn = h('button.bq-btn', { type: 'button', onclick: () => { A.unlock(); BQ.goNext(); } }, 'التّالي', BQ.icon('next'));
     const card = h('div.bq-end', { role: 'dialog', 'aria-labelledby': tid },
       h('div.bq-end-card', null,
-        h('img.bq-end-brq', { src: BQ.char.BRQ, alt: '' }),
+        UI.brq('cheer', 'bq-end-brq', 6000), // [brq-anim v1]
         h('p.bq-end-t', { id: tid }, opt.title || 'أَحْسَنْتَ!'),
         opt.note ? h('p.bq-end-n', null, opt.note) : null,
         home.length ? homeBox(home) : null,
@@ -726,7 +747,7 @@
     const row = goOn ? [stop, cont] : [cont, stop];
     const tid = 'elp-t';
     const card = h('div.bq-sess', null,
-      h('img.bq-end-brq', { src: BQ.char.BRQ, alt: '' }),
+      UI.brq('cheer', 'bq-end-brq', 6000), // [brq-anim v1]
       h('p.bq-end-t', null, 'أَحْسَنْتَ!'),
       h('p.bq-sess-child', null, child),
       h('div.bq-sess-adult', null, h('b', null, 'للكبير: '), adult),

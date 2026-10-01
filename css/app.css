@@ -657,3 +657,27 @@ body { overflow-x: clip; }
 .bq-hear:focus-visible { outline: 4px solid var(--navy); outline-offset: 5px; }
 .bq-hear.is-playing::after { content: ""; position: absolute; inset: -12px; border-radius: 50%; border: 4px solid var(--sky-ink); animation: bqRing 1s ease-out infinite; }
 @media (prefers-reduced-motion: reduce) { .bq-hear { transition: none; } .bq-hear.is-playing::after { animation: none; } }
+
+/* v0-9 (طلب المالك 2026-10-01): لا أزرار «السابق/التالي» أسفل صفحة العنصر — التنقّل من قائمة العناصر وبطاقات الختام */
+.elp-nav { display: none !important; }
+
+/* ===== [brq-anim v1] بارق المتحرّك (Grok i2v → WebP شفّاف، media/brq/) — إطار بنسبة الصورة القديمة 809×692 والمكعّب في الموضع نفسه ===== */
+.bq-brq { display: flow-root; aspect-ratio: 809 / 692; min-height: 0; direction: ltr; pointer-events: none; }
+.bq-brq picture { display: block; }
+.bq-brq img { display: block; width: 197.6% !important; max-width: none !important; height: auto !important; margin: -42.03% 0 0 -45.55% !important; pointer-events: none; user-select: none; }
+.bq-frame[data-el="EL06"] .e6-brq.has-anim { animation: none; inset-inline-start: clamp(28px, 5.5cqi, 56px); }
+/* ===== [/brq-anim v1] ===== */
+
+/* v0-9 (طلب المالك 2026-10-01): إطار العنصر بحجمٍ ثابت في كل العناصر وكل الشاشات — لا يتغيّر بكمية النص.
+   الارتفاع يُحسب مرّة من ارتفاع النافذة (ثابت أثناء الجلسة) والمحتوى يتوسّط داخله؛ ما يزيد يُمرَّر داخل الإطار. */
+:root { --play-h: clamp(560px, calc(100svh - 200px), 720px); }
+.elp-play { height: var(--play-h); display: flex; flex-direction: column; }
+.elp-play > .elp-instr { flex: none; }
+.elp-play > .bq-stage.elp-stage { flex: 1 1 auto; min-height: 0 !important; height: auto; overflow-x: hidden; overflow-y: auto; justify-content: safe center; scrollbar-width: thin; }
+.elp-endses .elp-play { height: var(--play-h); }
+.elp-endses .elp-stage { padding-top: 56px; }
+/* Godot: الصندوق يملأ ارتفاع الإطار المتاح بنسبته */
+.elp-play .bq-godot-box { width: min(100%, calc((var(--play-h) - 120px) * 927 / 1596), 470px) !important; }
+@media (max-width: 720px) {
+  :root { --play-h: clamp(520px, calc(100svh - 150px), 700px); }
+}

@@ -1,4 +1,4 @@
-/* EL14 — بارق L1-01-d1 · مسوّدة · مبنيّ من kit.js + EL14.body.js (WP2 v0-8) */
+/* EL14 — بارق L1-01-d1 · مسوّدة · v0-9: اللعبة الأساسية Godot «بارِقٌ يوقِظُ البَوْصَلَةَ» (games/meem ?station=play) والغرفة HTML بديل · مبنيّ من kit.js + EL14.body.js (WP2 v0-8) */
 (function () {
 'use strict';
 /* ---- BQ.mk: أدوات مشتركة لعناصر الاستماع EL01 · EL05 · EL13 · EL14 (نسخة واحدة مضمَّنة في كل ملف؛ أوّل ملف يُحمَّل يعرّفها) ----
@@ -526,20 +526,29 @@ ${SC} .e14-unit .bq-btn { margin-bottom: 12px; font-size: 14px; min-height: 44px
       plate.append(rp); setTimeout(() => rp.remove(), 700);
     });
     /* منطقة لمس غير مرئية لا تقلّ عن ٦٤ بكسل (٤–٦) أو ٤٨ — تُعاد معايرتها مع حجم المشهد */
-    const MIN = S.age === '4-6' ? 60 : 44;
+    const MIN = portrait() ? 126 : (S.age === '4-6' ? 60 : 44); // QA-24: على الهاتف ≥ ١٢٠ بكسل (هامش للتقريب)؛ العرض يحدّه عرض الغرفة (ثلاثة مصادر متجاورة)
     const place = (b, [x, y, w, hh]) => Object.assign(b.style, { left: (x / 1280) * 100 + '%', top: (y / 720) * 100 + '%', width: (w / 1280) * 100 + '%', height: (hh / 720) * 100 + '%', backgroundSize: `${(1280 / w) * 100}% ${(720 / hh) * 100}%`, backgroundPosition: `${(x / (1280 - w)) * 100}% ${(y / (720 - hh)) * 100}%` });
     /* الصندوق المرئيّ نفسه لا يقلّ عن ٦٠×٦٠ (٤–٦) أو ٤٤×٤٤: يُوسَّع حول مركزه داخل اللوحة (لا تتداخل المناطق: الفجوات ≥ ١٨٤ وحدة) */
     const fitHits = () => {
       const pw = plate.getBoundingClientRect().width; if (!pw) return;
       const u = pw / 1280; // بكسل لكلّ وحدة لوحة
+      const R = {};
       Object.keys(spots).forEach((k) => {
         let [x, y, w, hh] = HOT[k].rect;
         const mw = Math.ceil(MIN / u) + 2, mh = Math.ceil(MIN / u) + 2;
         if (w < mw) { x -= (mw - w) / 2; w = mw; }
         if (hh < mh) { y -= (mh - hh) / 2; hh = mh; }
         x = Math.max(0, Math.min(1280 - w, x)); y = Math.max(0, Math.min(720 - hh, y));
-        place(spots[k], [x, y, w, hh]);
+        R[k] = [x, y, w, hh];
       });
+      // صندوقان متجاوران كبرا حتى تداخلا: يُقسم التداخل عند منتصفه (لا لمسة تقع في صندوقين)
+      const ks = Object.keys(R).sort((a, b) => R[a][0] - R[b][0]);
+      for (let i = 0; i + 1 < ks.length; i++) {
+        const a = R[ks[i]], b = R[ks[i + 1]];
+        const ov = a[0] + a[2] - b[0];
+        if (ov > 0 && a[1] < b[1] + b[3] && b[1] < a[1] + a[3]) { const m = b[0] + ov / 2; a[2] = m - 1 - a[0]; b[2] = b[0] + b[2] - m; b[0] = m; }
+      }
+      Object.keys(R).forEach((k) => place(spots[k], R[k]));
     };
     if (window.ResizeObserver) { const ro = new ResizeObserver(() => { if (S.ok()) fitHits(); }); ro.observe(scene); ctx.onCleanup(() => ro.disconnect()); }
     const hud = h('div.e14-hud', { html: hudSvg(N), role: 'img', 'aria-label': 'بَوْصَلَةُ سَيْفٍ' });
@@ -705,14 +714,46 @@ ${SC} .e14-unit .bq-btn { margin-bottom: 12px; font-size: 14px; min-height: 44px
     return { S, box };
   }
 
-  /* الصفحة: الغرفة (أساسيّ) في المسرح، وتحت المسرح «لعب إضافيّ»: بطاقة «رحلة الميم» الاختيارية (لعبة المحطّات)
-     وبطاقة «رحلة البوصلة» مطويّة للكبير. فتح أيّ لعبة يوقف الغرفة ويضع اللعبة في المسرح، و«العودة إلى الغرفة» يعيدها. */
+  /* الصفحة (v0-9): التجربة الأساسية لعبة Godot «بارِقٌ يوقِظُ البَوْصَلَةَ» (محطّة play في games/meem) عبر BQ.ui.godotRender؛
+     الغرفة HTML بديل آليّ (بلا WebGL أو إن تعذّر التحميل) ورابط «النسخة الخفيفة» للكبير. تحت المسرح «لعب إضافيّ»: بطاقة «رحلة الميم»
+     الاختيارية وبطاقة «رحلة البوصلة» مطويّة للكبير. فتح أيّ منهما يوقف اللعبة الأساسية ويضعه في المسرح، و«العودة إلى اللعبة» يعيدها. */
+  const playSummary = (r) => {
+    r = r || {};
+    const A = MK.AR;
+    const lv = Array.isArray(r.levels) ? r.levels : [];
+    const names = ['أصوات البيت', 'فقّاعات الميم', 'جسر الأصوات', 'املأ الصحن', 'البوصلة تضيء'];
+    const rows = lv.map((x, i) => x && x.items ? `${names[i] || ('المستوى ' + A(i + 1))}: ${A(x.first_try || 0)} من ${A(x.items)} من أوّل محاولة` + (x.assisted ? ` · ${A(x.assisted)} بعد تلميح` : '') + (x.revealed ? ` · ${A(x.revealed)} أظهرته اللعبة` : '') : '').filter(Boolean);
+    return '<p class="goal"><b>«العب» — بارِقٌ يوقِظُ البَوْصَلَةَ (غير مرصود):</b> أتمّ طفلك المستويات الخمسة' + (r.stars ? ' ونال ' + A(r.stars) + ' من ٣ نجوم' : '') + (r.minutes ? ' في نحو ' + A(Math.max(1, Math.round(r.minutes))) + ' دقائق' : '') + '.</p>' +
+      (rows.length ? '<p>' + rows.join('<br>') + '</p>' : '') +
+      '<p>إعادات الصوت: ' + A(r.replays || 0) + '. النجوم للتشجيع وحده؛ الرصد في «تدرّب» (EL13).</p>';
+  };
+
   function renderPage(stage, ctx) {
-    let room = render(stage, ctx);
+    let room = null;        // الغرفة HTML حين تعمل بديلاً
+    let killPrimary = null; // إيقاف لعبة «العب» الأساسية (destroy من godotRender)
+    let g = null;           // لعبة إضافية مفتوحة في المسرح
+    const roomRender = (st, c) => { room = render(st, c); return room; };
     const canGame = !!(BQ.ui.godot && BQ.ui.godotOK && BQ.ui.godotOK());
-    let g = null;
+    if (canGame && BQ.ui.godotRender) {
+      // ctx2: نلتقط دالّة التنظيف لنوقف اللعبة الأساسية عند فتح لعبة أخرى (فلا يعمل مراقب التحميل بعدها)
+      const ctx2 = Object.create(ctx);
+      ctx2.onCleanup = (fn) => { killPrimary = fn; ctx.onCleanup(fn); };
+      BQ.ui.godotRender('play', roomRender, {
+        name: 'العب', title: 'بارِقٌ يوقِظُ البَوْصَلَةَ',
+        after(c, r, st) {
+          const ab = ctx.frame.querySelector('.elp-adult-body');
+          if (ab) { const old = ab.querySelector('.e14-gres'); if (old) old.remove(); ab.prepend(h('div.e14-gres', { html: playSummary(r) })); }
+          BQ.ui.endCard(st, { title: 'أَحْسَنْتَ!', onReplay: () => BQ.open('EL14', { skipCover: true, history: 'replace' }) });
+        },
+      })(stage, ctx2);
+    } else {
+      roomRender(stage, ctx);
+    }
+
     const openGame = (src, station, title, btn) => {
+      if (killPrimary) { try { killPrimary(); } catch (e) {} killPrimary = null; }
       if (room) { room.S.kill(); room.box.remove(); room = null; }
+      const alt = ctx.frame.querySelector('.bq-alt-run'); if (alt && alt.parentNode) alt.parentNode.remove();
       BQ.audio.stop();
       if (g) { g.destroy(); g = null; }
       stage.replaceChildren(); ctx.instruction('');
@@ -724,11 +765,10 @@ ${SC} .e14-unit .bq-btn { margin-bottom: 12px; font-size: 14px; min-height: 44px
           ctx.done();
           const sm = BQ.ui.godotSummary && station ? BQ.ui.godotSummary(station, m.result || {}) : null;
           if (sm && sm.html) { const ab = ctx.frame.querySelector('.elp-adult-body'); if (ab) { const old = ab.querySelector('.e14-gres'); if (old) old.remove(); ab.prepend(h('div.e14-gres', { html: sm.html })); } }
-          // ختام: «أَحْسَنْتَ!» مع «العودة إلى الغرفة» (يعيد الغرفة) و«التّالي»
           if (!stage.querySelector('.bq-end')) BQ.ui.endCard(stage, { title: 'أَحْسَنْتَ!', onReplay: () => BQ.open('EL14', { skipCover: true }) });
-          const rb = stage.querySelector('.bq-end .bq-btn.ghost'); if (rb) { const ic = rb.querySelector('.bq-ic'); rb.replaceChildren(ic || '', 'العودة إلى الغرفة'); }
+          const rb = stage.querySelector('.bq-end .bq-btn.ghost'); if (rb) { const ic = rb.querySelector('.bq-ic'); rb.replaceChildren(ic || '', 'العودة إلى اللعبة'); }
         } });
-      if (btn) { btn.textContent = 'العودة إلى الغرفة'; btn.onclick = () => BQ.open('EL14', { skipCover: true }); }
+      if (btn) { btn.textContent = 'العودة إلى اللعبة'; btn.onclick = () => BQ.open('EL14', { skipCover: true }); }
       const sc = ctx.frame.querySelector('.elp-stage');
       if (sc && sc.scrollIntoView) sc.scrollIntoView({ block: 'start', behavior: BQ.reduced() ? 'auto' : 'smooth' });
     };
@@ -756,6 +796,6 @@ ${SC} .e14-unit .bq-btn { margin-bottom: 12px; font-size: 14px; min-height: 44px
     (cap || stage).after(more);
   }
 
-  BQ.register('EL14', { hero: 'img-033', cover: 'يلمس طفلك أشياء الغرفة فيسمع أصواتها، ثم يجد مصدر كلّ صوت يسمعه.', render: renderPage });
+  BQ.register('EL14', { hero: 'img-033', cover: 'لعبة: يساعد طفلك بارقاً على إيقاظ بوصلة الأصوات — يجد مصدر كلّ صوت، ويلتقط «مْـ»، ويملأ الصحن بالماء.', render: renderPage });
 })();
 })();

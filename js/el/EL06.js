@@ -50,13 +50,14 @@
     const refrain = h('div.e6-refrain', { 'aria-hidden': 'true' }, BQ.icon('diff'));
     const pp = h('button.bq-btn', { type: 'button' }, BQ.icon('pause'), h('span', null, 'إيقاف'));
     const rp = h('button.bq-btn.ghost', { type: 'button' }, BQ.icon('replay'), 'من البداية');
-    const brq = h('div.e6-brq', { 'aria-hidden': 'true' }, h('img', { src: BQ.char.BRQ, alt: '' }));
+    const anim = BQ.ui.brq('idle'); // [brq-anim v1] cheer مع اللازمة · idle غير ذلك/عند الإيقاف
+    const brq = h('div.e6-brq.has-anim', { 'aria-hidden': 'true' }, anim);
     scr.append(refrain, strip, h('div.e6-ctl', null, pp, rp), brq);
     let bed = null, raf = 0, t0 = 0, pausedAt = 0, ended = false, alive = true, lastBeat = -1;
     const DUR = 66.5;
     const now = () => (bed && bed.el ? bed.el.currentTime : ((pausedAt || performance.now()) / 1000 - t0));
     const isPaused = () => (bed && bed.el ? bed.el.paused : !!pausedAt);
-    const setPP = () => { const p = isPaused() && !ended; pp.replaceChildren(BQ.icon(p || ended ? 'play' : 'pause'), h('span', null, ended ? 'غنِّ مرّة أخرى' : p ? 'تشغيل' : 'إيقاف')); brq.style.animationPlayState = p ? 'paused' : ''; };
+    const setPP = () => { const p = isPaused() && !ended; pp.replaceChildren(BQ.icon(p || ended ? 'play' : 'pause'), h('span', null, ended ? 'غنِّ مرّة أخرى' : p ? 'تشغيل' : 'إيقاف')); brq.style.animationPlayState = p ? 'paused' : ''; if (p || ended) anim.brq('idle'); };
     function start() {
       if (bed) bed.stop();
       ended = false; lastBeat = -1;
@@ -74,7 +75,9 @@
         if (cur && !BQ.reduced()) { cur.classList.add('beat'); setTimeout(() => cur.classList.remove('beat'), 120); }
       }
       STRIP.forEach((c, i) => { cards[i].classList.toggle('now', t >= c.from && t < c.to); cards[i].classList.toggle('past', t >= c.to); });
-      refrain.classList.toggle('on', REFRAIN.some(([a, b]) => t >= a && t < b));
+      const rf = REFRAIN.some(([a, b]) => t >= a && t < b);
+      refrain.classList.toggle('on', rf);
+      if (!isPaused()) anim.brq(rf ? 'cheer' : 'idle'); // [brq-anim v1]
       raf = requestAnimationFrame(tick);
     }
     async function finish() {
