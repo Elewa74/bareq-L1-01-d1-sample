@@ -681,3 +681,18 @@ body { overflow-x: clip; }
 @media (max-width: 720px) {
   :root { --play-h: clamp(520px, calc(100svh - 150px), 700px); }
 }
+
+/* v0-10 (المالك: «ظهور السؤال في الأغنية غير طبيعي»): وقفة الطرق/الحكم — شريط هادئ ينزلق من أسفل الصورة
+   بدل بطاقتين كبيرتين فوق الشخصيات؛ الصورة تتجمّد بتعتيم خفيف فقط */
+.elp .vp-dim.on { opacity: .18; }
+.elp .vp-inv-stop .vp-pick, .elp .vp-inv-judge .vp-pick {
+  left: 0; right: 0; bottom: 0; width: auto; transform: none; gap: 14px; padding: 10px 16px 12px;
+  background: linear-gradient(to top, rgba(0, 34, 61, .78), rgba(0, 34, 61, 0)); align-items: flex-end;
+  animation: vpTrayUp .35s cubic-bezier(.2, .9, .3, 1) both; pointer-events: auto;
+}
+.elp .vp-inv-stop .vp-pick button, .elp .vp-inv-judge .vp-pick button {
+  height: max(56px, calc(var(--vh, 1px) * 15)); border-width: 3px; border-radius: 16px; padding: 4%;
+  box-shadow: 0 4px 0 rgba(0, 34, 61, .35); animation: none;
+}
+@keyframes vpTrayUp { from { transform: translateY(100%); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .elp .vp-inv-stop .vp-pick, .elp .vp-inv-judge .vp-pick { animation: none; } }

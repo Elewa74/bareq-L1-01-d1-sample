@@ -5,7 +5,7 @@
   "flow": "https://elevenlabs.io/app/flows/UfazRIkirRyYdB1z5d6t",
   "song_flow": "https://elevenlabs.io/app/flows/O4nS4A6E5V0kXNObnx63",
   "backup": "/home/claude/web/v4/audio_before_v4/",
-  "note": "Instructions/feedback = Habibah; character dialogue = approved Kalemon voices. Target sound «مْـ» generated untagged. Selection by ASR alignment (faster-whisper) between 2 takes."
+  "note": "Instructions/feedback = Habibah; character dialogue = approved Kalemon voices. Target sound «مْـ» generated untagged. Selection by ASR alignment (faster-whisper) between 2 takes. · 2026-10-01: Majed/Bariq re-generated with the APPROVED voices (old CpwMp3… was rejected; Faris was provisional)."
  },
  "files": {
   "bariq_L1-01_ins-where_ar": {
@@ -186,7 +186,7 @@
   },
   "L1-01_d1_s1_01": {
    "speaker": "بارق",
-   "voice_name": "Kalemon - Faris (provisional Bariq) y0x9gSWlTTk7jkX8aQVv",
+   "voice_name": "Kalemon - Bariq APPROVED B1 Hrv0GXSKTrxIbeeX8u3r (registry v1-2, decision 33)",
    "model": "eleven_v4",
    "take": "g2_A",
    "tagged_text": "[excited] سَمِعْتُ فَرْقاً!",
@@ -194,7 +194,7 @@
   },
   "L1-01_d1_s2_01": {
    "speaker": "بارق",
-   "voice_name": "Kalemon - Faris (provisional Bariq) y0x9gSWlTTk7jkX8aQVv",
+   "voice_name": "Kalemon - Bariq APPROVED B1 Hrv0GXSKTrxIbeeX8u3r (registry v1-2, decision 33)",
    "model": "eleven_v4",
    "take": "g2_A",
    "tagged_text": "[happy] مَرْحَباً… أَنا بارِقٌ!",
@@ -202,7 +202,7 @@
   },
   "bariq_L1-01_d1-EL02_02_ar": {
    "speaker": "بارق",
-   "voice_name": "Kalemon - Faris (provisional Bariq) y0x9gSWlTTk7jkX8aQVv",
+   "voice_name": "Kalemon - Bariq APPROVED B1 Hrv0GXSKTrxIbeeX8u3r (registry v1-2, decision 33)",
    "model": "eleven_v4",
    "take": "g2_A",
    "tagged_text": "[curious] ما هَذا الصَّوْتُ؟",
@@ -210,7 +210,7 @@
   },
   "bariq_L1-01_d1-scr06_01_ar": {
    "speaker": "بارق",
-   "voice_name": "Kalemon - Faris (provisional Bariq) y0x9gSWlTTk7jkX8aQVv",
+   "voice_name": "Kalemon - Bariq APPROVED B1 Hrv0GXSKTrxIbeeX8u3r (registry v1-2, decision 33)",
    "model": "eleven_v4",
    "take": "g2_A",
    "tagged_text": "[happy] الماءُ هُنا، في الصَّحْنِ!",
@@ -218,7 +218,7 @@
   },
   "bariq_L1-01_d1-EL02_01_ar": {
    "speaker": "بارق",
-   "voice_name": "Kalemon - Faris (provisional Bariq) y0x9gSWlTTk7jkX8aQVv",
+   "voice_name": "Kalemon - Bariq APPROVED B1 Hrv0GXSKTrxIbeeX8u3r (registry v1-2, decision 33)",
    "model": "eleven_v4",
    "take": "g2_A",
    "tagged_text": "[warmly] هُما صَوْتٌ واحِدٌ.",
@@ -226,7 +226,7 @@
   },
   "bariq_L1-01_d1-EL02_05_ar": {
    "speaker": "بارق",
-   "voice_name": "Kalemon - Faris (provisional Bariq) y0x9gSWlTTk7jkX8aQVv",
+   "voice_name": "Kalemon - Bariq APPROVED B1 Hrv0GXSKTrxIbeeX8u3r (registry v1-2, decision 33)",
    "model": "eleven_v4",
    "take": "g2_B",
    "tagged_text": "[warmly] هُما صَوْتٌ واحِدٌ.",
@@ -234,7 +234,7 @@
   },
   "bariq_L1-01_d1-EL03_02_ar": {
    "speaker": "بارق",
-   "voice_name": "Kalemon - Faris (provisional Bariq) y0x9gSWlTTk7jkX8aQVv",
+   "voice_name": "Kalemon - Bariq APPROVED B1 Hrv0GXSKTrxIbeeX8u3r (registry v1-2, decision 33)",
    "model": "eleven_v4",
    "take": "g2_B",
    "tagged_text": "[warmly] هَذا حَرْفُ الميمِ.",
@@ -242,7 +242,7 @@
   },
   "bariq_L1-01_d1-EL06_05_ar": {
    "speaker": "بارق",
-   "voice_name": "Kalemon - Faris (provisional Bariq) y0x9gSWlTTk7jkX8aQVv",
+   "voice_name": "Kalemon - Bariq APPROVED B1 Hrv0GXSKTrxIbeeX8u3r (registry v1-2, decision 33)",
    "model": "eleven_v4",
    "take": "g2_A",
    "tagged_text": "[excited] سَمِعْتُ فَرْقاً!",
@@ -250,7 +250,7 @@
   },
   "bariq_L1-01_d1-EL06_11_ar": {
    "speaker": "بارق",
-   "voice_name": "Kalemon - Faris (provisional Bariq) y0x9gSWlTTk7jkX8aQVv",
+   "voice_name": "Kalemon - Bariq APPROVED B1 Hrv0GXSKTrxIbeeX8u3r (registry v1-2, decision 33)",
    "model": "eleven_v4",
    "take": "g2_A",
    "tagged_text": "[happy] الماءُ هُنا، في الصَّحْنِ!",
@@ -258,7 +258,7 @@
   },
   "bariq_L1-01_d1-EL09_02_ar": {
    "speaker": "بارق",
-   "voice_name": "Kalemon - Faris (provisional Bariq) y0x9gSWlTTk7jkX8aQVv",
+   "voice_name": "Kalemon - Bariq APPROVED B1 Hrv0GXSKTrxIbeeX8u3r (registry v1-2, decision 33)",
    "model": "eleven_v4",
    "take": "g2_A",
    "tagged_text": "[happy] هَذا صَوْتُ الماءِ!",
@@ -266,7 +266,7 @@
   },
   "bariq_L1-01_d1-EL09_04_ar": {
    "speaker": "بارق",
-   "voice_name": "Kalemon - Faris (provisional Bariq) y0x9gSWlTTk7jkX8aQVv",
+   "voice_name": "Kalemon - Bariq APPROVED B1 Hrv0GXSKTrxIbeeX8u3r (registry v1-2, decision 33)",
    "model": "eleven_v4",
    "take": "g2_A",
    "tagged_text": "[curious] مَنْ هُناكَ؟ سَيْفٌ؟",
@@ -274,7 +274,7 @@
   },
   "bariq_L1-01_d1-EL11_02_ar": {
    "speaker": "بارق",
-   "voice_name": "Kalemon - Faris (provisional Bariq) y0x9gSWlTTk7jkX8aQVv",
+   "voice_name": "Kalemon - Bariq APPROVED B1 Hrv0GXSKTrxIbeeX8u3r (registry v1-2, decision 33)",
    "model": "eleven_v4",
    "take": "g2_A",
    "tagged_text": "[excited] هُنا! في الصَّحْنِ!",
@@ -282,7 +282,7 @@
   },
   "L1-01_d1_s2_02": {
    "speaker": "ماجد",
-   "voice_name": "Kalemon - Majed CpwMp3DOS7KlEPXlhPK1",
+   "voice_name": "Kalemon - Majed APPROVED N1 Zpl3Nt0o92Aq8JSlaPvh (registry v1-2, decision 42)",
    "model": "eleven_v4",
    "take": "g3_A",
    "tagged_text": "[happy] مَرْحَباً، أَنا ماجِدٌ!",
@@ -290,7 +290,7 @@
   },
   "bariq_L1-01_intro-1_06_ar": {
    "speaker": "ماجد",
-   "voice_name": "Kalemon - Majed CpwMp3DOS7KlEPXlhPK1",
+   "voice_name": "Kalemon - Majed APPROVED N1 Zpl3Nt0o92Aq8JSlaPvh (registry v1-2, decision 42)",
    "model": "eleven_v4",
    "take": "g3_A",
    "tagged_text": "[softly] هَيّا، أَصْغوا مَعي!",
@@ -298,7 +298,7 @@
   },
   "bariq_L1-01_d1-scr02_01_ar": {
    "speaker": "ماجد",
-   "voice_name": "Kalemon - Majed CpwMp3DOS7KlEPXlhPK1",
+   "voice_name": "Kalemon - Majed APPROVED N1 Zpl3Nt0o92Aq8JSlaPvh (registry v1-2, decision 42)",
    "model": "eleven_v4",
    "take": "g3_A",
    "tagged_text": "[happy] مَرْحَباً يا سَيْفُ!",
@@ -306,7 +306,7 @@
   },
   "bariq_L1-01_intro-1_08_ar": {
    "speaker": "ماجد",
-   "voice_name": "Kalemon - Majed CpwMp3DOS7KlEPXlhPK1",
+   "voice_name": "Kalemon - Majed APPROVED N1 Zpl3Nt0o92Aq8JSlaPvh (registry v1-2, decision 42)",
    "model": "eleven_v4",
    "take": "g3_A",
    "tagged_text": "[warmly] هَذا صَوْتُ الماءِ.",
@@ -314,7 +314,7 @@
   },
   "bariq_L1-01_intro-1_16_ar": {
    "speaker": "ماجد",
-   "voice_name": "Kalemon - Majed CpwMp3DOS7KlEPXlhPK1",
+   "voice_name": "Kalemon - Majed APPROVED N1 Zpl3Nt0o92Aq8JSlaPvh (registry v1-2, decision 42)",
    "model": "eleven_v4",
    "take": "g3_A",
    "tagged_text": "[happy] الميمُ في الماءِ!",
@@ -322,7 +322,7 @@
   },
   "bariq_L1-01_intro-1_18_ar": {
    "speaker": "ماجد",
-   "voice_name": "Kalemon - Majed CpwMp3DOS7KlEPXlhPK1",
+   "voice_name": "Kalemon - Majed APPROVED N1 Zpl3Nt0o92Aq8JSlaPvh (registry v1-2, decision 42)",
    "model": "eleven_v4",
    "take": "g3_A",
    "tagged_text": "[curious] هَلْ هُما صَوْتٌ واحِدٌ؟",
@@ -330,7 +330,7 @@
   },
   "bariq_L1-01_intro-1_20_ar": {
    "speaker": "ماجد",
-   "voice_name": "Kalemon - Majed CpwMp3DOS7KlEPXlhPK1",
+   "voice_name": "Kalemon - Majed APPROVED N1 Zpl3Nt0o92Aq8JSlaPvh (registry v1-2, decision 42)",
    "model": "eleven_v4",
    "take": "g3_A",
    "tagged_text": "[excited] سَمِعْتُ فَرْقاً!",
@@ -338,7 +338,7 @@
   },
   "bariq_L1-01_L1-build_01_ar": {
    "speaker": "ماجد",
-   "voice_name": "Kalemon - Majed CpwMp3DOS7KlEPXlhPK1",
+   "voice_name": "Kalemon - Majed APPROVED N1 Zpl3Nt0o92Aq8JSlaPvh (registry v1-2, decision 42)",
    "model": "eleven_v4",
    "take": "g3_A",
    "tagged_text": "[warmly] هَذا فَمُ سَيْفٍ.",
@@ -346,7 +346,7 @@
   },
   "bariq_L1-01_d1-EL03_01_ar": {
    "speaker": "ماجد",
-   "voice_name": "Kalemon - Majed CpwMp3DOS7KlEPXlhPK1",
+   "voice_name": "Kalemon - Majed APPROVED N1 Zpl3Nt0o92Aq8JSlaPvh (registry v1-2, decision 42)",
    "model": "eleven_v4",
    "take": "g3_A",
    "tagged_text": "[happy] الميمُ في الفَمِ!",
@@ -354,7 +354,7 @@
   },
   "bariq_L1-01_d1-EL05_01_ar": {
    "speaker": "ماجد",
-   "voice_name": "Kalemon - Majed CpwMp3DOS7KlEPXlhPK1",
+   "voice_name": "Kalemon - Majed APPROVED N1 Zpl3Nt0o92Aq8JSlaPvh (registry v1-2, decision 42)",
    "model": "eleven_v4",
    "take": "g3_A",
    "tagged_text": "[warmly] هَذِهِ بَوْصَلَةُ سَيْفٍ.",
@@ -362,7 +362,7 @@
   },
   "bariq_L1-01_d1-EL05_02_ar": {
    "speaker": "ماجد",
-   "voice_name": "Kalemon - Majed CpwMp3DOS7KlEPXlhPK1",
+   "voice_name": "Kalemon - Majed APPROVED N1 Zpl3Nt0o92Aq8JSlaPvh (registry v1-2, decision 42)",
    "model": "eleven_v4",
    "take": "single_A (م صوتاً «مْـ» لا اسماً)",
    "tagged_text": "[warmly] هَذِهِ الميمُ: م.",
@@ -370,7 +370,7 @@
   },
   "bariq_L1-01_d1-EL06_02_ar": {
    "speaker": "ماجد",
-   "voice_name": "Kalemon - Majed CpwMp3DOS7KlEPXlhPK1",
+   "voice_name": "Kalemon - Majed APPROVED N1 Zpl3Nt0o92Aq8JSlaPvh (registry v1-2, decision 42)",
    "model": "eleven_v4",
    "take": "g4_A",
    "tagged_text": "[warmly] الماءُ في الصَّحْنِ.",
@@ -378,7 +378,7 @@
   },
   "bariq_L1-01_d1-EL06_03_ar": {
    "speaker": "ماجد",
-   "voice_name": "Kalemon - Majed CpwMp3DOS7KlEPXlhPK1",
+   "voice_name": "Kalemon - Majed APPROVED N1 Zpl3Nt0o92Aq8JSlaPvh (registry v1-2, decision 42)",
    "model": "eleven_v4",
    "take": "g4_A",
    "tagged_text": "[warmly] هَذا صَوْتُ الماءِ.",
@@ -386,7 +386,7 @@
   },
   "bariq_L1-01_d1-EL06_04_ar": {
    "speaker": "ماجد",
-   "voice_name": "Kalemon - Majed CpwMp3DOS7KlEPXlhPK1",
+   "voice_name": "Kalemon - Majed APPROVED N1 Zpl3Nt0o92Aq8JSlaPvh (registry v1-2, decision 42)",
    "model": "eleven_v4",
    "take": "g4_A",
    "tagged_text": "[excited] سَمِعْتُ فَرْقاً!",
@@ -394,7 +394,7 @@
   },
   "bariq_L1-01_d1-EL06_06_ar": {
    "speaker": "ماجد",
-   "voice_name": "Kalemon - Majed CpwMp3DOS7KlEPXlhPK1",
+   "voice_name": "Kalemon - Majed APPROVED N1 Zpl3Nt0o92Aq8JSlaPvh (registry v1-2, decision 42)",
    "model": "eleven_v4",
    "take": "g4_A",
    "tagged_text": "[softly] هَيّا، أَصْغوا مَعي!",
@@ -402,7 +402,7 @@
   },
   "bariq_L1-01_d1-EL06_08_ar": {
    "speaker": "ماجد",
-   "voice_name": "Kalemon - Majed CpwMp3DOS7KlEPXlhPK1",
+   "voice_name": "Kalemon - Majed APPROVED N1 Zpl3Nt0o92Aq8JSlaPvh (registry v1-2, decision 42)",
    "model": "eleven_v4",
    "take": "g4_A",
    "tagged_text": "[warmly] هَذا فَمُ سَيْفٍ.",
@@ -410,7 +410,7 @@
   },
   "bariq_L1-01_d1-EL06_10_ar": {
    "speaker": "ماجد",
-   "voice_name": "Kalemon - Majed CpwMp3DOS7KlEPXlhPK1",
+   "voice_name": "Kalemon - Majed APPROVED N1 Zpl3Nt0o92Aq8JSlaPvh (registry v1-2, decision 42)",
    "model": "eleven_v4",
    "take": "g4_A",
    "tagged_text": "[happy] الميمُ في الماءِ!",
@@ -418,7 +418,7 @@
   },
   "bariq_L1-01_d1-EL08_01_ar": {
    "speaker": "ماجد",
-   "voice_name": "Kalemon - Majed CpwMp3DOS7KlEPXlhPK1",
+   "voice_name": "Kalemon - Majed APPROVED N1 Zpl3Nt0o92Aq8JSlaPvh (registry v1-2, decision 42)",
    "model": "eleven_v4",
    "take": "g4_B",
    "tagged_text": "[curious] هَذِهِ بَوْصَلَةُ مَنْ؟",
@@ -426,7 +426,7 @@
   },
   "bariq_L1-01_d1-EL09_01_ar": {
    "speaker": "ماجد",
-   "voice_name": "Kalemon - Majed CpwMp3DOS7KlEPXlhPK1",
+   "voice_name": "Kalemon - Majed APPROVED N1 Zpl3Nt0o92Aq8JSlaPvh (registry v1-2, decision 42)",
    "model": "eleven_v4",
    "take": "g4_A",
    "tagged_text": "[curious] يا بارِقُ، ما هَذا؟",
@@ -434,7 +434,7 @@
   },
   "bariq_L1-01_d1-EL09_03_ar": {
    "speaker": "ماجد",
-   "voice_name": "Kalemon - Majed CpwMp3DOS7KlEPXlhPK1",
+   "voice_name": "Kalemon - Majed APPROVED N1 Zpl3Nt0o92Aq8JSlaPvh (registry v1-2, decision 42)",
    "model": "eleven_v4",
    "take": "g4_A",
    "tagged_text": "[curious] نَعَمْ! وَما هَذا؟",
@@ -442,7 +442,7 @@
   },
   "bariq_L1-01_intro-1_09_ar": {
    "speaker": "ماجد",
-   "voice_name": "Kalemon - Majed CpwMp3DOS7KlEPXlhPK1",
+   "voice_name": "Kalemon - Majed APPROVED N1 Zpl3Nt0o92Aq8JSlaPvh (registry v1-2, decision 42)",
    "model": "eleven_v4",
    "take": "g4_A",
    "tagged_text": "[warmly] الماءُ في الصَّحْنِ.",
@@ -450,7 +450,7 @@
   },
   "bariq_L1-01_d1-EL11_01_ar": {
    "speaker": "ماجد",
-   "voice_name": "Kalemon - Majed CpwMp3DOS7KlEPXlhPK1",
+   "voice_name": "Kalemon - Majed APPROVED N1 Zpl3Nt0o92Aq8JSlaPvh (registry v1-2, decision 42)",
    "model": "eleven_v4",
    "take": "g4_A",
    "tagged_text": "[curious] يا بارِقُ، أَيْنَ الماءُ؟",

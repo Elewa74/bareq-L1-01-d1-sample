@@ -836,7 +836,7 @@
           h('button.bq-btn.ghost', { type: 'button', onclick: () => res(false) }, 'تابِعْ', BQ.icon('next')))));
     const frameEl = h('div.vp-frame', null, box);
     root.append(frameEl); stage.append(root);
-    const fit = () => { const W = root.clientWidth || stage.clientWidth; if (!W) return; const bh = Math.round(W * 9 / 16); box.style.width = W + 'px'; box.style.height = bh + 'px'; frameEl.style.width = W + 'px'; frameEl.style.height = bh + 'px'; };
+    const fit = () => { let W = root.clientWidth || stage.clientWidth; if (!W) return; const stg = root.closest('.elp-stage'); if (stg && stg.clientHeight > 300) W = Math.min(W, Math.floor((stg.clientHeight - 200) * 16 / 9)); const bh = Math.round(W * 9 / 16); box.style.width = W + 'px'; box.style.height = bh + 'px'; frameEl.style.width = W + 'px'; frameEl.style.height = bh + 'px'; };
     const ro = window.ResizeObserver ? new ResizeObserver(fit) : null; if (ro) ro.observe(root); requestAnimationFrame(fit);
     ctx.onCleanup(() => ro && ro.disconnect());
     try { console.warn('[BQ.video.mp4] ' + o.id + ' not playable (' + why + ') — poster shown'); } catch (e) {}
@@ -850,7 +850,7 @@
       '.vp-mp4 .vp-dim{z-index:4;transform:translateZ(0)}.vp-mp4 .vp-ui{z-index:6;transform:translateZ(0)}.vp-mp4 .vp-big{z-index:7}' +
       '.vp-mp4 .vp-seg i b{transition:none}' +
       '.vp.vp-page{height:auto;flex:none;width:100%;display:block}' +
-      '.vp.vp-page .vp-frame{border-radius:var(--r-lg,22px);box-shadow:0 14px 34px var(--shade,rgba(0,52,91,.12))}' +
+      '.vp.vp-page .vp-frame{margin-inline:auto;border-radius:var(--r-lg,22px);box-shadow:0 14px 34px var(--shade,rgba(0,52,91,.12))}' +
       '.vp.vp-page .vp-ctl{background:var(--c-video-bg)}' +
       '.vp-fail .vp-box img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(.8) brightness(.7)}' +
       '.vp-fail .vp-msg{position:absolute;inset:0;display:grid;place-content:center;justify-items:center;gap:14px;padding:16px;text-align:center;color:var(--c-topbar-fg);font:600 clamp(15px,2.4cqi,19px)/1.6 var(--ff-ui);z-index:3}' +
@@ -901,7 +901,15 @@
     function layout() {
       if (!alive) return;
       if (page) {
-        const W = root.clientWidth; if (!W) return;
+        let W = root.clientWidth; if (!W) return;
+        // v0-10: الإطار ثابت الارتفاع ⇒ يُحدّ عرض المشغّل بما يتّسع له ارتفاع المسرح (مع النقاط والزرّ تحته) فلا تمرير ولا قصّ
+        const stg = root.closest('.elp-stage');
+        if (stg && stg.clientHeight) {
+          const cs = getComputedStyle(stg), padV = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
+          let other = 0; for (const k of stg.children) { if (!k.contains(root) && k.offsetParent !== null && getComputedStyle(k).position !== 'absolute') other += k.offsetHeight + 20; }
+          const avail = stg.clientHeight - padV - other - 92; // ٩٢ = شريط التحكّم + مكان زرّ «أَكْمِلْ» تحته
+          if (avail > 160) W = Math.min(W, Math.floor(avail * 16 / 9));
+        }
         const ch = Math.round(Math.max(48, Math.min(58, W * 0.065))), bh = Math.round(W * 9 / 16);
         root.classList.remove('overlay'); root.style.setProperty('--ctlh', ch + 'px');
         box.style.width = W + 'px'; box.style.height = bh + 'px';

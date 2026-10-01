@@ -442,9 +442,23 @@
 
   /* ---------- الإنجاز والتوقيت ---------- */
   let cleanups = [], life = null;
+  /* v0-10 (المالك: «ظلّ الصوت القديم يعمل وحدث تداخل»): كل وسيط صوت/فيديو يُشغَّل يُسجَّل، وعند ترك العنصر
+     يُوقَف كلّ ما بدأ قبل الانتقال (صوت، فيديو، مؤثّر، سرير موسيقى) وتُفرَّغ أيّ لعبة Godot قديمة */
+  const MEDIA = new Set();
+  try {
+    const _play = HTMLMediaElement.prototype.play;
+    HTMLMediaElement.prototype.play = function () { MEDIA.add(this); return _play.apply(this, arguments); };
+  } catch (e) {}
+  function hushAll() {
+    MEDIA.forEach((m) => { try { if (!m.paused) m.pause(); } catch (e) {} });
+    MEDIA.clear();
+    document.querySelectorAll('#content iframe').forEach((f) => { try { f.src = 'about:blank'; } catch (e) {} });
+  }
+  BQ.hushAll = hushAll;
   function teardown() {
     if (life) { life.alive = false; life.timers.forEach(clearTimeout); life.timers.clear(); }
     BQ.audio.stop();
+    hushAll();
     cleanups.forEach((f) => { try { f(); } catch (e) {} }); cleanups = [];
     closeConfirm();
   }
