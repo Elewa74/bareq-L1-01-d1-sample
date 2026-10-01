@@ -40,6 +40,11 @@ ${SC} .k11 { min-height: 420px; }
 ${SC} .k11-q { display: flex; flex-direction: column; align-items: center; gap: clamp(16px, 3.4cqi, 30px); width: 100%; }
 ${SC} .k11-glyphcard { position: relative; background: var(--paper); border: 2px solid var(--paper-edge); border-radius: var(--r-lg); width: clamp(120px, 24cqi, 190px); aspect-ratio: 1; display: grid; place-items: center; box-shadow: 0 12px 26px var(--shade); transition: box-shadow .3s; animation: kxIn .4s ease-out both; }
 ${SC} .k11-glyph { font: 700 clamp(84px, 17cqi, 140px)/1 var(--ff-child); color: var(--navy); margin-top: -.2em; transition: color .25s, text-shadow .25s; }
+${SC} .k11-glyphcard { animation: k11Float 3.2s ease-in-out infinite; } /* v0-12: حركة هادئة للحرف وحده على الصفحة */
+${SC} .k11-glyphcard::after { content: ""; position: absolute; inset: -6px; border-radius: inherit; border: 3px solid var(--sun-soft); opacity: 0; animation: k11Halo 3.2s ease-in-out infinite; pointer-events: none; }
+@keyframes k11Float { 50% { transform: translateY(-5px); } }
+@keyframes k11Halo { 0%, 100% { opacity: 0; transform: scale(.97); } 50% { opacity: .9; transform: scale(1.03); } }
+@media (prefers-reduced-motion: reduce) { ${SC} .k11-glyphcard, ${SC} .k11-glyphcard::after { animation: none; } }
 ${SC} .k11-glyphcard.is-hint { box-shadow: 0 0 0 5px var(--sun-soft), 0 0 26px var(--sun); }
 ${SC} .k11-glyphcard.is-hint .k11-glyph { color: var(--coral); }
 ${SC} .k11-lips { position: absolute; top: -20px; inset-inline-end: -20px; width: 60px; height: 60px; border-radius: 50%; overflow: hidden; background: var(--white); border: 4px solid var(--white); box-shadow: 0 8px 16px var(--shade); opacity: 0; transform: scale(.5); transition: opacity .25s, transform .3s cubic-bezier(.2,1.4,.4,1); pointer-events: none; z-index: 2; }
@@ -84,7 +89,7 @@ ${SC} .k11-av { flex: 0 0 auto; width: 56px; height: 56px; border-radius: 50%; b
 ${SC} .k11-say { position: relative; margin: 0; background: var(--white); border: 2px solid var(--paper-edge); border-radius: var(--r-md); padding: 4px 16px 8px; font: 700 calc(clamp(24px, 4.2cqi, 36px) * var(--z)) / 1.75 var(--ff-child); color: var(--ink); display: flex; flex-wrap: wrap; gap: 0 .26em; box-shadow: 0 4px 12px var(--shade); }
 ${SC} .k11-say::before { content: ""; position: absolute; top: 18px; inset-inline-start: -9px; width: 14px; height: 14px; background: var(--white); border-inline-start: 2px solid var(--paper-edge); border-bottom: 2px solid var(--paper-edge); transform: rotate(45deg); }
 ${SC} .k11-w { font: inherit; color: inherit; background: transparent; border: 0; padding: 0 .08em; border-radius: .25em; cursor: pointer; line-height: inherit; min-height: 44px; transition: background .12s; }
-${SC} .k11-w:hover { background: color-mix(in srgb, var(--sun-soft) 45%, transparent); }
+@media (hover: hover) { ${SC} .k11-w:hover { background: color-mix(in srgb, var(--sun-soft) 45%, transparent); } }
 ${SC} .k11-w.is-hl { background: var(--sun-soft); text-decoration: underline; text-decoration-thickness: .07em; text-underline-offset: .24em; text-decoration-color: var(--navy); }
 ${SC} .k11-w.is-glow { background: var(--sun-soft); box-shadow: 0 0 0 3px var(--navy); animation: bqPulse .65s ease-in-out 2; }
 ${SC} .k11-pic { position: relative; display: grid; place-items: center; background: var(--white); overflow: hidden; padding: clamp(10px, 2cqi, 18px); }
@@ -97,6 +102,7 @@ ${SC} .k11-after { position: absolute; inset: 0; display: grid; place-items: cen
 ${SC} .k11-after .bq-choices { gap: clamp(8px, 1.6cqi, 14px); }
 ${SC} .k11-after .bq-choice { width: clamp(84px, 13cqi, 124px); }
 @keyframes k11Rip { from { transform: scale(.4); opacity: 1; } to { transform: scale(1.4); opacity: 0; } }
+@media (max-height: 700px) { ${SC} .k11-gateprev { display: none; } } /* v0-12: هاتف قصير — بطاقة البوّابة بلا معاينة */
 @container stage (max-width: 560px) {
   ${SC} .k11-wordcard { grid-template-columns: 1fr; justify-items: center; }
   ${SC} .k11-wordcard > img { width: 58cqi; }
@@ -405,7 +411,7 @@ ${SC} .k11-after .bq-choice { width: clamp(84px, 13cqi, 124px); }
         if (!open) {
           clear(); ctx.instruction(null);
           adult('<p>صفحة القراءة المشتركة ' + (age === '4-6' ? 'مغلقة لهذا العمر' : 'يفتحها الكبير') + '. افتحها لتقرأ مع طفلك، أو تخطَّها.</p>');
-          const prev = h('img', { src: BQ.img('img-123'), alt: '', style: { width: 'min(260px, 60cqi)', borderRadius: 'var(--r-md)', filter: 'saturate(.7)', opacity: '.9' } });
+          const prev = h('img.k11-gateprev', { src: BQ.img('img-123'), alt: '', style: { width: 'min(260px, 60cqi, max(96px, calc(var(--play-h, 600px) - 360px)))', borderRadius: 'var(--r-md)', filter: 'saturate(.7)', opacity: '.9' } });
           const title = age === '4-6'
             ? 'صفحة القراءة المشتركة مغلقة لعمر ' + K.ageName('4-6') + ' سنوات. يفتحها الكبير إن أراد أن يقرأ مع طفله.'
             : 'صفحة القراءة المشتركة: يفتحها الكبير لعمر ' + K.ageName('7-9') + ' سنوات ليقرأ مع طفله.';

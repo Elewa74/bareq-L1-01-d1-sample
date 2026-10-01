@@ -28,7 +28,7 @@
 .elp .sx-photo > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; transition: opacity .7s ease, transform .7s ease; }
 .elp .sx-photo.bq-choice { width: auto; aspect-ratio: auto; display: block; }
 .elp button.sx-photo { cursor: pointer; transition: transform .18s ease, box-shadow .25s, opacity .35s; }
-.elp button.sx-photo:hover:not(:disabled) { transform: translateY(-4px); }
+@media (hover: hover) { .elp button.sx-photo:hover:not(:disabled) { transform: translateY(-4px); } }
 .elp button.sx-photo:disabled { cursor: default; }
 /* حالات موحّدة مع بطاقات المحرّك (.bq-choice): مختار = حلقة كحلية · إضاءة الدليل = هالة شمسية · باهت = ٠٫٦ */
 .elp .bq-choice.is-picked, .elp .sx-photo.is-picked { border-color: var(--navy); box-shadow: 0 0 0 4px var(--navy), 0 12px 24px var(--shade); }
@@ -118,12 +118,18 @@
         const iv = setInterval(() => { if (done) return clearInterval(iv); if (BQ.audio.token !== tok || !alive()) { clearInterval(iv); res(false); } }, 120);
       });
     }
+    /** بارق المتحرّك (BQ.ui.brq): يتكلّم أثناء السطر ثم مزاج قصير (cheer للتعزيز · think لإعادة المحاولة) ويخرج — v0-12 */
     function bariq(stage, id, side) {
       if (!alive()) return Promise.resolve(false);
-      const el = h('div.bq-bariq' + (side === 'left' ? '.left' : ''), { 'aria-hidden': 'true' }, h('img', { src: BQ.char.BRQ, alt: '' }));
+      const anim = BQ.ui.brq ? BQ.ui.brq('talk') : h('img', { src: BQ.char.BRQ, alt: '' });
+      const el = h('div.bq-bariq' + (BQ.ui.brq ? '.has-anim' : '') + (side === 'left' ? '.left' : ''), { 'aria-hidden': 'true' }, anim);
       stage.append(el);
       requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('in')));
-      return say(id).then((r) => { el.classList.remove('in'); setTimeout(() => el.remove(), 480); return r; });
+      const mood = /fb-yes|FB_0[1235]|EL06_05|_key_|s1_01|scr06/.test(id || '') ? 'cheer' : /retry|EL02_04|FB_04/.test(id || '') ? 'think' : '';
+      return say(id).then((r) => new Promise((res) => {
+        if (r && mood && anim.brq) anim.brq(mood);
+        setTimeout(() => { el.classList.remove('in'); setTimeout(() => el.remove(), 480); res(r && alive()); }, r && mood ? 700 : 0);
+      }));
     }
     /** main: «للكبير» (≤ ٣ أوامر قصيرة) · meta: «ملاحظات المراجِع» المطويّة (المحطّة، الرصد، ما يُسجَّل) */
     function adult(main, meta) {
@@ -177,11 +183,15 @@ ${S} .t8-mouth.hum .t8-lips { opacity: 1; animation: t8Glow 1s ease-in-out infin
 @keyframes t8Glow { 50% { opacity: .45; } }
 /* س٣ */
 ${S} .t8-room { width: min(100%, 820px); aspect-ratio: 16 / 9; }
+/* v0-12: الصور تصغر بارتفاع الإطار فلا يخرج «التّالي» (٧٢٠/٧٦٨) */
+${S} .t8-compass, ${S} .t8-mouth { max-width: max(140px, calc(var(--play-h, 700px) - 260px)); }
+${S} .t8-room { max-width: max(280px, calc((var(--play-h, 700px) - 250px) * 16 / 9)); }
+${S} .t8-snd { max-width: max(96px, calc(var(--play-h, 700px) - 360px)); }
 ${S} .t8-room img.b { opacity: 0; }
 ${S} .t8-room.rev img.a { opacity: 0; }
 ${S} .t8-room.rev img.b { opacity: 1; }
 ${S} .t8-zone { position: absolute; border: 3px dashed color-mix(in srgb, var(--white) 88%, transparent); border-radius: 16px; background: color-mix(in srgb, var(--white) 8%, transparent); cursor: pointer; padding: 0; min-width: 44px; min-height: 44px; transition: background .3s, opacity .4s; animation: t8Breath 2.4s ease-in-out infinite; z-index: 1; }
-${S} .t8-zone:hover { background: color-mix(in srgb, var(--white) 22%, transparent); }
+@media (hover: hover) { ${S} .t8-zone:hover { background: color-mix(in srgb, var(--white) 22%, transparent); } }
 ${S} .t8-zone:focus-visible { outline: 4px solid var(--navy); outline-offset: 2px; }
 ${S} .t8-zone.is-picked { border-style: solid; border-color: var(--navy); box-shadow: 0 0 0 3px var(--white); background: color-mix(in srgb, var(--white) 18%, transparent); animation: none; }
 ${S} .t8-zone .sx-pin { top: 50%; left: 50%; transform: translate(-50%, -50%); inset-inline-start: auto; }
@@ -198,14 +208,14 @@ ${S} .t8-room.rev .t8-bowl { opacity: 1; animation: t8Glow 1.2s ease-in-out 3; }
 /* س٤ */
 ${S} .t8-ops { display: flex; gap: clamp(14px, 4cqi, 36px); justify-content: center; align-items: flex-start; }
 ${S} .t8-op { display: grid; justify-items: center; gap: 14px; transition: opacity .4s, transform .4s; }
-${S} .t8-snd { width: clamp(96px, 25cqi, 230px); aspect-ratio: 1; touch-action: manipulation; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+${S} .t8-snd { width: clamp(96px, 25cqi, 230px); aspect-ratio: 1; touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 ${S} .t8-snd.is-playing { box-shadow: 0 0 0 4px var(--sky-ink, var(--navy)), 0 12px 24px var(--shade); }
 ${S} .t8-ring { position: absolute; inset: 0; pointer-events: none; background: conic-gradient(var(--sun) calc(var(--p, 0) * 1%), transparent 0); -webkit-mask: radial-gradient(closest-side, transparent 90%, #000 91%); mask: radial-gradient(closest-side, transparent 90%, #000 91%); opacity: 0; z-index: 1; }
 ${S} .t8-snd.pressing .t8-ring { opacity: 1; }
 ${S} .t8-heart { width: clamp(48px, 7cqi, 60px); aspect-ratio: 1; border-radius: 50%; border: 1.5px solid var(--sky-line); background: var(--white); color: var(--coral); display: grid; place-items: center; cursor: pointer; padding: 0; box-shadow: 0 4px 12px var(--shade); transition: transform .2s, background .2s; }
 ${S}.sx-a46 .t8-heart { width: 60px; }
 ${S} .t8-heart svg { width: 52%; height: 52%; }
-${S} .t8-heart:hover { transform: scale(1.06); }
+@media (hover: hover) { ${S} .t8-heart:hover { transform: scale(1.06); } }
 ${S} .t8-heart:focus-visible { outline: 4px solid var(--navy); outline-offset: 3px; }
 ${S} .t8-op.chosen { transform: scale(1.06); }
 ${S} .t8-op.chosen .t8-heart { background: var(--coral); border-color: var(--coral); color: var(--white); }
@@ -534,7 +544,7 @@ ${S} .bq-adult .t8-rec .bq-btn { font-size: 15px; min-height: 44px; }
       function finish() {
         gen++; clearTimers(); BQ.audio.stop(); noteAdult(false);
         ctx.done();
-        BQ.ui.endCard(stage, { title: 'أَحْسَنْتَ!', note: 'كلّ جواب مقبول؛ أسئلة «لماذا؟» في دليل الكبير.', onReplay: () => go(0) });
+        BQ.ui.endCard(stage, { title: 'أَحْسَنْتَ!', note: 'للكبير: كلّ جواب مقبول؛ أسئلة «لماذا؟» في دليل الكبير.', onReplay: () => go(0) });
       }
       go(0);
     },

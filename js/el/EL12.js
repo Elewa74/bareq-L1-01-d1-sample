@@ -30,7 +30,7 @@
 .elp .sx-photo > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; transition: opacity .7s ease, transform .7s ease; }
 .elp .sx-photo.bq-choice { width: auto; aspect-ratio: auto; display: block; }
 .elp button.sx-photo { cursor: pointer; transition: transform .18s ease, box-shadow .25s, opacity .35s; }
-.elp button.sx-photo:hover:not(:disabled) { transform: translateY(-4px); }
+@media (hover: hover) { .elp button.sx-photo:hover:not(:disabled) { transform: translateY(-4px); } }
 .elp button.sx-photo:disabled { cursor: default; }
 /* حالات موحّدة مع بطاقات المحرّك (.bq-choice): مختار = حلقة كحلية · إضاءة الدليل = هالة شمسية · باهت = ٠٫٦ */
 .elp .bq-choice.is-picked, .elp .sx-photo.is-picked { border-color: var(--navy); box-shadow: 0 0 0 4px var(--navy), 0 12px 24px var(--shade); }
@@ -120,12 +120,18 @@
         const iv = setInterval(() => { if (done) return clearInterval(iv); if (BQ.audio.token !== tok || !alive()) { clearInterval(iv); res(false); } }, 120);
       });
     }
+    /** بارق المتحرّك (BQ.ui.brq): يتكلّم أثناء السطر ثم مزاج قصير (cheer للتعزيز · think لإعادة المحاولة) ويخرج — v0-12 */
     function bariq(stage, id, side) {
       if (!alive()) return Promise.resolve(false);
-      const el = h('div.bq-bariq' + (side === 'left' ? '.left' : ''), { 'aria-hidden': 'true' }, h('img', { src: BQ.char.BRQ, alt: '' }));
+      const anim = BQ.ui.brq ? BQ.ui.brq('talk') : h('img', { src: BQ.char.BRQ, alt: '' });
+      const el = h('div.bq-bariq' + (BQ.ui.brq ? '.has-anim' : '') + (side === 'left' ? '.left' : ''), { 'aria-hidden': 'true' }, anim);
       stage.append(el);
       requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('in')));
-      return say(id).then((r) => { el.classList.remove('in'); setTimeout(() => el.remove(), 480); return r; });
+      const mood = /fb-yes|FB_0[1235]|EL06_05|_key_|s1_01|scr06/.test(id || '') ? 'cheer' : /retry|EL02_04|FB_04/.test(id || '') ? 'think' : '';
+      return say(id).then((r) => new Promise((res) => {
+        if (r && mood && anim.brq) anim.brq(mood);
+        setTimeout(() => { el.classList.remove('in'); setTimeout(() => el.remove(), 480); res(r && alive()); }, r && mood ? 700 : 0);
+      }));
     }
     /** main: «للكبير» (≤ ٣ أوامر قصيرة) · meta: «ملاحظات المراجِع» المطويّة (المحطّة، الرصد، ما يُسجَّل) */
     function adult(main, meta) {
@@ -188,7 +194,7 @@ ${S} .t12-book::after { content: ""; position: absolute; inset: 0; border-radius
 ${S} .t12-page { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; min-width: 0; }
 ${S} .t12-glyph { font: 700 clamp(96px, 20cqi, 190px)/1.1 var(--ff-child); color: var(--coral); padding: 0 .3em .1em; background: var(--paper); border: 2px solid var(--paper-edge); border-radius: 22px; }
 ${S} .t12-tools { display: flex; gap: 12px; }
-${S} .t12-pad { position: relative; width: 100%; max-width: 420px; aspect-ratio: 1; }
+${S} .t12-pad { position: relative; width: 100%; max-width: min(420px, max(220px, calc(var(--play-h, 700px) - 290px))); aspect-ratio: 1; } /* v0-12: لوح التتبّع بارتفاع الإطار فيبقى «التّالي» ظاهراً */
 ${S} .t12-pad .bq-trace { position: absolute; inset: 0; width: 100%; background: var(--white); border: 2px solid var(--sky-line); box-shadow: none; border-radius: 18px; }
 ${S} .t12-pad .bq-trace-glyph { display: none; }
 ${S} .t12-pad .bq-trace-start { width: 8%; margin: -4% 0 0 -4%; z-index: 2; }
@@ -216,6 +222,13 @@ ${S} .t12-model .cp.hit { fill: var(--sun-soft); stroke: var(--sun); }
 ${S} .t12-model .nextcp { fill: none; stroke: var(--sun); stroke-width: 1.4; opacity: 0; }
 ${S} .t12-model .nextcp.on { opacity: 1; animation: t12Ring 1s ease-in-out 3; }
 @keyframes t12Ring { 50% { stroke-width: 3; } }
+/* v0-12: إطار قصير (٧٢٠–٨٢٠): الحرف المرجعيّ وأدواته أصغر فيتّسع لوح التتبّع ويبقى «التّالي» ظاهراً */
+@media (max-height: 840px) {
+  ${S} .t12-glyph { font-size: clamp(72px, 11cqi, 120px); }
+  ${S} .t12-page { gap: 10px; }
+  ${S} .t12-tools .sx-hear { width: 72px; }
+  ${S} .sx-wrap { gap: 12px; }
+}
 /* ورقة التتبّع — معاينة */
 ${S} .t12-sheetwrap { width: 100%; max-width: 330px; aspect-ratio: 210 / 297; background: var(--white); border-radius: 8px; box-shadow: 0 0 0 1.5px var(--sky-line), 0 10px 24px var(--shade); overflow: hidden; position: relative; }
 ${S} .t12-sheetwrap .t12-sheet { position: absolute; top: 0; left: 0; transform-origin: 0 0; }
@@ -236,6 +249,15 @@ ${S} .t12-big .t12-big-bar { display: flex; gap: 10px; align-items: center; just
   ${S} .t12-page.ref { flex-direction: row; justify-content: center; }
   ${S} .t12-glyph { font-size: 72px; }
   ${S} .t12-sheetwrap { max-width: 220px; }
+}
+/* v0-12: هاتف — مفتاح الصيغة للكبير في الدليل وحده (يبقى هناك)، والحرف المرجعيّ صغير، ولوح التتبّع بارتفاع الإطار */
+@container stage (max-width: 560px) {
+  ${S} .t12-top .sx-var { display: none; }
+  ${S} .t12-top { justify-content: center; }
+  ${S} .t12-glyph { font-size: 56px; border-radius: 16px; }
+  ${S} .t12-tools .sx-hear { width: 60px; }
+  ${S} .t12-pad { max-width: min(420px, max(200px, calc(var(--play-h, 600px) - 300px))); }
+  @media (max-height: 760px) { ${S} .t12-pad { max-width: max(170px, calc(var(--play-h, 600px) - 335px)); } ${S} .t12-book { padding: 10px; } }
 }
 @media (prefers-reduced-motion: reduce) {
   ${S} .t12-model .arr.hi, ${S} .t12-model .nextcp.on { animation: none !important; }
@@ -346,6 +368,8 @@ ${S} .t12-big .t12-big-bar { display: flex; gap: 10px; align-items: center; just
     ctx.done();
     return sxEnd(stage, { title: 'أَحْسَنْتَ!', line: 'bariq_L1-01_d1-FB_03_ar', note: 'تتبّعتَ «م» من نقطة البدء.', home: HOME12, onReplay });
   }
+
+  const touchGuard = (el) => { if (BQ.elGuard) BQ.elGuard(el); }; // v0-12: حارس اللمس المشترك (EL01.js)
 
   BQ.register(ID, {
     cover: 'يشاهد طفلك حركة «م»، ثم يتتبّعها بإصبعه من النقطة الخضراء.',
@@ -458,7 +482,8 @@ ${S} .t12-big .t12-big-bar { display: flex; gap: 10px; align-items: center; just
         const pos = (e) => { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height]; };
         const showNext = () => { if (next >= cps.length) return; nextRing.setAttribute('cx', V.cps[next][0]); nextRing.setAttribute('cy', V.cps[next][1]); nextRing.classList.remove('on'); void nextRing.getBBox(); nextRing.classList.add('on'); };
         const markHits = () => svg.querySelectorAll('.cp').forEach((c) => c.classList.toggle('hit', +c.dataset.i < next));
-        const nearStart = (p) => p && dist(p, cps[0]) < TOL * 1.35;
+        let tol = TOL; // يتّسع للإصبع/القلم (×١٫٢٥) ويبقى للفأرة — v0-12
+        const nearStart = (p) => p && dist(p, cps[0]) < tol * 1.35;
         function hint1() {
           svg.querySelectorAll('.arr').forEach((a, k) => later(() => { a.classList.remove('hi'); void a.getBBox(); a.classList.add('hi'); }, k * 900));
           if (!svg.querySelector('.arr')) { pad.classList.add('start-hint'); later(() => pad.classList.remove('start-hint'), 1800); }
@@ -473,9 +498,9 @@ ${S} .t12-big .t12-big-bar { display: flex; gap: 10px; align-items: center; just
         function restart(byUser) { box.clear(); next = 0; badStart = false; armed = false; pad.classList.remove('armed', 'done'); markHits(); nextRing.classList.remove('on'); if (byUser) rec.replays++; }
         cv.addEventListener('pointerdown', (e) => {
           if (done) return;
-          const p = pos(e); drawing = true; downAt = p; moved = 0; offShown = false;
+          const p = pos(e); drawing = true; downAt = p; moved = 0; offShown = false; tol = e.pointerType === 'mouse' ? TOL : TOL * 1.25;
           if (armed && !nearStart(p)) return; // بعد التسليح: لمسة على الحرف تُتمّ (في up)؛ ضربة من نقطة البدء تبقى تتبّعاً عادياً
-          const bad = V.strokeStart.includes(next) && dist(p, cps[next] || cps[0]) > TOL * 1.35;
+          const bad = V.strokeStart.includes(next) && dist(p, cps[next] || cps[0]) > tol * 1.35;
           // أوّل لمسة على الحرف تُسجَّل كما هي (صحيحة أو خاطئة) ولا تُكتب فوقها لمسة لاحقة
           if (next === 0 && !startOkLogged) { rec.start_ok = !bad; startOkLogged = true; }
           if (bad) {
@@ -489,8 +514,8 @@ ${S} .t12-big .t12-big-bar { display: flex; gap: 10px; align-items: center; just
           if (downAt) moved = Math.max(moved, dist(p, downAt));
           if (badStart) return;
           if (armed) { if (moved > 0.03 && nearStart(downAt)) { armed = false; pad.classList.remove('armed'); } else return; }
-          while (next < cps.length && dist(p, cps[next]) < TOL) { next++; markHits(); nextRing.classList.remove('on'); }
-          if (Math.min(...dense.map((q) => dist(p, q))) > TOL * 1.6 && !offShown) { offShown = true; showNext(); } // off_path — تلمع نقطة التحقّق التالية
+          while (next < cps.length && dist(p, cps[next]) < tol) { next++; markHits(); nextRing.classList.remove('on'); }
+          if (Math.min(...dense.map((q) => dist(p, q))) > tol * 1.6 && !offShown) { offShown = true; showNext(); } // off_path — تلمع نقطة التحقّق التالية
           if (next >= cps.length) complete();
         });
         const up = (e) => {
@@ -508,7 +533,10 @@ ${S} .t12-big .t12-big-bar { display: flex; gap: 10px; align-items: center; just
           if (tap && next === 0 && nearStart(downAt) && nearStart(p)) { armed = true; pad.classList.add('armed'); box.clear(); return; }
           if (next < cps.length && !V.strokeStart.includes(next) && !tap) { error(); showNext(); }
         };
-        cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
+        cv.addEventListener('pointerup', up);
+        // إلغاء النظام (إيماءة/نافذة) ليس خطأً من الطفل: يتوقّف الخطّ ويبقى ما أنجزه
+        cv.addEventListener('pointercancel', () => { drawing = false; badStart = false; });
+        touchGuard(box);
 
         async function complete() {
           if (done) return; done = true; drawing = false;

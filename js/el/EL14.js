@@ -7,7 +7,7 @@
    · رؤوس الشخصيات المتكلّمة (ماجد/سيف) تنبض مع أسطرها، وبارق يطلّ من الحافّة (نسخة لا تتعلّق).
    · خرزات البوصلة، يد الإرشاد الشبحية، شرارات، طيران الخرزة، المقابلة «تقارب ثم انفصال»، موجة السمّاعة.
    · محرّك جولة «اسمع والمس» بمحاولتين وصفوف التغذية (صواب · خطأ أوّل · خطأ ثانٍ). */
-const MK = (BQ.mk && BQ.mk.v === 3) ? BQ.mk : (BQ.mk = (function () {
+const MK = (BQ.mk && BQ.mk.v === 4) ? BQ.mk : (BQ.mk = (function () {
   const h = BQ.h;
   const AR = (n) => String(n).replace(/\d/g, (d) => '٠١٢٣٤٥٦٧٨٩'[d]);
   const never = () => new Promise(() => {});
@@ -37,6 +37,7 @@ ${SC}.a46 .bq-listen.mk-listen { width: clamp(96px, 14cqi, 120px); }
 ${SC} .bq-choices { flex-wrap: nowrap; gap: clamp(10px, 3cqi, 28px); }
 ${SC} .bq-choice { width: clamp(92px, 26cqi, 236px); transition: transform .2s ease-out, opacity .3s, filter .3s, box-shadow .3s; }
 ${SC}.a46 .bq-choice { width: clamp(98px, 28cqi, 248px); }
+${SC} .mk-body .bq-choice { max-width: max(88px, calc(var(--play-h, 700px) - 330px)); } /* v0-12: البطاقات بارتفاع الإطار (٧٢٠) */
 ${SC} .bq-choice.is-lift { transform: translateY(-8px) scale(1.05); box-shadow: 0 0 0 5px var(--sun-soft), 0 16px 30px var(--shade); z-index: 2; opacity: 1; }
 ${SC} .bq-choice.is-ok.fx-pulse { animation: mkRing .5s ease-in-out 2; }
 @keyframes mkRing { 50% { box-shadow: 0 0 0 10px var(--ok), 0 12px 24px var(--shade); } }
@@ -177,14 +178,19 @@ ${SC} button:focus-visible { outline: 4px solid var(--navy); outline-offset: 3px
     S.pick = (...ids) => ids.find((i) => BQ.hasAudio(i)) || ids[0];
 
     /** بارق يطلّ من حافّة الإطار ويقول سطراً (نسخة لا تتعلّق عند المقاطعة) */
+    /*  v0-12: بارق المتحرّك (BQ.ui.brq) — يتكلّم أثناء السطر، ثم مزاج (cheer للتعزيز · think لإعادة المحاولة) قبل أن يخرج */
     S.bariq = async function (lineId, opt) {
       opt = opt || {};
-      const pop = h('div.bq-bariq' + (opt.side === 'left' ? '.left' : ''), { 'aria-hidden': 'true' }, h('img', { src: BQ.char.BRQ, alt: '' }));
+      const anim = BQ.ui.brq ? BQ.ui.brq(lineId ? 'talk' : 'wave') : h('img', { src: BQ.char.BRQ, alt: '' });
+      const pop = h('div.bq-bariq' + (BQ.ui.brq ? '.has-anim' : '') + (opt.side === 'left' ? '.left' : ''), { 'aria-hidden': 'true' }, anim);
       stage.append(pop);
       requestAnimationFrame(() => pop.classList.add('in'));
       await S.sleep(180);
       if (lineId) await S.play(lineId); else await S.sleep(opt.ms || 1200);
       if (!S.ok()) return never();
+      const id = lineId || '';
+      const mood = opt.mood || (/fb-yes|FB_0[1235]|EL06_05|_key_|s1_01|scr06/.test(id) ? 'cheer' : /retry|EL02_04|FB_04/.test(id) ? 'think' : '');
+      if (mood && anim.brq) { anim.brq(mood); await S.sleep(opt.moodMs || 750); }
       pop.classList.remove('in'); setTimeout(() => pop.remove(), 450);
     };
 
@@ -380,7 +386,7 @@ ${SC} button:focus-visible { outline: 4px solid var(--navy); outline-offset: 3px
     return o;
   }
 
-  return { v: 3, session, arrange, css, CMP_SVG, SC, AR };
+  return { v: 4, session, arrange, css, CMP_SVG, SC, AR };
 })());
 /* EL14 «العب» — «بَوْصَلَةُ سَيْفٍ» · L1-01-AS-gme-103 · unscored:HotspotScene.
    v0-8 (pedagogy P1-5): غرفة البقع HTML هي التجربة الأساسية لـEL14؛ تحتها بطاقة اختيارية «رحلة الميم» (لعبة المحطّات)،

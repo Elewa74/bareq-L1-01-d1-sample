@@ -862,6 +862,12 @@
       '.vp-below .bq-btn.vp-go2{min-width:120px;min-height:64px;font-size:20px;padding:0 1.4em}' +
       '.vp-below .bq-btn.vp-go2 .bq-ic{transform:scaleX(-1)}' +
       '.vp-mp4 .vp-go{min-width:120px;min-height:64px}' +
+      '.vp-mp4 .vp-box{cursor:pointer}.vp-mp4 .vp-segs{touch-action:none;min-height:44px}.vp-mp4.is-scrub .vp-seg i{height:max(12px,1.6cqh)}.vp-mp4 .vp-ctl>button{min-width:44px;min-height:44px;touch-action:manipulation}' +
+      '.vp-page .vp-inv .bq-btn.vp-go2.vp-go-ov{position:absolute;z-index:9;bottom:max(12px,3cqh);inset-inline-end:max(12px,2.4cqw);min-width:132px;min-height:64px;font-size:20px;padding:0 1.4em;box-shadow:0 5px 0 var(--sun-edge),0 10px 26px rgba(0,0,0,.35);animation:vpGoIn .35s cubic-bezier(.2,.9,.3,1.2) both}' +
+      '.vp-page .vp-inv .bq-btn.vp-go2.vp-go-ov .bq-ic{transform:scaleX(-1)}' +
+      '.vp-page .vp-inv:has(.vp-go-ov) .vp-pick{padding-inline-end:170px!important}' +
+      '@keyframes vpGoIn{from{opacity:0;transform:translateY(14px) scale(.9)}to{opacity:1;transform:none}}' +
+      '@media (prefers-reduced-motion: reduce){.vp-page .vp-inv .bq-btn.vp-go2.vp-go-ov{animation:none}}' +
       '.vp-ctl>button.rate{width:auto;min-width:56px;border-radius:999px;padding:0 10px;font:700 15px/1 var(--ff-ui)}' +
       '.vp-ctl>button.rate[aria-pressed="true"]{background:var(--btn);color:var(--c-title-text)}'));
     const base = 'media/video/' + o.id;
@@ -907,7 +913,7 @@
         if (stg && stg.clientHeight) {
           const cs = getComputedStyle(stg), padV = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
           let other = 0; for (const k of stg.children) { if (!k.contains(root) && k.offsetParent !== null && getComputedStyle(k).position !== 'absolute') other += k.offsetHeight + 20; }
-          const avail = stg.clientHeight - padV - other - 92; // ٩٢ = شريط التحكّم + مكان زرّ «أَكْمِلْ» تحته
+          const avail = stg.clientHeight - padV - other - (root.style.getPropertyValue('--ctlh') ? parseFloat(root.style.getPropertyValue('--ctlh')) : 56) - 4; // شريط التحكّم وحده: «أَكْمِلْ» فوق الصورة (v0-12)
           if (avail > 160) W = Math.min(W, Math.floor(avail * 16 / 9));
         }
         const ch = Math.round(Math.max(48, Math.min(58, W * 0.065))), bh = Math.round(W * 9 / 16);
@@ -946,6 +952,51 @@
     const wake = () => { root.classList.remove('idle'); clearTimeout(idleT); idleT = setTimeout(() => root.classList.add('idle'), 2800); };
     box.addEventListener('pointermove', wake); box.addEventListener('pointerdown', wake); ctl.addEventListener('focusin', wake); wake();
     root.addEventListener('keydown', (e) => { if (e.key === ' ' && e.target === root) { e.preventDefault(); toggle(); } });
+
+    /* ---------- اللمس (v0-12): نقرة على الصورة = تشغيل/إيقاف، وسحب على شريط المشاهد = تقديم/إرجاع ---------- */
+    let idleAtDown = false;
+    box.addEventListener('pointerdown', () => { idleAtDown = root.classList.contains('overlay') && root.classList.contains('idle'); }, true);
+    box.addEventListener('click', (e) => {
+      if (!alive || fell || inCue || !cues) return;
+      if (e.target.closest('button, .vp-inv, .vp-pick')) return;
+      if (idleAtDown) { wake(); return; } // الطبقة كانت مخفيّة: النقرة الأولى تُظهر الأزرار فقط
+      toggle();
+    });
+    function seekTo(t, resume) {
+      if (!cues || fell) return;
+      const D = video.duration || cues.duration || 0; t = Math.max(0, Math.min(D - 0.05, t));
+      clearCue();
+      cues.cues.forEach((c) => { if (c.t >= t - 0.02) handled.delete(c.id); });
+      ended = false; root.classList.remove('is-ended');
+      try { video.currentTime = t; } catch (err) {}
+      lastT = t; paint(t);
+      if (resume) { userPaused = false; video.play().catch(() => setPaused(true)); }
+      syncUi();
+    }
+    (function scrub() {
+      let drag = null;
+      const frac = (x) => { const r = segWrap.getBoundingClientRect(); return Math.max(0, Math.min(1, (r.right - x) / (r.width || 1))); }; // RTL: البداية يميناً
+      const at = (x) => frac(x) * (video.duration || (cues && cues.duration) || 0);
+      segWrap.style.touchAction = 'none';
+      segWrap.addEventListener('pointerdown', (e) => {
+        if (!cues || fell || e.button > 0) return;
+        drag = { id: e.pointerId, x: e.clientX, moved: false, wasPlaying: !video.paused || !!inCue };
+        try { segWrap.setPointerCapture(e.pointerId); } catch (err) {}
+        wake();
+      });
+      segWrap.addEventListener('pointermove', (e) => {
+        if (!drag || e.pointerId !== drag.id) return;
+        if (!drag.moved && Math.abs(e.clientX - drag.x) < 8) return;
+        if (!drag.moved) { drag.moved = true; root.classList.add('is-scrub'); video.pause(); }
+        paint(at(e.clientX)); wake();
+      });
+      const end = (e) => {
+        if (!drag || e.pointerId !== drag.id) return;
+        const d = drag; drag = null; root.classList.remove('is-scrub');
+        if (d.moved) { e.preventDefault(); seekTo(at(e.clientX), d.wasPlaying); segWrap.addEventListener('click', (ev) => { ev.stopPropagation(); ev.preventDefault(); }, { capture: true, once: true }); }
+      };
+      segWrap.addEventListener('pointerup', end); segWrap.addEventListener('pointercancel', (e) => { if (drag && e.pointerId === drag.id) { drag = null; root.classList.remove('is-scrub'); } });
+    })();
 
     /* ---------- البديل التلقائي: مشغّل المشاهد ---------- */
     function fallback(why) {
@@ -1064,7 +1115,9 @@
             const go = page
               ? h('button.bq-btn.vp-go2', { type: 'button', onclick: () => goRes() }, 'أَكْمِلْ', BQ.icon('play'))
               : h('button.vp-go', { type: 'button', 'aria-label': 'أَكْمِلْ', onclick: () => goRes() }, BQ.icon('play'), 'أَكْمِلْ');
-            if (page) below.replaceChildren(go); else lay.append(go);
+            // v0-12: «أَكْمِلْ» فوق الصورة (زاوية الطرف الأيسر) في الوضعين — لا تحتها، فلا يقع خارج الشاشة ولا يحتاج تمريراً
+            if (page) go.classList.add('vp-go-ov');
+            lay.append(go);
             if (c.hint) Promise.race([tapped, wait(3500).then(() => 'none')]).then((v) => { if (v === 'none' && inCue === c) hint(); }).catch(() => {});
             setTimeout(() => { try { go.focus({ preventScroll: true }); } catch (e) {} }, 60);
             try { await guard(went); } finally { go.remove(); }

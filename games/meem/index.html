@@ -24,7 +24,15 @@ body { display:flex; align-items:center; justify-content:center; }
   box-shadow:inset 0 2px 4px rgba(0,0,0,.15); overflow:hidden; }
 #loader .fill { height:100%; width:6%; border-radius:12px; background:linear-gradient(#ffd452,#f7a21b); transition:width .2s; }
 #loader .msg { margin-top:14px; color:#fff; font-size:18px; text-shadow:0 1px 2px rgba(0,0,0,.25); }
-#loader .err { display:none; margin-top:16px; max-width:80vw; background:#fff4e0; color:#8a3b00; border-radius:14px; padding:12px 16px; font-size:15px; text-align:center; }
+#loader .err { display:none; margin-top:16px; width:min(84vw,360px); background:#fff7e6; color:#5a2a00; border-radius:18px; padding:16px 16px 12px; text-align:center;
+  box-shadow:0 8px 24px rgba(0,30,60,.25); font-family:Tahoma, Arial, sans-serif; }
+#loader .err p { margin:0 0 12px; font-size:17px; line-height:1.5; }
+#loader .err button { display:block; width:100%; min-height:56px; border:0; border-radius:999px; background:#ffd452; color:#00345b; font:700 20px/1.2 Tahoma, Arial, sans-serif;
+  box-shadow:0 4px 0 #e0a100; cursor:pointer; touch-action:manipulation; }
+#loader .err button:focus-visible { outline:3px solid #00345b; outline-offset:3px; }
+#loader .err code { display:block; margin-top:10px; direction:ltr; text-align:left; font:11px/1.35 ui-monospace, Menlo, Consolas, monospace; color:#7a5a3a;
+  word-break:break-word; max-height:6.8em; overflow:hidden; opacity:.85; }
+#loader.is-err .bq { animation:none; } #loader.is-err .bar { display:none; }
 @keyframes hop { 0%,100%{transform:translateY(0) scale(1,1)} 40%{transform:translateY(-16px) scale(.97,1.04)} 55%{transform:translateY(0) scale(1.05,.95)} }
 </style>
 <link id="-gd-engine-icon" rel="icon" type="image/png" href="index.icon.png" />
@@ -58,57 +66,132 @@ body { display:flex; align-items:center; justify-content:center; }
 })();
 </script>
 <script>
-/* the activity keeps the exact PSD frame (927x1596): canvas box = CSS above, backing store = box x devicePixelRatio */
+/* the activity keeps the exact PSD frame (927x1596): canvas box = CSS above, backing store = box x devicePixelRatio,
+   capped at 2 (phones report 3: a 3x backing store costs ~2.3x the GPU memory for no visible gain at this art size — iOS) */
 (function () {
   var cv = document.getElementById('canvas');
   function fit() {
-    var r = cv.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+    var r = cv.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 2);
     cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr);
   }
   fit(); window.addEventListener('resize', fit);
 })();
 </script>
 <script>
-/* ---- faster ONLINE loading ----
-   1) the Godot engine (index.wasm, ~40 MB) is downloaded compressed (index.wasm.gz, ~10 MB) and unpacked in the
-      browser (DecompressionStream) — works on any server, no server settings needed; falls back to index.wasm.
-   2) the unpacked engine is kept in the browser cache (Cache API) under ONE shared key, so after the first
-      activity every other Bareq activity on the same site starts without downloading the engine again. */
+/* ---- one failure path for everything (v0-12, iOS/iPadOS) ----
+   bareqFail(err) shows a short message + a big «العودة إلى الدرس» button + a small LTR technical line, tells the lesson
+   page {bq:'error', fatal:true} (it switches to the HTML version by itself) and remembers the failure for this browser
+   session (sessionStorage «bq-godot-fail», read by the page's BQ.ui.godotOK()) so the other elements go straight to HTML.
+   Sources: Engine.getMissingFeatures · startGame rejection · uncaught errors / rejections before start (e.g. a failed
+   WebAssembly.instantiateStreaming, which Godot's loader does not catch) · a wasm trap/abort after start (OOM …) ·
+   WebGL context loss (Godot only alert()s) · a non-zero engine exit. */
+(function () {
+  var started = false, failed = false;
+  window.bareqStarted = function () { started = true; };
+  function q(k) { try { return new URLSearchParams(location.search || location.hash.slice(1)).get(k) || ''; } catch (e) { return ''; } }
+  var EL = { recall: 'EL01', listen: 'EL13', write: 'EL12', compass: 'EL15', play: 'EL14', journey: 'EL14' };
+  function detail(err) {
+    var m = !err ? 'unknown' : (err.name && err.message ? err.name + ': ' + err.message : String(err.message || err));
+    m = String(m).split('\n')[0].slice(0, 160);
+    var ua = navigator.userAgent, os = (ua.match(/(iPad|iPhone|Android|Mac OS X|Windows NT|Linux)[^;)]*/) || [''])[0];
+    var v = (ua.match(/(Version|CriOS|Chrome|Firefox|FxiOS|EdgiOS)\/[\d.]+/) || [''])[0];
+    var mem = '';
+    try { if (window.__bqMem) mem = ' · heap ' + Math.round(window.__bqMem.buffer.byteLength / 1048576) + 'MB'; } catch (e) {}
+    return m + ' · ' + os.replace(/(\d)_(\d)/g, '$1.$2') + ' ' + v + mem + (navigator.maxTouchPoints > 1 ? ' · touch' : '');
+  }
+  window.bareqFail = function (err, why) {
+    if (failed) return; failed = true;
+    try { console.error('[bq] game failed:', why || '', err); } catch (e) {}
+    var d = detail(err);
+    var embedded = window.parent && window.parent !== window;
+    try { sessionStorage.setItem('bq-godot-fail', JSON.stringify({ t: Date.now(), why: why || 'error', d: d })); } catch (e) {}
+    try { if (embedded) window.parent.postMessage({ bq: 'error', fatal: true, why: why || 'error', message: d, station: q('station') }, '*'); } catch (e) {}
+    var loader = document.getElementById('loader');
+    if (!loader) {        // the loader is gone (the game had started): bring it back as the error screen
+      loader = document.createElement('div'); loader.id = 'loader';
+      loader.innerHTML = '<div class="msg" id="msg"></div><div class="err" id="err"></div>'; document.body.appendChild(loader);
+    }
+    loader.style.opacity = '1'; loader.classList.add('is-err');
+    var msg = document.getElementById('msg'); if (msg) msg.style.display = 'none';
+    var box = document.getElementById('err');
+    box.innerHTML = '';
+    var p = document.createElement('p'); p.textContent = 'تعذّر تشغيل اللعبة على هذا الجهاز. النسخة الخفيفة من النشاط تعمل في الدرس.';
+    var b = document.createElement('button'); b.type = 'button'; b.textContent = 'العودة إلى الدرس';
+    b.onclick = function () {
+      if (embedded) { try { window.parent.postMessage({ bq: 'error', fatal: true, why: 'back', station: q('station') }, '*'); } catch (e) {} return; }
+      location.href = '../../index.html' + (EL[q('station')] ? '#' + EL[q('station')] : '');
+    };
+    var c = document.createElement('code'); c.textContent = d;
+    box.appendChild(p); box.appendChild(b); box.appendChild(c); box.style.display = 'block';
+    try { b.focus(); } catch (e) {}
+  };
+  function fatal(e) {
+    var m = String(e && (e.message || e) || '');
+    return !started || /RuntimeError|Aborted|out of memory|Out of bounds|unreachable|memory access/i.test(m) || (e && e.name === 'RuntimeError');
+  }
+  window.addEventListener('error', function (ev) { var e = ev.error || ev.message; if (fatal(e)) window.bareqFail(e, 'error'); });
+  window.addEventListener('unhandledrejection', function (ev) { if (fatal(ev.reason)) window.bareqFail(ev.reason, 'rejection'); });
+  var al = window.alert;   // Godot reports a lost WebGL context with alert() — on iOS that is memory pressure: no dead modal, the error screen
+  window.alert = function (m) { if (/WebGL context lost/i.test(String(m))) { window.bareqFail(new Error('WebGL context lost'), 'webgl-lost'); return; } return al.apply(window, arguments); };
+  /* the engine memory, for the technical line (and the tests) */
+  ['instantiateStreaming', 'instantiate'].forEach(function (k) {
+    var f = window.WebAssembly && WebAssembly[k]; if (!f) return;
+    WebAssembly[k] = function () {
+      return f.apply(this, arguments).then(function (r) {
+        try { var x = (r.instance || r).exports; for (var n in x) if (x[n] instanceof WebAssembly.Memory) window.__bqMem = x[n]; } catch (e) {}
+        return r;
+      });
+    };
+  });
+})();
+</script>
+<script>
+/* ---- faster ONLINE loading (v0-12: streaming, WebKit-safe) ----
+   1) the Godot engine (index.wasm, ~40 MB) is published compressed (index.gz.wasm, ~10 MB) and unpacked in the browser
+      with DecompressionStream as a STREAM — no 40 MB ArrayBuffer copies in JS (v0-11 held 2–3 copies at once: iOS memory).
+   2) the unpacked stream is written straight into the Cache API under ONE shared key and the engine is then served from
+      that cache entry, so every other Bareq activity on the same site starts without downloading the engine again.
+   No DecompressionStream / no streams / no Cache → the plain gz-less path (index.wasm) or a stream without cache.
+   GitHub Pages also gzips *.wasm on the wire by itself (Content-Encoding: gzip), so index.gz.wasm costs ~10 MB once. */
 window.bareqOnline = function () {
   window.BAREQ_ONLINE = true;   // the plain gz shim further down stands aside: this wrapper handles index.wasm itself (gz + cache)
   var WASM_SIZE = 39514754;
   var KEY = location.origin + '/__bareq_engine__/godot-4.7.2-' + WASM_SIZE + '.wasm';
   var nativeFetch = window.fetch.bind(window);
+  var canStream = typeof DecompressionStream === 'function' && typeof ReadableStream === 'function' && !!ReadableStream.prototype.pipeThrough;
   function nameOf(u) { return String(u).split('/').pop().split('?')[0].split('#')[0]; }
-  function wasmResponse(body) {
-    return new Response(body, { status: 200, headers: { 'Content-Type': 'application/wasm', 'Content-Length': String(WASM_SIZE) } });
-  }
-  function progress(f) { var el = document.getElementById('fill'); if (el) el.style.width = Math.max(6, Math.round(f * 100)) + '%'; }
-  function download(url) {
-    // fetch the compressed engine, show real progress, unpack it in the browser → ArrayBuffer
-    if (typeof DecompressionStream === 'undefined' || !window.ReadableStream) return nativeFetch(url).then(function (r) { return r.arrayBuffer(); });
+  function headers() { return { 'Content-Type': 'application/wasm', 'Content-Length': String(WASM_SIZE) }; }
+  window.bareqProgress = window.bareqProgress || function () {};
+  function gz(url) {
+    // compressed engine → decompressed stream Response (download progress = compressed bytes)
     return nativeFetch(url + '.gz').then(function (r) {
-      if (!r.ok || !r.body) throw new Error('no gz');
-      var total = +r.headers.get('Content-Length') || 0, got = 0, rd = r.body.getReader();
+      if (!r.ok || !r.body) throw new Error('gz ' + r.status);
+      var total = +r.headers.get('Content-Length') || 10100000, got = 0, rd = r.body.getReader();
       var counted = new ReadableStream({ pull: function (ctl) {
         return rd.read().then(function (x) {
           if (x.done) { ctl.close(); return; }
-          got += x.value.length; if (total) progress(0.9 * got / total);
+          got += x.value.length; window.bareqProgress('dl', Math.min(1, got / total));
           ctl.enqueue(x.value);
         });
       } });
-      return new Response(counted.pipeThrough(new DecompressionStream('gzip'))).arrayBuffer();
-    }).catch(function () { return nativeFetch(url).then(function (r) { return r.arrayBuffer(); }); });
+      return new Response(counted.pipeThrough(new DecompressionStream('gzip')), { status: 200, headers: headers() });
+    });
   }
+  function plain(url) { return nativeFetch(url); }
   function engine(url) {
-    var cachePromise = window.caches ? caches.open('bareq-engine').catch(function () { return null; }) : Promise.resolve(null);
-    return cachePromise.then(function (c) {
-      return (c ? c.match(KEY).catch(function () { return null; }) : Promise.resolve(null)).then(function (hit) {
-        if (hit) return hit;
-        return download(url).then(function (buf) {
-          if (c) { try { c.put(KEY, wasmResponse(buf.slice(0))).catch(function () {}); } catch (e) {} }
-          return wasmResponse(buf);
-        });
+    if (!canStream) return plain(url);
+    var open = window.caches && window.isSecureContext !== false ? caches.open('bareq-engine').catch(function () { return null; }) : Promise.resolve(null);
+    return open.then(function (c) {
+      if (!c) return gz(url).catch(function () { return plain(url); });
+      return c.match(KEY).catch(function () { return null; }).then(function (hit) {
+        if (hit) { window.bareqProgress('dl', 1); return hit; }
+        return gz(url).then(function (resp) {
+          // stream → cache (no JS copy), then serve the cached entry; a cache failure (quota, private mode) → stream again
+          return c.put(KEY, resp).then(function () { return c.match(KEY); }).then(function (r) {
+            if (!r) throw new Error('cache miss after put');
+            return r;
+          }).catch(function () { try { c.delete(KEY); } catch (e) {} return gz(url); });
+        }, function () { return plain(url); });
       });
     });
   }
@@ -153,17 +236,15 @@ window.BAREQ_EMBED_TXT = window.BAREQ_EMBED_TXT || {};
 })();
 </script>
 <script>
-/* بارق: المحرّك مضغوط gzip (index.wasm.gz) ليناسب حدود النشر؛ يُفكّ في المتصفح عند الطلب.
-   احتياط فقط: حين يعمل bareqOnline (أعلاه) فهو يفكّ الضغط ويحفظ المحرّك في ذاكرة المتصفح (Cache API) مرّة واحدة لكل المحطّات؛
-   لو لُفّ fetch هنا فوقه لتجاوز الذاكرة ونُزّل المحرّك (١٠ م.ب) من جديد في كل محطّة (T03). */
+/* بارق: احتياط فقط حين لا يعمل bareqOnline (أعلاه) — يفكّ index.wasm.gz دفقاً بلا ذاكرة مؤقّتة. */
 (function () {
-  if (window.BAREQ_LOCAL || window.BAREQ_ONLINE || !window.fetch || !window.DecompressionStream) return;
+  if (window.BAREQ_LOCAL || window.BAREQ_ONLINE || !window.fetch || typeof DecompressionStream !== 'function') return;
   var f = window.fetch.bind(window);
   window.fetch = function (input, init) {
     var url = typeof input === 'string' ? input : (input && input.url) || String(input);
     if (/index\.wasm(\?|#|$)/.test(url)) {
       return f(url.replace('index.wasm', 'index.wasm.gz'), init).then(function (r) {
-        if (!r.ok) return f(input, init);
+        if (!r.ok || !r.body) return f(input, init);
         return new Response(r.body.pipeThrough(new DecompressionStream('gzip')), { status: 200, headers: { 'Content-Type': 'application/wasm' } });
       });
     }
@@ -173,28 +254,35 @@ window.BAREQ_EMBED_TXT = window.BAREQ_EMBED_TXT || {};
 </script>
 <script src="index.js"></script>
 <script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":0,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":false,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":8567348,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":0,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":false,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":8571108,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
 const GODOT_THREADS_ENABLED = false;
-const engine = new Engine(GODOT_CONFIG);
 (function () {
-  var loader = document.getElementById('loader'), fill = document.getElementById('fill');
-  function fail(err) {
-    console.error(err);
-    var box = document.getElementById('err');
-    box.style.display = 'block';
-    box.textContent = 'تعذّر تشغيل اللعبة في هذا المتصفّح. جرّبوا متصفّحاً أحدث، أو النسخة الخفيفة من الصفحة.';
-    document.getElementById('msg').style.display = 'none';
-    try { (window.parent || window).postMessage({ bq: 'error', message: String(err && err.message ? err.message : err) }, '*'); } catch (e) {}
+  var fill = document.getElementById('fill'), shown = 0.04, dl = 0, gd = 0, sent = 0;
+  var embedded = window.parent && window.parent !== window;
+  function paint() {
+    var f = Math.max(shown, 0.55 * dl + 0.45 * gd);   // one monotonic bar: engine download, then what Godot reads
+    if (f <= shown && shown > 0.04) return; shown = f;
+    if (fill) fill.style.width = Math.max(6, Math.round(f * 100)) + '%';
+    if (embedded && f - sent >= 0.05) { sent = f; try { window.parent.postMessage({ bq: 'progress', p: Math.round(f * 100) / 100 }, '*'); } catch (e) {} }
   }
+  window.bareqProgress = function (k, f) { if (k === 'dl') dl = f; paint(); };
+  // can this frame play sound before a touch inside it? (iOS: no — the game then repeats a missed line at the first touch)
+  try { var AC = window.AudioContext || window.webkitAudioContext; if (AC) { var ac = new AC(); window.__bqAudio = ac.state; if (ac.close) ac.close(); } } catch (e) { window.__bqAudio = 'error'; }
   var missing = Engine.getMissingFeatures({ threads: GODOT_THREADS_ENABLED });
-  if (missing.length !== 0) { fail(missing.join(' / ')); return; }
+  if (missing.length !== 0) { window.bareqFail(new Error('missing: ' + missing.join(' / ')), 'features'); return; }
+  var cfg = {}; for (var k in GODOT_CONFIG) cfg[k] = GODOT_CONFIG[k];
+  cfg.onExit = function (code) { if (code) window.bareqFail(new Error('engine exit ' + code), 'exit'); };
+  var engine = new Engine(cfg);
   engine.startGame({
-    onProgress: function (cur, total) { if (cur > 0 && total > 0) fill.style.width = Math.max(6, Math.round(cur * 100 / total)) + '%'; }
+    onProgress: function (cur, total) { if (cur > 0 && total > 0) { gd = cur / total; paint(); } }
   }).then(function () {
-    fill.style.width = '100%';
+    window.bareqStarted();
+    if (fill) fill.style.width = '100%';
+    var loader = document.getElementById('loader');
+    if (!loader || loader.classList.contains('is-err')) return;
     loader.style.transition = 'opacity .35s'; loader.style.opacity = '0';
-    setTimeout(function () { loader.remove(); }, 380);
-  }, fail);
+    setTimeout(function () { if (!loader.classList.contains('is-err')) loader.remove(); }, 380);
+  }, function (err) { window.bareqFail(err, 'start'); });
 })();
 </script>
 </body>

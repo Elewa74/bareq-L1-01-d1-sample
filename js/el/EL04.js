@@ -16,6 +16,7 @@
 
   K.style('st-EL04', `
 ${SC} .v4-spread { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: clamp(18px, 4cqi, 44px); align-items: center; width: 100%; max-width: 860px; }
+${SC} .v4-spread { max-width: min(860px, max(320px, calc((var(--play-h, 700px) - 185px) * 1.8))); } /* v0-12: يتّسع بارتفاع الإطار (٧٢٠/٧٦٨) */
 ${SC} .v4-photo { position: relative; margin: 0; aspect-ratio: 1; border-radius: var(--r-lg); overflow: hidden; background: var(--white); border: 6px solid var(--white); box-shadow: 0 16px 36px var(--shade); animation: v4In .5s cubic-bezier(.2,1.2,.4,1) both; }
 ${SC} .v4-photo > img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: calc(var(--r-lg) - 6px); }
 ${SC} .v4-bowl { position: absolute; left: 3%; right: 5%; top: 52%; height: 40%; border-radius: 50%; border: 5px dashed var(--sun); box-shadow: 0 0 0 3px var(--navy), inset 0 0 0 3px var(--navy); opacity: 0; transform: scale(.9); transition: opacity .25s, transform .3s; pointer-events: none; }
@@ -54,14 +55,35 @@ ${SC} .v4-badge { display: flex; align-items: center; gap: 8px; font: 700 clamp(
 ${SC} .v4-badge button { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--sky-line); background: var(--white); padding: 0; display: grid; place-items: center; cursor: pointer; box-shadow: 0 3px 0 var(--sky-line); }
 ${SC} .v4-badge button:hover { border-color: var(--sky); }
 ${SC} .v4-badge img { width: 70%; }
+/* v0-12: حركة محيطة — تموّج الماء في الصحن وقطرات تسقط · علامة «؟» تنتظر التخمين في بطاقة الكلمة */
+${SC} .v4-amb { position: absolute; inset: 0; pointer-events: none; overflow: hidden; border-radius: calc(var(--r-lg) - 6px); }
+${SC} .v4-rip { position: absolute; left: 50%; top: 66%; width: 46%; height: 11%; margin: -5.5% 0 0 -23%; border-radius: 50%; border: 2px solid color-mix(in srgb, var(--white) 85%, transparent); opacity: 0; animation: v4Rip 2.8s ease-out infinite; }
+${SC} .v4-rip.b { animation-delay: 1.4s; }
+${SC} .v4-drop { position: absolute; left: 44.5%; top: 34%; width: 1.6%; aspect-ratio: 1 / 1.4; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; background: color-mix(in srgb, var(--white) 80%, var(--sky-line)); opacity: 0; animation: v4Drop 1.4s ease-in infinite; }
+${SC} .v4-drop.b { left: 46.5%; animation-delay: .7s; }
+${SC} .v4-shine { position: absolute; inset: 0; background: linear-gradient(115deg, transparent 40%, color-mix(in srgb, var(--white) 35%, transparent) 50%, transparent 60%) 0 0 / 250% 100%; mix-blend-mode: soft-light; animation: v4Shine 5s ease-in-out infinite; }
+@keyframes v4Rip { 0% { transform: scale(.25); opacity: 0; } 15% { opacity: .9; } 100% { transform: scale(1.15); opacity: 0; } }
+@keyframes v4Drop { 0% { transform: translateY(0); opacity: 0; } 15% { opacity: .9; } 85% { opacity: .8; } 100% { transform: translateY(1250%); opacity: 0; } }
+@keyframes v4Shine { 0%, 100% { background-position: 120% 0; } 50% { background-position: -20% 0; } }
+${SC} .v4-q { font: 700 clamp(70px, 12cqi, 120px)/1 var(--ff-display); color: var(--sun-edge); opacity: .85; transition: opacity .25s, transform .3s; animation: v4Q 1.6s ease-in-out infinite; }
+${SC} .v4-slot.has-word .v4-q, ${SC} .v4-slot.is-guess .v4-q { opacity: 0; transform: scale(.6); animation: none; }
+${SC} .v4-slot:has(.v4-go > *) .v4-q { align-self: start; margin-top: 4%; font-size: clamp(54px, 8cqi, 80px); }
+${SC} .v4-slot:has(.v4-go > *) .v4-go { align-self: end; margin-bottom: 7%; }
+${SC} .v4-slot.has-word:has(.v4-go > *) { min-height: clamp(190px, 32cqi, 250px); }
+${SC} .v4-slot.has-word:has(.v4-go > *) .v4-word { align-self: start; margin-top: 4%; }
+@keyframes v4Q { 50% { transform: translateY(-6px) rotate(-6deg); } }
 @keyframes v4In { from { opacity: 0; transform: translateY(14px) scale(.97); } to { opacity: 1; transform: none; } }
 @keyframes v4Say { 50% { transform: scale(1.08); } }
 @container stage (max-width: 560px) {
-  ${SC} .v4-spread { grid-template-columns: 1fr; gap: 16px; }
+  ${SC} .v4-spread { grid-template-columns: 1fr; gap: 14px; justify-items: center; }
+  ${SC} .v4-photo { width: min(100%, 62cqi, 270px, max(120px, calc(var(--play-h, 600px) - 340px))); }
+  ${SC} .v4-page { width: 100%; }
+  @media (max-height: 760px) { ${SC} .v4-photo { width: min(100%, 62cqi, 270px, max(110px, calc(var(--play-h, 600px) - 385px))); } ${SC} .v4-page { gap: 8px; } ${SC} .v4-slot { min-height: 104px; } ${SC} .v4-tools { min-height: 0; } ${SC} .v4-sent { width: 60px; } }
   ${SC} .v4-slot { min-height: 124px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  ${SC} .v4-photo, ${SC} .v4-turn.in, ${SC} .v4-cover, ${SC} .v4-cover-ic { animation: none; }
+  ${SC} .v4-photo, ${SC} .v4-turn.in, ${SC} .v4-cover, ${SC} .v4-cover-ic, ${SC} .v4-q { animation: none; }
+  ${SC} .v4-amb { display: none; }
   ${SC} .v4-word { transition: opacity .2s; transform: none; }
   ${SC} .v4-cover.is-off { transform: none; }
 }
@@ -91,13 +113,14 @@ ${SC} .v4-badge img { width: 70%; }
       const steps = recall ? K.steps(root, 2) : null;
       const pic = h('figure.v4-photo', null,
         h('img', { src: BQ.img('img-001'), alt: 'ماءٌ يُصَبُّ في صَحْنٍ', draggable: 'false' }),
+        h('span.v4-amb', { 'aria-hidden': 'true' }, h('span.v4-shine'), h('span.v4-drop'), h('span.v4-drop.b'), h('span.v4-rip'), h('span.v4-rip.b')),
         h('span.v4-bowl', { 'aria-hidden': 'true' }),
         h('span.v4-lips', { 'aria-hidden': 'true' }, h('img', { src: BQ.img('img-101'), alt: '' })));
       const turn = h('span.v4-turn', { 'aria-hidden': 'true' }, BQ.icon('mouth'));
       pic.append(turn);
       const word = h('span.v4-word', { lang: 'ar', 'aria-live': 'polite', html: K.MAA });
       const goLayer = h('div.v4-go');
-      const slot = h('div.v4-slot', null, word, goLayer);
+      const slot = h('div.v4-slot', null, h('span.v4-q', { 'aria-hidden': 'true' }, '؟'), word, goLayer);
       const sentBtn = h('button.bq-hear.v4-sent', { type: 'button', hidden: true, 'aria-label': 'اسْمَعِ الجُمْلَةَ', title: 'الجملة' },
         BQ.icon('ear'), h('span.v4-sent-bowl', { 'aria-hidden': 'true' }, h('img', { src: BQ.img('img-001'), alt: '' })));
       const tools = h('div.v4-tools', null, sentBtn);

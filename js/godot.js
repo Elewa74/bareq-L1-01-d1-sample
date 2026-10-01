@@ -2,8 +2,12 @@
    BQ.ui.godot(parent, {src, station, age, onDone, onReady, onFail, title}) → {el, box, row, iframe, load(src, station), destroy()}
      لوحة لعبة عمودية (927×1596) في iframe وسط المسرح · حالة تحميل · زرّ ملء الشاشة (حين يتاح) · رسائل اللعبة:
      postMessage({bq:'ready'|'done'|'error', station, result}).
-     مراقب التحميل: إن لم تصل 'ready' خلال ٢٠ ث من تحميل الإطار، أو وصلت 'error'، أو فشل الإطار → onFail().
-   BQ.ui.godotOK() — WebGL2 + WebAssembly + DecompressionStream متاحة؟
+     مراقب التحميل (v0-12): لا علامة حياة ('progress' من اللعبة أو تحميل الإطار) ٢٠ ث، أو ٩٠ ث بلا 'ready'، أو وصلت 'error'،
+     أو فشل الإطار → onFail(). 'error' مع fatal:true (انهيار بعد البدء: ذاكرة/WebGL) يُعدّ فشلاً حتى بعد 'ready'.
+     بلا onFail: لوحة داخل المربّع «تعذّر تشغيل اللعبة» + زرّ «العودة إلى الدرس» (لا شاشة ميّتة).
+     يمرَّر emb=1: اللعبة المضمَّنة تتخطّى بطاقة عنوانها (غلاف الصفحة يكفي).
+   BQ.ui.godotOK() — WebGL2 + WebAssembly + DecompressionStream متاحة، ولم تفشل اللعبة على هذا المتصفّح في هذه الجلسة
+     (sessionStorage «bq-godot-fail» تكتبه اللعبة عند فشلها) · ?godot=0 يفرض النسخة الخفيفة و?godot=1 يفرض المحاولة (للفحص).
    BQ.ui.godotRender(station, htmlRender, {name, title, instruction, after(ctx, result, stage)}) → render(stage, ctx):
      المحطّة هي التجربة الأساسية، والنسخة HTML بديل آليّ (بلا WebGL، أو إن تعذّر التحميل)، ورابط للكبير «النسخة الخفيفة».
      after يُستدعى حين تنتهي المحطّة (بطاقة الختام أو خطوة إضافية)؛ بلا after تظهر بطاقة ختام افتراضية. */
@@ -13,7 +17,7 @@
   const h = BQ.h;
   const GAME = 'games/meem/index.html';
   const AR = BQ.AR || ((n) => String(n).replace(/\d/g, (d) => '٠١٢٣٤٥٦٧٨٩'[d]));
-  const READY_MS = 20000;
+  const IDLE_MS = 20000, READY_MS = 90000;
 
   if (!document.getElementById('st-godot')) {
     const st = document.createElement('style'); st.id = 'st-godot';
@@ -27,6 +31,8 @@
 .bq-godot-load { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
   background: radial-gradient(circle at 50% 40%, var(--sky-2), var(--sky)); color: var(--white); font: 600 15px/1.5 var(--ff-ui); text-align: center; padding: 20px; transition: opacity .35s; z-index: 2; }
 .bq-godot-load.is-off { opacity: 0; pointer-events: none; }
+.bq-godot-dead { z-index: 4; color: var(--white); }
+.bq-godot-dead .bq-btn { min-height: 52px; font-size: 18px; }
 .bq-godot-spin { width: 46px; height: 46px; border-radius: 50%; border: 5px solid rgba(255,255,255,.35); border-top-color: var(--sun-soft); animation: bqgspin 1s linear infinite; }
 @keyframes bqgspin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .bq-godot-spin { animation: none; } }
@@ -59,7 +65,10 @@
 
   const FS = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>';
 
+  const force = (() => { try { return new URLSearchParams(location.search).get('godot'); } catch (e) { return null; } })();
   BQ.ui.godotOK = function () {
+    if (force === '0') return false;
+    if (force !== '1') { try { if (sessionStorage.getItem('bq-godot-fail')) return false; } catch (e) { /* التخزين محجوب */ } }
     if (typeof WebAssembly !== 'object' || typeof WebAssembly.instantiate !== 'function') return false;
     if (typeof DecompressionStream !== 'function') return false; // المحرّك مضغوط gz (Safari < 16.4 لا يدعمه)
     try { const c = document.createElement('canvas'); return !!(c.getContext('webgl2')); } catch (e) { return false; }
@@ -68,7 +77,7 @@
   BQ.ui.godot = function (parent, opt) {
     opt = opt || {};
     const url = (src, station) => (src || GAME) + (station ? '#station=' + encodeURIComponent(station) + '&age=' + encodeURIComponent(opt.age || BQ.state.age || '4-6') +
-      '&rm=' + (BQ.reduced() ? 1 : 0) + '&cc=' + (BQ.state.cc ? 1 : 0) : '');
+      '&rm=' + (BQ.reduced() ? 1 : 0) + '&cc=' + (BQ.state.cc ? 1 : 0) + '&emb=1' : '');
     const load = h('div.bq-godot-load', { role: 'status' }, h('span.bq-godot-spin', { 'aria-hidden': 'true' }), h('span', null, 'جارٍ تحميل اللعبة…'));
     const iframe = h('iframe', { title: opt.title || 'لعبة رحلة الميم', allow: 'autoplay; fullscreen', loading: 'eager' });
     const canFs = !!(document.fullscreenEnabled || document.webkitFullscreenEnabled);
@@ -83,27 +92,39 @@
         const f = box.requestFullscreen || box.webkitRequestFullscreen; if (f) { const p = f.call(box); if (p && p.catch) p.catch(() => {}); }
       } catch (e) { /* ملء الشاشة غير متاح هنا */ }
     });
-    let timer = 0, watchdog = 0, ready = false, failed = false, dead = false;
+    let timer = 0, watchdog = 0, cap = 0, ready = false, failed = false, dead = false;
     const hideLoad = () => { load.classList.add('is-off'); clearTimeout(timer); };
-    const fail = (why) => { if (ready || failed || dead) return; failed = true; clearTimeout(watchdog); opt.onFail && opt.onFail(why); };
+    const stopWatch = () => { clearTimeout(watchdog); clearTimeout(cap); };
+    const alive = () => { if (ready || failed || dead) return; clearTimeout(watchdog); watchdog = setTimeout(() => fail('timeout'), IDLE_MS); };
+    const deadBox = () => { // لا onFail: لوحة داخل المربّع بدل شاشة ميّتة
+      hideLoad(); try { iframe.src = 'about:blank'; } catch (e) { /* */ }
+      const back = h('button.bq-btn', { type: 'button', onclick: () => { const id = BQ.state && BQ.state.current; if (id && BQ.open) BQ.open(id, { skipCover: true, history: 'replace' }); } }, 'العودة إلى الدرس');
+      box.append(h('div.bq-godot-load.bq-godot-dead', { role: 'alert' }, h('span', null, 'تعذّر تشغيل اللعبة على هذا الجهاز.'), back));
+    };
+    const fail = (why, fatal) => {
+      if (failed || dead || (ready && !fatal)) return;
+      failed = true; stopWatch();
+      if (opt.onFail) opt.onFail(why); else deadBox();
+    };
     iframe.addEventListener('load', () => {
       if (dead || !iframe.src || iframe.src === 'about:blank') return;
       clearTimeout(timer); timer = setTimeout(hideLoad, 1200); // اللعبة تعرض شاشة تحميلها
-      clearTimeout(watchdog); watchdog = setTimeout(() => fail('timeout'), READY_MS);
+      alive(); clearTimeout(cap); cap = setTimeout(() => { if (!ready) fail('timeout'); }, READY_MS);
     });
     iframe.addEventListener('error', () => fail('iframe'));
     function onMsg(e) {
       if (!iframe.contentWindow || e.source !== iframe.contentWindow) return;
       const m = e.data; if (!m || typeof m !== 'object' || !m.bq) return;
-      if (m.bq === 'ready') { ready = true; clearTimeout(watchdog); hideLoad(); opt.onReady && opt.onReady(m); }
-      if (m.bq === 'error') fail('game');
+      if (m.bq === 'progress') alive();
+      if (m.bq === 'ready') { ready = true; stopWatch(); hideLoad(); opt.onReady && opt.onReady(m); }
+      if (m.bq === 'error') fail('game', !!m.fatal);
       if (m.bq === 'done') opt.onDone && opt.onDone(m);
     }
     window.addEventListener('message', onMsg);
     const api = {
       el, box, row, iframe,
-      load(src, station) { ready = false; failed = false; load.classList.remove('is-off'); iframe.src = url(src, station); },
-      destroy() { dead = true; window.removeEventListener('message', onMsg); clearTimeout(timer); clearTimeout(watchdog); try { iframe.src = 'about:blank'; } catch (e) {} el.remove(); },
+      load(src, station) { ready = false; failed = false; load.classList.remove('is-off'); const d = box.querySelector('.bq-godot-dead'); if (d) d.remove(); iframe.src = url(src, station); },
+      destroy() { dead = true; window.removeEventListener('message', onMsg); clearTimeout(timer); stopWatch(); try { iframe.src = 'about:blank'; } catch (e) {} el.remove(); },
     };
     api.load(opt.src, opt.station);
     return api;

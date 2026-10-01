@@ -21,7 +21,7 @@
       const finish = () => {
         if (finished || !alive()) return; finished = true;
         ctx.done();
-        BQ.ui.endCard(stage, { title: 'سَمِعْتُ فَرْقاً!', note: 'انتهى المقطع. قولا العبارة معاً مرّة أخرى، ثم انتقلا إلى النشاط التالي.', onReplay: () => BQ.open('EL02', { skipCover: true }) });
+        BQ.ui.endCard(stage, { title: 'سَمِعْتُ فَرْقاً!', note: 'للكبير: انتهى المقطع. قولا العبارة معاً مرّة أخرى، ثم انتقلا إلى النشاط التالي.', onReplay: () => BQ.open('EL02', { skipCover: true }) });
       };
       // للكبير (في الدليل لا على الصفحة): ما يفعله + تعليم العنصر يدوياً إن شوهد المقطع بطريقة أخرى
       const mark = h('button.bq-btn.ghost', { type: 'button', onclick: () => { const sc = ctx.frame.querySelector('.elp-scrim'); if (sc && !sc.hidden) sc.click(); if (P) P.pause(); finish(); } }, BQ.icon('check'), 'شاهدناه — علِّمْه منجَزاً');
@@ -62,7 +62,7 @@
         if (ok !== false) { finish(); return; }
         // تعذّر التشغيل و«تابِعْ»: لا تعليم إنجاز (T02 · QA-09)
         if (finished) return;
-        BQ.ui.endCard(stage, { title: 'نُكْمِلُ لاحِقاً', note: 'لم يُعرَض المقطع، فلم يُعلَّم العنصر منجَزاً. شاهِداه لاحقاً، أو علِّمه من «دليل الكبير».', onReplay: () => BQ.open('EL02', { skipCover: true }) });
+        BQ.ui.endCard(stage, { title: 'نُكْمِلُ لاحِقاً', note: 'للكبير: لم يُعرَض المقطع، فلم يُعلَّم العنصر منجَزاً. شاهِداه لاحقاً، أو علِّمه من «دليل الكبير».', onReplay: () => BQ.open('EL02', { skipCover: true }) });
       });
     },
   });

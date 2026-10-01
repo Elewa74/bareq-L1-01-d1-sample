@@ -27,7 +27,7 @@
 .elp .sx-photo > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; transition: opacity .7s ease, transform .7s ease; }
 .elp .sx-photo.bq-choice { width: auto; aspect-ratio: auto; display: block; }
 .elp button.sx-photo { cursor: pointer; transition: transform .18s ease, box-shadow .25s, opacity .35s; }
-.elp button.sx-photo:hover:not(:disabled) { transform: translateY(-4px); }
+@media (hover: hover) { .elp button.sx-photo:hover:not(:disabled) { transform: translateY(-4px); } }
 .elp button.sx-photo:disabled { cursor: default; }
 /* حالات موحّدة مع بطاقات المحرّك (.bq-choice): مختار = حلقة كحلية · إضاءة الدليل = هالة شمسية · باهت = ٠٫٦ */
 .elp .bq-choice.is-picked, .elp .sx-photo.is-picked { border-color: var(--navy); box-shadow: 0 0 0 4px var(--navy), 0 12px 24px var(--shade); }
@@ -117,12 +117,18 @@
         const iv = setInterval(() => { if (done) return clearInterval(iv); if (BQ.audio.token !== tok || !alive()) { clearInterval(iv); res(false); } }, 120);
       });
     }
+    /** بارق المتحرّك (BQ.ui.brq): يتكلّم أثناء السطر ثم مزاج قصير (cheer للتعزيز · think لإعادة المحاولة) ويخرج — v0-12 */
     function bariq(stage, id, side) {
       if (!alive()) return Promise.resolve(false);
-      const el = h('div.bq-bariq' + (side === 'left' ? '.left' : ''), { 'aria-hidden': 'true' }, h('img', { src: BQ.char.BRQ, alt: '' }));
+      const anim = BQ.ui.brq ? BQ.ui.brq('talk') : h('img', { src: BQ.char.BRQ, alt: '' });
+      const el = h('div.bq-bariq' + (BQ.ui.brq ? '.has-anim' : '') + (side === 'left' ? '.left' : ''), { 'aria-hidden': 'true' }, anim);
       stage.append(el);
       requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('in')));
-      return say(id).then((r) => { el.classList.remove('in'); setTimeout(() => el.remove(), 480); return r; });
+      const mood = /fb-yes|FB_0[1235]|EL06_05|_key_|s1_01|scr06/.test(id || '') ? 'cheer' : /retry|EL02_04|FB_04/.test(id || '') ? 'think' : '';
+      return say(id).then((r) => new Promise((res) => {
+        if (r && mood && anim.brq) anim.brq(mood);
+        setTimeout(() => { el.classList.remove('in'); setTimeout(() => el.remove(), 480); res(r && alive()); }, r && mood ? 700 : 0);
+      }));
     }
     /** main: «للكبير» (≤ ٣ أوامر قصيرة) · meta: «ملاحظات المراجِع» المطويّة (المحطّة، الرصد، ما يُسجَّل) */
     function adult(main, meta) {
@@ -165,6 +171,15 @@ ${S} .t10-qbadge .bq-ic { width: 56%; height: 56%; }
 ${S} .t10-pics { display: flex; gap: clamp(12px, 3cqi, 28px); justify-content: center; }
 ${S} .t10-sq { width: clamp(120px, 28cqi, 250px); aspect-ratio: 1; }
 ${S} .t10-big { width: clamp(170px, 38cqi, 320px); aspect-ratio: 1; }
+/* v0-12: الصور تصغر بارتفاع الإطار (شاشات ٧٢٠–٨٢٠) فيبقى شريط ملاحظة الكبير و«البند التالي» داخل الإطار */
+${S} .t10-sq, ${S} .t10-big { max-width: max(110px, calc(var(--play-h, 700px) - 450px)); }
+${S} .t10-spread { max-width: max(300px, calc((var(--play-h, 700px) - 230px) * 16 / 9)); }
+@media (max-height: 840px) {
+  ${S} .sx-wrap { gap: 12px; }
+  ${S} .t10-dock { min-height: 0; }
+  ${S} .t10-dock .sx-hear { width: 76px; }
+  ${S} .t10-sq, ${S} .t10-big { max-width: max(104px, calc(var(--play-h, 700px) - 470px)); }
+}
 ${S} .t10-shape { position: absolute; top: 10px; inset-inline-start: 10px; width: clamp(34px, 7cqi, 54px); aspect-ratio: 1; display: grid; place-items: center; background: var(--white); border-radius: 12px; color: var(--navy); box-shadow: 0 3px 10px var(--shade); z-index: 1; }
 ${S} .t10-shape svg { width: 72%; height: 72%; }
 ${S} .t10-mirror { position: absolute; bottom: 10px; inset-inline-end: 10px; width: clamp(34px, 7cqi, 54px); aspect-ratio: 1; border-radius: 50%; background: linear-gradient(135deg, var(--white), var(--c-word-card) 55%, var(--sky-2)); border: 4px solid var(--tile); box-shadow: 0 3px 10px var(--shade); z-index: 1; }
@@ -175,6 +190,7 @@ ${S} .t10-dock { display: flex; align-items: center; justify-content: center; ga
 ${S} .t10-turn { position: relative; width: clamp(64px, 10cqi, 84px); aspect-ratio: 1; border-radius: 50%; background: var(--white); border: 1.5px solid var(--sky-line); display: grid; place-items: center; box-shadow: 0 4px 12px var(--shade); color: var(--navy); }
 ${S} .t10-turn img { width: 112%; margin-top: -6%; pointer-events: none; }
 ${S} .t10-turn > .bq-ic { width: 52%; height: 52%; }
+${S} .t10-turn .t10-brq { width: 122%; margin-top: -14%; }
 ${S} .t10-turn .t10-duo { display: flex; gap: 4%; width: 74%; }
 ${S} .t10-turn .t10-duo .bq-ic { width: 50%; height: auto; aspect-ratio: 1; }
 ${S} .t10-turn.go::after { content: ""; position: absolute; inset: -9px; border-radius: 50%; border: 4px solid var(--sun); animation: bqRing 1.1s ease-out infinite; }
@@ -189,6 +205,17 @@ ${S} .t10-next.soft { background: var(--white); color: var(--navy); box-shadow: 
   ${S} .t10-sq { width: calc((100cqi - 48px) / 2); }
   ${S} .t10-big { width: min(62cqi, 230px); }
   ${S} .t10-polaroid { width: 34cqi; bottom: -26px; inset-inline-end: -4px; }
+}
+/* v0-12: هاتف قصير (٣٦٠×٦٤٠): شريط ملاحظة الكبير صفّ واحد مضغوط، والصور أصغر */
+@container stage (max-width: 560px) {
+  @media (max-height: 760px) {
+    ${S} .sx-adult { flex-direction: row; padding: 8px; gap: 6px; }
+    ${S} .sx-adult-tag > span { display: none; }
+    ${S} .sx-adult button { font-size: 13px; padding: 4px; }
+    ${S} .t10-sq { width: min(calc((100cqi - 48px) / 2), max(96px, calc(var(--play-h, 600px) - 400px))); }
+    ${S} .t10-big { width: min(62cqi, max(110px, calc(var(--play-h, 600px) - 380px))); }
+    ${S} .t10-dock .sx-hear { width: 64px; }
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   ${S} .t10-check, ${S} .t10-qbadge, ${S} .t10-turn.go::after { animation: none !important; }
@@ -292,7 +319,7 @@ ${S} .t10-next.soft { background: var(--white); color: var(--navy); box-shadow: 
           pics.append(lipCard);
         }
         // «دورك»: بارق في البند الأوّل (يقول الطفل العبارة في دوره) · فم في غيره · يد+فم للمعيار الذاتيّ
-        const turn = h('div.t10-turn', { 'aria-hidden': 'true' }, it.key === 'phrase' ? h('img', { src: BQ.char.BRQ, alt: '' }) : BQ.icon('mouth'));
+        const turn = h('div.t10-turn', { 'aria-hidden': 'true' }, it.key === 'phrase' ? (BQ.ui.brq ? BQ.ui.brq('wave', 't10-brq') : h('img', { src: BQ.char.BRQ, alt: '' })) : BQ.icon('mouth'));
         // «اسمع النموذج» — زرّ أزرق بأذن (غير سمّاعة التعليمة الصفراء)
         const listen = h('button.bq-hear.sx-hear', { type: 'button', 'aria-label': 'اسْمَعِ النَّموذَجَ', onclick: () => replayModel(true) }, BQ.icon('ear'));
         const dock = h('div.t10-dock', null, listen, turn);
@@ -400,7 +427,7 @@ ${S} .t10-next.soft { background: var(--white); color: var(--navy); box-shadow: 
         gen++; clearTimers(); BQ.audio.stop();
         stage.querySelectorAll('.bq-end').forEach((n) => n.remove());
         ctx.done();
-        sxEnd(stage, { title: 'أَحْسَنْتَ!', note: 'ملاحظاتك الثلاث في دليل الكبير.', home: HOME, onReplay: () => { log.forEach((l) => { l.level = null; l.replays = 0; }); s1(); } });
+        sxEnd(stage, { title: 'أَحْسَنْتَ!', note: 'للكبير: ملاحظاتك الثلاث في دليل الكبير.', home: HOME, onReplay: () => { log.forEach((l) => { l.level = null; l.replays = 0; }); s1(); } });
         panel('<p>انتهت البنود الثلاثة؛ السجلّ في «ملاحظات المراجِع».</p>');
       }
       s1();

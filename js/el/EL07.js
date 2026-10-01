@@ -14,7 +14,7 @@
 ${SC} .k7 { min-height: 400px; justify-content: center; }
 ${SC} .k7-row { position: relative; flex: 0 0 auto; display: flex; gap: clamp(12px, 3.6cqi, 36px); justify-content: center; align-items: center; padding: 8px 0 12px; }
 ${SC} .k7-card { position: relative; width: clamp(92px, 25cqi, 210px); aspect-ratio: 3 / 4; border: 0; padding: 0; background: none; cursor: pointer; perspective: 1000px; border-radius: var(--r-lg); transition: transform .4s cubic-bezier(.3,1.3,.5,1); }
-${SC} .k7-card:hover { transform: translateY(-4px); }
+@media (hover: hover) { ${SC} .k7-card:hover { transform: translateY(-4px); } }
 ${SC} .k7-card:focus-visible { outline: 4px solid var(--navy); outline-offset: 5px; }
 ${SC} .k7-in { position: absolute; inset: 0; transform-style: preserve-3d; transition: transform .4s cubic-bezier(.4,.1,.3,1.2); border-radius: inherit; }
 ${SC} .k7-card.is-flip .k7-in { transform: rotateY(180deg); }

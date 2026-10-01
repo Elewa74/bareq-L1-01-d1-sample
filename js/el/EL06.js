@@ -1,6 +1,6 @@
 /* EL06 · أغنّي (أنشودة الميم) — خطوتان داخل المسرح (تصميم v2):
-   (١) الأنشودة vid-103 — غناءٌ حقيقيّ (Eleven Music v2.5، ٩٦ نبضة/د): عند الطرق يتوقّف الإيقاع وتظهر ○○/○□ للمس (gme-109)
-       ثانيتين (لـ٤–٦ حتى «أَكْمِلْ»)؛ الكلمات في النصّ المصاحب فقط (زرّ «النص المصاحب»).
+   (١) الأنشودة vid-103 — غناءٌ حقيقيّ (Eleven Music v2.5، ٩٦ نبضة/د) تُشاهَد بلا وقفات أسئلة (أُزيلت وقفات الطرق v0-10)؛
+       الكلمات في النصّ المصاحب فقط (زرّ «النص المصاحب»).
    (٢) «أغنّي وحدي»: مسار الآلات (الغناء مفصول بـ demucs) وشريط صور الأسطر يتقدّم مع الإيقاع (بلا كلمات، بلا تسجيل). */
 (function () {
   const NSTEPS = 2; // الأنشودة · أغنّي وحدي (مؤشّر موحّد)
@@ -31,9 +31,22 @@
 .bq-frame[data-el="EL06"] .e6-refrain .bq-ic{width:80%;height:80%}
 .bq-frame[data-el="EL06"] .e6-refrain.on{opacity:1;transform:scale(1)}
 .bq-frame[data-el="EL06"] .e6-ctl{display:flex;gap:12px;align-items:center}
-.bq-frame[data-el="EL06"] .e6-ctl .bq-btn{min-height:48px}
+.bq-frame[data-el="EL06"] .e6-ctl .bq-btn{min-height:60px}
 .bq-frame[data-el="EL06"] .e6-brq{position:absolute;bottom:0;inset-inline-start:0;width:clamp(70px,13cqi,120px);pointer-events:none;animation:e6Dance 1.25s ease-in-out infinite;transform-origin:50% 60%}
 .bq-frame[data-el="EL06"] .e6-brq img{width:100%;display:block;filter:drop-shadow(0 8px 12px var(--shade))}
+/* v0-12: «أغنّي وحدي» مسرح صغير — الشريط في الوسط، بارق يرقص بجانب أزرار التحكّم (لا فوق الصور)، نوتات تطفو أثناء العزف */
+.bq-frame[data-el="EL06"] .e6-screen{margin-block:auto;flex:0 0 auto;padding-block:8px}
+.bq-frame[data-el="EL06"] .e6-ctl .bq-btn{white-space:nowrap}
+@container stage (max-width: 560px){.bq-frame[data-el="EL06"] .e6-ctl{gap:8px}.bq-frame[data-el="EL06"] .e6-ctl .bq-btn{padding-inline:.9em;font-size:16px}.bq-frame[data-el="EL06"] .e6-ctl .e6-brq,.bq-frame[data-el="EL06"] .e6-ctl .e6-brq.has-anim{width:64px}}
+.bq-frame[data-el="EL06"] .e6-ctl .e6-brq,.bq-frame[data-el="EL06"] .e6-ctl .e6-brq.has-anim{position:relative;bottom:auto;inset-inline-start:auto;inset:auto;width:clamp(76px,11cqi,108px);margin-block:-18px -6px}
+.bq-frame[data-el="EL06"] .e6-notes{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.bq-frame[data-el="EL06"] .e6-note{position:absolute;bottom:18%;font:700 clamp(22px,3.4cqi,34px)/1 var(--ff-display);color:var(--sky);opacity:0}
+.bq-frame[data-el="EL06"] .e6-screen.is-on .e6-note{animation:e6Note 3.2s ease-out infinite}
+.bq-frame[data-el="EL06"] .e6-note:nth-child(2){color:var(--sun-edge);animation-delay:.8s!important}
+.bq-frame[data-el="EL06"] .e6-note:nth-child(3){color:var(--coral);animation-delay:1.6s!important}
+.bq-frame[data-el="EL06"] .e6-note:nth-child(4){color:var(--navy);animation-delay:2.4s!important}
+@keyframes e6Note{0%{opacity:0;transform:translateY(0) rotate(-10deg)}15%{opacity:.8}100%{opacity:0;transform:translateY(-220%) rotate(14deg)}}
+@media (prefers-reduced-motion: reduce){.bq-frame[data-el="EL06"] .e6-notes{display:none}}
 @keyframes e6Dance{0%,50%,100%{transform:translateY(0) scale(1.06,.94)}25%{transform:translateY(-14%) rotate(-8deg) scale(.97,1.04)}75%{transform:translateY(-14%) rotate(8deg) scale(.97,1.04)}}
 @media (prefers-reduced-motion: reduce){.bq-frame[data-el="EL06"] .e6-brq{animation:none}.bq-frame[data-el="EL06"] .e6-card,.bq-frame[data-el="EL06"] .e6-refrain{transition:none}}
 `));
@@ -52,18 +65,28 @@
     const rp = h('button.bq-btn.ghost', { type: 'button' }, BQ.icon('replay'), 'من البداية');
     const anim = BQ.ui.brq('idle'); // [brq-anim v1] cheer مع اللازمة · idle غير ذلك/عند الإيقاف
     const brq = h('div.e6-brq.has-anim', { 'aria-hidden': 'true' }, anim);
-    scr.append(refrain, strip, h('div.e6-ctl', null, pp, rp), brq);
+    const notes = h('div.e6-notes', { 'aria-hidden': 'true' }, ...['♪', '♫', '♪', '♬'].map((n, i) => h('span.e6-note', { style: { insetInlineStart: (12 + i * 24) + '%' } }, n)));
+    scr.append(notes, refrain, strip, h('div.e6-ctl', null, brq, pp, rp));
     let bed = null, raf = 0, t0 = 0, pausedAt = 0, ended = false, alive = true, lastBeat = -1;
     const DUR = 66.5;
     const now = () => (bed && bed.el ? bed.el.currentTime : ((pausedAt || performance.now()) / 1000 - t0));
     const isPaused = () => (bed && bed.el ? bed.el.paused : !!pausedAt);
-    const setPP = () => { const p = isPaused() && !ended; pp.replaceChildren(BQ.icon(p || ended ? 'play' : 'pause'), h('span', null, ended ? 'غنِّ مرّة أخرى' : p ? 'تشغيل' : 'إيقاف')); brq.style.animationPlayState = p ? 'paused' : ''; if (p || ended) anim.brq('idle'); };
+    const setPP = () => { const p = isPaused() && !ended; pp.replaceChildren(BQ.icon(p || ended ? 'play' : 'pause'), h('span', null, ended ? 'غنِّ مرّة أخرى' : p ? 'تشغيل' : 'إيقاف')); brq.style.animationPlayState = p ? 'paused' : ''; scr.classList.toggle('is-on', !p && !ended); if (p || ended) anim.brq('idle'); };
+    /* v0-12 (iPad/iOS): سرير الآلات على عنصر الصوت المشترك الذي فُتح بلمسة «ابْدَأْ» — عنصر Audio جديد خارج اللمسة يُمنع صامتاً في iOS */
+    function playBed() {
+      const id = 'bariq_L1-01_music-song-bed';
+      if (!BQ.hasAudio(id)) return BQ.audio.fx(id, 0.75);
+      const done = BQ.audio.play(id, { noCaption: true, volume: 0.75 });
+      const el = BQ.audio.cur;
+      return { el, done, stop() { if (BQ.audio.cur === el) BQ.audio.stop(); else { try { el.pause(); } catch (e) { /* */ } } } };
+    }
     function start() {
       if (bed) bed.stop();
       ended = false; lastBeat = -1;
-      bed = BQ.audio.fx('bariq_L1-01_music-song-bed', 0.75);
+      bed = playBed();
+      const mine = bed;
       t0 = performance.now() / 1000; pausedAt = 0;
-      if (bed.el) bed.done.then(finish); else setTimeout(() => alive && finish(), DUR * 1000);
+      if (bed.el) bed.done.then(() => { if (bed === mine) finish(); }); else setTimeout(() => alive && bed === mine && finish(), DUR * 1000);
       setPP(); cancelAnimationFrame(raf); tick();
     }
     function tick() {
@@ -125,7 +148,7 @@
       const end = () => {
         if (!G.alive()) return;
         ctx.done();
-        BQ.ui.endCard(stage, { title: 'سَمِعْتُ فَرْقاً!', note: 'غنّيتما الأنشودة. أعيدا الغناء متى شئتما بلا أصوات الشخصيات.', onReplay: () => BQ.open('EL06', { skipCover: true }) });
+        BQ.ui.endCard(stage, { title: 'سَمِعْتُ فَرْقاً!', note: 'للكبير: غنّيتما الأنشودة. أعيدا الغناء متى شئتما بلا أصوات الشخصيات.', onReplay: () => BQ.open('EL06', { skipCover: true }) });
       };
       const video = (then) => {
         const s = go();

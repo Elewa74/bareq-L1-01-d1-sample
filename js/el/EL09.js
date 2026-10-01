@@ -12,6 +12,7 @@
   K.style('st-EL09', `
 ${SC} .k9 { min-height: 420px; }
 ${SC} .k9-scene { position: relative; width: min(100%, 640px); aspect-ratio: 16 / 9; border-radius: var(--r-lg); overflow: hidden; border: 6px solid var(--white); box-shadow: 0 16px 36px var(--shade); background: var(--sky-wash); flex: 0 0 auto; animation: kxIn .45s ease-out both; }
+${SC} .k9-scene { max-width: max(280px, calc((var(--play-h, 700px) - 300px) * 16 / 9)); } /* v0-12: لا تخرج صور التوقّع عن الإطار */
 ${SC} .k9-scene > img { width: 100%; height: 100%; object-fit: cover; display: block; transition: opacity .6s, filter .6s; }
 ${SC} .k9-scene.is-listen > img { opacity: 0; filter: blur(8px); }
 ${SC} .k9-predict { display: flex; justify-content: center; gap: clamp(10px, 2.6cqi, 22px); }
@@ -32,7 +33,7 @@ ${SC} .k9-av.say { inset-inline-end: 25%; }
 ${SC} .k9-scene.is-pause .k9-wave svg { opacity: .22; }
 ${SC} .k9-who { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: clamp(10px, 3cqi, 28px); padding-bottom: 12%; }
 ${SC} .k9-wb { width: clamp(76px, 17cqi, 132px); aspect-ratio: 1; border-radius: 50%; border: 5px solid var(--white); background-color: var(--white); background-repeat: no-repeat; cursor: pointer; padding: 0; box-shadow: 0 6px 0 var(--sky-line), 0 10px 22px var(--shade); animation: kxIn .4s ease-out both; transition: transform .2s; }
-${SC} .k9-wb:hover { transform: translateY(-4px); }
+@media (hover: hover) { ${SC} .k9-wb:hover { transform: translateY(-4px); } }
 ${SC} .k9-wb.is-picked { border-color: var(--navy); box-shadow: 0 0 0 4px var(--navy), 0 10px 22px var(--shade); }
 ${SC} .k9-hint { position: absolute; bottom: 5%; left: 50%; translate: -50% 0; }
 ${SC} .k9-order { position: relative; width: 100%; display: flex; flex-direction: column; align-items: center; gap: clamp(18px, 3.4cqi, 30px); }
@@ -48,11 +49,13 @@ ${SC} .k9-tray:empty { background: transparent; }
 ${SC} .k9-oc { position: relative; width: clamp(88px, 22cqi, 170px); aspect-ratio: 1; border-radius: 22px; border: 4px solid var(--white); padding: 0; overflow: hidden; background: var(--white); cursor: grab; box-shadow: 0 5px 0 var(--sky-line), 0 10px 22px var(--shade); touch-action: none; transition: box-shadow .2s; }
 ${SC} .k9-oc img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
 ${SC} .k9-slot > .k9-oc { width: 100%; box-shadow: 0 6px 16px var(--shade); }
+${SC} .k9-slot, ${SC} .k9-tray .k9-oc { max-width: max(76px, calc((var(--play-h, 700px) - 370px) / 2)); } /* v0-12: الخانات والصور بارتفاع الإطار */
+@media (max-height: 760px) { ${SC} .k9-order { gap: 12px; } ${SC} .k9-order > .bq-listen, ${SC} .k9-order > .bq-hear { width: 60px; } ${SC} .k9-slots { padding-top: 22px; } }
 ${SC} .k9-oc.is-drag { cursor: grabbing; z-index: 9; position: relative; box-shadow: 0 18px 30px rgba(0, 52, 91, .28); }
 ${SC} .k9-oc.is-glow { box-shadow: 0 0 0 5px var(--sun-soft), 0 0 26px var(--sun); }
 ${SC} .k9-oc.is-ok { border-color: var(--ok); box-shadow: 0 0 0 4px var(--ok), 0 6px 16px var(--shade); }
 ${SC} .k9-oc.is-pop { animation: bqPop .3s ease-out; }
-${SC} .k9-line { position: absolute; inset: 0; pointer-events: none; overflow: visible; }
+${SC} .k9-line { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; } /* v0-12: عرض صريح — بدونه يأخذ SVG عرضه الافتراضيّ ٣٠٠ ويُزاح يميناً في RTL */
 ${SC} .k9-line path { fill: none; stroke: var(--sun); stroke-width: 6; stroke-dasharray: 3 14; stroke-linecap: round; }
 ${SC} .k9-sd { display: flex; flex-direction: column; align-items: center; gap: clamp(16px, 3cqi, 28px); width: 100%; }
 ${SC} .k9-pair { display: flex; align-items: center; gap: clamp(18px, 5cqi, 48px); }

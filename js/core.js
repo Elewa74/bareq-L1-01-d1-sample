@@ -84,12 +84,58 @@
       return URL.createObjectURL(new Blob([b], { type: 'audio/wav' }));
     } catch (e) { return ''; }
   })();
-  const sharedEl = () => { if (!shared) { try { shared = new Audio(); shared.preload = 'auto'; } catch (e) { shared = null; } } return shared; };
-  /** يُستدعى داخل لمسة المستخدم (ابْدَأْ · التالي) */
+  const mkAudio = () => { try { const a = new Audio(); a.preload = 'auto'; a.setAttribute('playsinline', ''); return a; } catch (e) { return null; } };
+  const sharedEl = () => { if (!shared) shared = mkAudio(); return shared; };
+  /* v0-12 · iOS/iPadOS: كلّ تشغيل يمرّ بعناصر صوت «مفتوحة» بلمسة — عنصر الكلام المشترك + مجمّع للمؤثّرات/المقاطع.
+     أوّل لمسة/نقرة/مفتاح في الصفحة (لا «ابْدَأْ» وحدها) تفتحها كلّها وتستأنف AudioContext؛ ما رُفض يُعاد عند اللمسة التالية،
+     ويُستأنف الكلام المعلّق عند العودة إلى الصفحة (visibilitychange). */
+  const POOL_N = 6, pool = [], queue = [];
+  let gestured = false;
+  function poolEl() {
+    const now = Date.now();
+    let a = pool.find((x) => (x.paused || x.ended) && !(x._bqClaim > now - 500));
+    if (!a) { a = mkAudio(); if (!a) return null; if (pool.length < 12) pool.push(a); }
+    a._bqClaim = now;
+    if (a._bqOff) { a._bqOff(); a._bqOff = null; }
+    return a;
+  }
+  function unlockEl(a) {
+    if (!a || a._bqUnlocked || !silentURL || !a.paused) return;
+    try { a.src = silentURL; const p = a.play(); if (p && p.then) p.then(() => { a._bqUnlocked = true; if (a.src === silentURL || a.currentSrc === silentURL) a.pause(); }).catch(() => {}); } catch (e) { /* */ }
+  }
+  /** يُستدعى داخل لمسة المستخدم (ابْدَأْ · التالي · أيّ لمسة أولى) */
   A.unlock = function () {
     const au = sharedEl(); if (!au || unlocked || !silentURL) return;
-    try { if (!A.cur || A.cur !== au || au.paused) { au.src = silentURL; const p = au.play(); if (p && p.then) p.then(() => { unlocked = true; }).catch(() => {}); } } catch (e) { /* */ }
+    try {
+      if (A.pending && A.cur === au) { const p = au.play(); if (p && p.then) p.then(() => { unlocked = true; }).catch(() => {}); } // السطر المعلّق نفسه يفتح العنصر
+      else if (au.paused) { au.src = silentURL; const p = au.play(); if (p && p.then) p.then(() => { unlocked = true; }).catch(() => {}); }
+    } catch (e) { /* */ }
   };
+  function onGesture() {
+    A.unlock();
+    if (!gestured) { gestured = true; while (pool.length < POOL_N) { const a = mkAudio(); if (!a) break; pool.push(a); } }
+    pool.forEach(unlockEl);
+    try {
+      const C = window.AudioContext || window.webkitAudioContext;
+      if (!A.ctx && C) A.ctx = new C();
+      if (A.ctx && A.ctx.state !== 'running') A.ctx.resume().catch(() => {});
+    } catch (e) { /* */ }
+    const now = Date.now();
+    queue.splice(0).forEach((q) => { if (now - q.t < 6000) { try { q.fn(); } catch (e) { /* */ } } });
+  }
+  ['touchend', 'pointerup', 'click', 'keydown'].forEach((ev) => document.addEventListener(ev, onGesture, { capture: true, passive: true }));
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible') return;
+    if (A.ctx && A.ctx.state !== 'running') A.ctx.resume().catch(() => {});
+    const c = A.cur; if (c && c.paused && !c.ended && (A.pending || A.segLive)) { const p = c.play(); if (p && p.catch) p.catch(() => {}); }
+  });
+  /** عنصر الكلام المفتوح (للمقاطع المقصوصة: kit.playSeg) */
+  A.voice = () => sharedEl();
+  /** عنصر مؤثّر مفتوح من المجمّع */
+  A.pooled = () => poolEl() || mkAudio();
+  /** رفض المتصفّح التشغيل: زرّ «اضْغَطْ لِلاسْتِماعِ» + إعادة تلقائية عند أيّ لمسة تالية */
+  A.whenUnlocked = (fn) => { queue.push({ fn, t: Date.now() }); };
+  A.blocked = (retry) => { let once = false; const go = () => { if (once) return; once = true; hideUnlock(); retry(); }; showUnlock(go); A.whenUnlocked(go); };
   A.stop = function () {
     A.token++;
     if (A.cur) { try { A.cur.pause(); } catch (e) {} A.cur = null; }
@@ -135,7 +181,7 @@
       let p; try { p = au.play(); } catch (e) { p = null; }
       if (p && p.catch) p.catch((err) => {
         if (fin || my !== A.token) return;
-        if (err && err.name === 'NotAllowedError') { clearTimeout(wd); showUnlock(() => { if (fin || my !== A.token) return; arm(2 * estMs(id)); const q = au.play(); if (q && q.catch) q.catch(() => setTimeout(finish, 600)); }); }
+        if (err && err.name === 'NotAllowedError') { clearTimeout(wd); A.blocked(() => { if (fin || my !== A.token) return; arm(2 * estMs(id)); const q = au.play(); if (q && q.catch) q.catch(() => setTimeout(finish, 600)); }); }
         else setTimeout(finish, 600);
       });
     });
@@ -156,10 +202,16 @@
   /** مؤثّر أو موسيقى بلا نصّ مصاحب ولا يقطع الكلام */
   A.fx = function (id, vol) {
     if (!audioSet.has(id)) return { stop() {}, done: Promise.resolve() };
-    const au = new Audio('media/audio/' + id + '.mp3'); au.volume = vol == null ? 0.8 : vol;
-    const done = new Promise((r) => { au.onended = r; au.onerror = r; });
-    au.play().catch(() => {});
-    return { el: au, stop() { try { au.pause(); } catch (e) {} }, done };
+    const au = A.pooled(); if (!au) return { stop() {}, done: Promise.resolve() };
+    let fin = false, stopped = false, res;
+    const done = new Promise((r) => { res = r; });
+    const end = () => { if (fin) return; fin = true; au.removeEventListener('ended', end); au.removeEventListener('error', end); au._bqClaim = 0; res(); };
+    au._bqOff = end;
+    au.addEventListener('ended', end); au.addEventListener('error', end);
+    au.src = 'media/audio/' + id + '.mp3'; au.volume = vol == null ? 0.8 : vol;
+    const go = () => { if (stopped || fin) return; let p; try { p = au.play(); } catch (e) { p = null; } if (p && p.catch) p.catch((err) => { if (err && err.name === 'NotAllowedError') A.whenUnlocked(go); else end(); }); };
+    go();
+    return { el: au, stop() { stopped = true; try { au.pause(); } catch (e) {} end(); }, done };
   };
   BQ.sfx = { ok: 'bariq_L1-01_sfx-check-done', snap: 'bariq_L1-01_sfx-tile-snap', flip: 'bariq_L1-01_sfx-card-flip', bead: 'bariq_L1-01_sfx-compass-bead' };
   /* زرّ «اضْغَطْ لِلاسْتِماعِ» حين يرفض المتصفّح التشغيل */
@@ -277,7 +329,8 @@
     opt = opt || {};
     const brq = UI.brq(lineId ? 'talk' : 'wave');
     const pop = h('div.bq-bariq.has-anim' + (opt.side === 'left' ? '.left' : ''), { 'aria-hidden': 'true' }, brq);
-    stage.append(pop);
+    // v0-12: فوق منطقة اللعب (غير متمرّرة) لا داخل المسرح المتمرّر — ظهوره لا يصنع تمريراً
+    ((stage && stage.closest && stage.closest('.elp-play')) || stage).append(pop);
     requestAnimationFrame(() => pop.classList.add('in'));
     if (lineId) await BQ.audio.play(lineId); else await BQ.sleep(opt.ms || 1400);
     const mood = opt.mood || MOOD(lineId);
@@ -292,22 +345,20 @@
     const tid = 'bq-end-' + Math.random().toString(36).slice(2, 7);
     const home = (opt.home || []).filter(Boolean).slice(0, 3);
     const nextBtn = h('button.bq-btn', { type: 'button', onclick: () => { A.unlock(); BQ.goNext(); } }, 'التّالي', BQ.icon('next'));
+    /* v0-12: الورقة فوق منطقة اللعب كلّها (لا داخل المسرح المتمرّر) وتتّسع للإطار بلا تمرير: الأزرار قبل «في البيت اليوم» */
     const card = h('div.bq-end', { role: 'dialog', 'aria-labelledby': tid },
       h('div.bq-end-card', null,
         UI.brq('cheer', 'bq-end-brq', 6000), // [brq-anim v1]
         h('p.bq-end-t', { id: tid }, opt.title || 'أَحْسَنْتَ!'),
         opt.note ? h('p.bq-end-n', null, opt.note) : null,
-        home.length ? homeBox(home) : null,
         h('div.bq-end-row', null,
           h('button.bq-btn.ghost', { type: 'button', onclick: () => { card.remove(); opt.onReplay && opt.onReplay(); } }, BQ.icon('replay'), 'أَعِدِ النَّشاطَ'),
           nextBtn),
-        nx ? h('p.bq-end-next', null, nx.small + ': ', h('b', null, nx.name)) : null));
-    stage.append(card);
-    requestAnimationFrame(() => {
-      try { nextBtn.focus({ preventScroll: true }); } catch (e) { /* */ }
-      const r = card.firstElementChild.getBoundingClientRect();
-      if (r.bottom > innerHeight || r.top < 60) card.firstElementChild.scrollIntoView({ block: 'center', behavior: BQ.reduced() ? 'auto' : 'smooth' });
-    });
+        nx ? h('p.bq-end-next', null, nx.small + ': ', h('b', null, nx.name)) : null,
+        home.length ? homeBox(home) : null));
+    const host = (stage && stage.closest && stage.closest('.elp-play')) || stage;
+    host.append(card);
+    requestAnimationFrame(() => { try { nextBtn.focus({ preventScroll: true }); } catch (e) { /* */ } });
     if (opt.line) BQ.audio.play(opt.line);
     return card;
   };
@@ -325,7 +376,7 @@
     const g = cv.getContext('2d');
     // مسار «م» المنفصلة: رأس دائريّ ثم ذيل نازل — نقاط مرجعية للتحقّق (نسبة من المربّع)
     const path = opt.path || [[0.62, 0.40], [0.52, 0.33], [0.40, 0.38], [0.40, 0.48], [0.52, 0.52], [0.62, 0.45], [0.62, 0.40], [0.66, 0.52], [0.66, 0.66], [0.66, 0.80]];
-    const ordered = !!opt.ordered, TOL = opt.tol || 0.075, START = opt.startTol || 0.08;
+    const ordered = !!opt.ordered, TOL = opt.tol || 0.075, START = opt.startTol || 0.11;
     const hit = path.map(() => false);
     let drawing = false, last = null, done = false, next = 0;
     const start = h('span.bq-trace-start', { style: { left: path[0][0] * 100 + '%', top: path[0][1] * 100 + '%' }, 'aria-hidden': 'true' });
@@ -346,13 +397,20 @@
       last = p;
     };
     const flash = () => { start.hidden = false; anim(start, 'is-flash', 900); };
+    /* v0-12 · اللمس: اللوحة تمتلك الإصبع (لا تمرير ولا تكبير ولا قائمة لمس) — touch-action:none + منع الافتراضيّ + التقاط المؤشّر */
+    box.style.touchAction = 'none'; cv.style.touchAction = 'none';
+    const noScroll = (e) => { if (e.cancelable) e.preventDefault(); };
+    cv.addEventListener('touchstart', noScroll, { passive: false });
+    cv.addEventListener('touchmove', noScroll, { passive: false });
+    cv.addEventListener('contextmenu', noScroll);
     cv.addEventListener('pointerdown', (e) => {
+      if (e.cancelable) e.preventDefault();
       const p = pos(e);
       if (ordered && !done && next === 0 && dist(p, path[0]) > START) { flash(); return; } // يبدأ من النقطة الخضراء
       drawing = true; last = p; try { cv.setPointerCapture(e.pointerId); } catch (x) { /* */ } start.hidden = true; check(p); draw(p);
     });
-    cv.addEventListener('pointermove', (e) => { if (drawing) draw(pos(e)); });
-    const up = () => { drawing = false; };
+    cv.addEventListener('pointermove', (e) => { if (!drawing) return; if (e.cancelable) e.preventDefault(); const ev = e.getCoalescedEvents ? e.getCoalescedEvents() : null; if (ev && ev.length > 1) ev.forEach((c) => draw(pos(c))); else draw(pos(e)); });
+    const up = (e) => { drawing = false; try { if (e && cv.hasPointerCapture && cv.hasPointerCapture(e.pointerId)) cv.releasePointerCapture(e.pointerId); } catch (x) { /* */ } };
     cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
     // مسار بديل للوحة المفاتيح/المفاتيح الخاصّة: ضغطة مطوّلة من الكبير تُتمّ التتبّع «بمساعدة» (T25)
     let hold = 0;
@@ -391,6 +449,8 @@
     if (!out.length) (D.next || []).forEach((id) => out.push({ id, s: 'A' }));
     return out;
   };
+  /** حرف الجلسة الأساس لِلّون (ج-١/ج-٢ ← ج) */
+  const sesKey = (id) => String(sesOf(id) || ((BQ.meta(id) || {}).session) || 'A').charAt(0);
   const sesOf = (id) => { const p = BQ.path(); const x = p.find((q) => q.id === id); if (x) return x.s; for (const k of Object.keys(SES)) if (SES[k].ids.includes(id)) return k; return null; };
   /** جلسة وجهةٍ ما: من موضعها في المسار إن عُرف (العنصر الواحد قد يظهر في جلستين) */
   const sesAt = (n) => { const p = BQ.path(); return n && n.pos != null && p[n.pos] && p[n.pos].id === n.id ? p[n.pos].s : sesOf(n.id); };
@@ -486,10 +546,10 @@
   };
 
   /* ---------- رأس العنصر ---------- */
-  function chips(meta) {
-    return h('div.elp-chips', null,
-      h('span.chip', null, meta.station_short || meta.station.split('—')[0].trim()),
-      meta.time_label ? h('span.chip.soft', null, meta.time_label) : null);
+  /* v0-12: لا رقائق في الرأس — المحطّة معلومة للكبير (في دليله)، والزمن في السطر الصغير فوق العنوان */
+  function stationLine(meta) {
+    const st = meta.station_short || String(meta.station || '').split('—')[0].trim();
+    return [st, meta.time_label].filter(Boolean).join(' · ');
   }
   function kicker(id) {
     const p = BQ.path(); const pos = posOf(id);
@@ -505,7 +565,8 @@
   function frame(meta) {
     const content = $('#content');
     const stage = h('div.bq-stage.elp-stage');
-    const cap = h('div.bq-cap.elp-cap', { hidden: true, 'aria-live': 'polite' });
+    /* v0-12: النصّ المصاحب داخل صفّ التعليمة (فقاعة بجوار السمّاعة) — لا تحت الإطار ولا فوق الأزرار */
+    const cap = h('p.bq-cap.elp-cap', { hidden: true, 'aria-live': 'polite' });
     BQ.audio.capEl = cap;
     const L = (life = { alive: true, timers: new Set() });
     let replayFn = null;
@@ -514,7 +575,7 @@
     const fnChip = h('span.elp-fn', { 'aria-hidden': 'true' });
     const srText = h('span.sr-only');
     const sayBtn = h('button.elp-say', { type: 'button', 'aria-label': 'أَعِدِ التَّعْليمَةَ', title: 'أعد التعليمة (R)', onclick: () => { A.unlock(); if (replayFn) replayFn(); else if (ins.line) ctx.say(ins.line); } }, BQ.icon('speaker'), srText);
-    const instr = h('div.bq-instr.elp-instr.is-empty', null, sayBtn, fnChip, instrText);
+    const instr = h('div.bq-instr.elp-instr.is-empty', null, sayBtn, fnChip, h('div.elp-bubble', null, instrText, cap));
     function renderInstr() {
       const has = !!(ins.text || ins.line);
       const showText = !!ins.text && (BQ.state.cc || BQ.state.age === '10-12');
@@ -525,7 +586,32 @@
       fnChip.innerHTML = I[ins.icon || fnIcon(ins.text, ins.line)] || '';
       srText.textContent = ins.text ? ': ' + ins.text : '';
     }
-    const play = h('div.elp-play', null, instr, stage);
+    /* شريط الفعل داخل الإطار: يستقبل «أَكْمِلْ» وأمثاله إن وقعت خارج المساحة المرئيّة من المسرح (لا تمرير للوصول إليها) */
+    const dock = h('div.elp-dock');
+    const play = h('div.elp-play', null, instr, stage, dock);
+    const docked = new Set();
+    const PRIM = '.kx-cont, .vp-go2, .bq-btn';
+    const SKIP = '.bq-end, .bq-sess, .elp-cover, .bq-adult, .elp-dock';
+    function dockCheck(btn) {
+      if (!btn.isConnected || btn.closest(SKIP) || !stage.contains(btn)) return;
+      const r = btn.getBoundingClientRect(); if (!r.height) return;
+      const sr = stage.getBoundingClientRect();
+      const top = Math.max(sr.top, 0), bot = Math.min(sr.bottom, innerHeight);
+      if (r.bottom <= bot + 1 && r.top >= top - 1) return;
+      let node = btn; const p = btn.parentElement;
+      if (p && p !== stage && p.children.length <= 3 && [...p.children].every((c) => c.tagName === 'BUTTON')) node = p;
+      const ph = document.createComment('bq-dock');
+      node.before(ph); dock.append(node); docked.add({ ph, node });
+    }
+    const dockMO = window.MutationObserver ? new MutationObserver((recs) => {
+      for (const r of recs) for (const n of r.addedNodes) {
+        if (n.nodeType !== 1) continue;
+        const list = n.matches(PRIM) ? [n] : [...n.querySelectorAll(PRIM)];
+        list.forEach((b) => requestAnimationFrame(() => requestAnimationFrame(() => dockCheck(b))));
+      }
+      docked.forEach((d) => { if (!d.ph.isConnected || !d.node.isConnected) { d.node.remove(); docked.delete(d); } });
+    }) : null;
+    if (dockMO) { dockMO.observe(stage, { childList: true, subtree: true }); cleanups.push(() => dockMO.disconnect()); }
 
     /* دليل الكبير: «للكبير» + «ملاحظات المراجِع» (مطويّة) */
     const adultBody = h('div.elp-adult-body');
@@ -534,18 +620,19 @@
     const scrim = h('div.elp-scrim', { hidden: true });
     const closeBtn = h('button.bq-adult-x', { type: 'button', 'aria-label': 'إغلاق', onclick: () => toggleAdult(false) }, BQ.icon('close'));
     const adultPanel = h('aside.bq-adult.elp-adult', { hidden: true, role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'elp-adult-h', tabindex: '-1' },
-      h('div.elp-adult-top', null, h('h3', { id: 'elp-adult-h' }, 'دليل الكبير'), closeBtn),
+      h('div.elp-adult-top', null, h('div', null, h('h3', { id: 'elp-adult-h' }, 'دليل الكبير'), h('p.elp-adult-st', null, stationLine(meta))), closeBtn),
       meta.pinned ? h('p.elp-pin', null, BQ.icon('mouth'), h('span', null, meta.pinned)) : null,
       adultBody,
       h('details.elp-adult-meta', null, h('summary', null, 'ملاحظات المراجِع'), metaEl, metaData));
-    const adultBtn = h('button.elp-tool', { type: 'button', 'aria-haspopup': 'dialog', 'aria-expanded': 'false', onclick: () => toggleAdult() }, BQ.icon('adult'), h('span', null, 'دليل الكبير'));
+    const toolLbl = (full, short) => [h('span.elp-tool-l', null, full), h('span.elp-tool-s', { 'aria-hidden': 'true' }, short)];
+    const adultBtn = h('button.elp-tool', { type: 'button', 'aria-label': 'دليل الكبير', 'aria-haspopup': 'dialog', 'aria-expanded': 'false', onclick: () => toggleAdult() }, BQ.icon('adult'), toolLbl('دليل الكبير', 'الدليل'));
     let inertEls = [];
     function toggleAdult(v) {
       const on = v == null ? adultPanel.hidden : v;
       if (on === !adultPanel.hidden) return;
       adultPanel.hidden = !on; scrim.hidden = !on; adultBtn.setAttribute('aria-expanded', String(on));
       if (on) {
-        inertEls = [head, play, cap, nav, $('.menu'), $('.lh'), $('.header'), $('.footer')].filter(Boolean);
+        inertEls = [head, play, nav, $('.menu'), $('.hdr'), $('.footer')].filter(Boolean);
         inertEls.forEach((e) => { e.inert = true; });
         document.addEventListener('keydown', drawerKeys, true);
         setTimeout(() => closeBtn.focus(), 30);
@@ -568,22 +655,21 @@
     }
     cleanups.push(() => { if (!adultPanel.hidden) { inertEls.forEach((e) => { e.inert = false; }); document.removeEventListener('keydown', drawerKeys, true); } });
     scrim.addEventListener('click', () => toggleAdult(false));
-    const ccBtn = h('button.elp-tool', { type: 'button', 'aria-pressed': String(BQ.state.cc), onclick: (e) => {
+    const ccBtn = h('button.elp-tool', { type: 'button', 'aria-label': 'النص المصاحب', 'aria-pressed': String(BQ.state.cc), onclick: (e) => {
       BQ.state.cc = !BQ.state.cc; store.set('cc', BQ.state.cc);
       e.currentTarget.setAttribute('aria-pressed', String(BQ.state.cc));
       if (!BQ.state.cc) cap.hidden = true; else if (cap.textContent) cap.hidden = false;
       renderInstr();
-    } }, BQ.icon('cc'), h('span', null, 'النص المصاحب'));
-    const restartBtn = h('button.elp-tool', { type: 'button', onclick: () => BQ.open(meta.id, { pos: posOf(meta.id), history: 'replace' }) }, BQ.icon('replay'), h('span', null, 'من البداية'));
+    } }, BQ.icon('cc'), toolLbl('النص المصاحب', 'النص'));
+    const restartBtn = h('button.elp-tool', { type: 'button', 'aria-label': 'من البداية', onclick: () => BQ.open(meta.id, { pos: posOf(meta.id), history: 'replace' }) }, BQ.icon('replay'), toolLbl('من البداية', 'إعادة'));
     const head = h('header.elp-head', null,
       h('div.elp-ic', null, h('img', { src: meta.icon, alt: '' })),
       h('div.elp-titles', null,
-        h('p.elp-kicker', null, kicker(meta.id)),
-        h('h2.elp-title', { id: 'elp-t', tabindex: '-1' }, cleanName(meta.name)),
-        chips(meta)),
-      h('div.elp-tools', null, adultBtn, ccBtn, restartBtn));
+        h('p.elp-kicker', null, kicker(meta.id) + (meta.time_label ? ' · ' + meta.time_label : '')),
+        h('h2.elp-title', { id: 'elp-t', tabindex: '-1' }, cleanName(meta.name))),
+      h('div.elp-tools', { role: 'group', 'aria-label': 'أدوات الكبير' }, adultBtn, ccBtn, restartBtn));
     const nav = navBar(meta.id);
-    const f = h('section.bq-frame.elp', { dataset: { el: meta.id }, 'aria-labelledby': 'elp-t' }, head, play, cap, nav, scrim, adultPanel);
+    const f = h('section.bq-frame.elp', { dataset: { el: meta.id, ses: sesKey(meta.id) }, 'aria-labelledby': 'elp-t' }, head, play, nav, scrim, adultPanel);
     content.replaceChildren(f);
     const ctx = {
       meta, stage, frame: f,
@@ -633,43 +719,99 @@
       h('button.elp-navbtn.primary.nextbtn', { type: 'button', onclick: () => { A.unlock(); BQ.goNext(); } }, h('span', null, h('small', null, small), nameOf(nx.id)), BQ.icon('next')));
   }
 
-  /** غلاف النشاط داخل المسرح: صورة + جملة للكبير + «ابْدَأْ» (اللمسة تفتح الصوت) */
+  /* ---------- غلاف العنصر (v0-12): لوحة مصمَّمة بملء منطقة اللعب ----------
+     الفنّ: media/cover/ELxx.webp إن وُجد (١٦:١٠، الجهة اليمنى أهدأ للعنوان)، وإلا الصورة البطلة للعنصر بتدرّج ناعم.
+     فوقه: رقم العنصر والجلسة · العنوان مشكولاً · جملة للطفل · بارق المتحرّك بوضعية تناسب العنصر · زرّ بدء دائريّ كبير
+     · سطر الكبير ثانوياً. لون الجلسة لمسة (أ سماويّ · ب مرجانيّ · ج أخضر · د بنفسجيّ). الحركة تحترم prefers-reduced-motion.
+     النصوص هنا مسوّدة للمراجعة؛ يمكن أن تأتي من البيانات: meta.cover_title · meta.cover_child · meta.cover_pose. */
+  const COVER = {
+    EL01: ['تَهَيَّأْ لِلدَّرْسِ', 'اسْمَعِ الصَّوْتَ، وَالْمِسْ مَصْدَرَهُ!', 'wave'],
+    EL02: ['شاهِدْ وَتَعَلَّمْ', 'شاهِدِ القِصَّةَ، وَأَجِبْ حينَ نَتَوَقَّفُ!', 'point'],
+    EL03: ['لاحِظْ وَتَعَلَّمْ', 'انْظُرْ إِلى الشَّفَتَيْنِ… مْـ!', 'talk'],
+    EL04: ['مُفْرَداتي', 'ما هَذا؟ اسْمَعْ، وَقُلْ مَعَ سَيْفٍ!', 'point'],
+    EL05: ['التَّراكيبُ اللُّغَوِيَّةُ', 'اسْمَعِ الجُمْلَةَ، وَرَدِّدْها، وَالْمِسْ صورَتَها!', 'talk'],
+    EL06: ['أُغَنّي', 'غَنِّ مَعَنا: مْـ… ماءٌ!', 'cheer'],
+    EL07: ['كَلِماتٌ وَصُوَرٌ', 'اقْلِبِ البِطاقَةَ، وَاسْمَعْ ما وَراءَها!', 'clap'],
+    EL08: ['فَكِّرْ وَأَجِبْ', 'فَكِّرْ… وَقُلْ جَوابَكَ!', 'think'],
+    EL09: ['اسْتَمِعْ وَتَعَلَّمْ', 'صَوْتٌ واحِدٌ أَمْ صَوْتانِ؟ اسْمَعْ جَيِّداً!', 'think'],
+    EL10: ['تَحَدَّثْ', 'اسْمَعْ، ثُمَّ قُلْ مَعَنا!', 'talk'],
+    EL11: ['اقْرَأْ', 'انْظُرْ… وَالْمِسِ الصّورَةَ الَّتي تُناسِبُ!', 'point'],
+    EL12: ['اكْتُبْ', 'تَتَبَّعْ بِإِصْبَعِكَ مِنَ النُّقْطَةِ الخَضْراءِ!', 'point'],
+    EL13: ['تَدَرَّبْ', 'اسْمَعِ الصَّوْتَ، وَالْمِسْ صورَتَهُ!', 'cheer'],
+    EL14: ['الْعَبْ', 'الْمِسْ… اسْمَعْ… وَجِدْ مَصْدَرَ كُلِّ صَوْتٍ!', 'wave'],
+    EL15: ['الخَريطَةُ الذِّهْنِيَّةُ', 'ضَعْ كُلَّ بِطاقَةٍ في مَكانِها!', 'clap'],
+    EL16: ['اخْتَبِرْ نَفْسَكَ', 'هَيّا نَتَذَكَّرُ مَعاً!', 'think'],
+  };
+  const HERO = { EL01: 'img-029', EL02: 'comp_L1-01_REF-SCALE-W_v03_claude-composite', EL03: 'img-102', EL04: 'img-001', EL05: 'img-001', EL06: 'img-111', EL07: 'img-008', EL08: 'img-019', EL09: 'img-121', EL10: 'img-101', EL11: 'img-123', EL13: 'img-120', EL14: 'img-033', EL15: 'img-112', EL16: 'img-109' };
+  /** فنّ الغلاف المصمَّم: قائمة BQ_COVERS/D.covers إن وُجدت، وإلا تجربة تحميل الملفّ مرّة واحدة لكلّ عنصر */
+  const coverProbe = {};
+  function designedCover(id) {
+    const list = window.BQ_COVERS || D.covers;
+    if (Array.isArray(list)) return Promise.resolve(list.includes(id) ? 'media/cover/' + id + '.webp' : null);
+    if (!coverProbe[id]) coverProbe[id] = new Promise((res) => { const i = new Image(); i.onload = () => res(i.naturalWidth ? i.src : null); i.onerror = () => res(null); i.src = 'media/cover/' + id + '.webp'; });
+    return coverProbe[id];
+  }
+  BQ.coverInfo = (id) => { const m = BQ.meta(id) || {}; const c = COVER[id] || []; return { title: m.cover_title || c[0] || cleanName(m.name), child: m.cover_child || c[1] || '', pose: m.cover_pose || c[2] || 'wave' }; };
   function cover(ctx, def, onStart) {
-    const meta = ctx.meta;
-    const HERO = { EL01: 'img-029', EL02: 'comp_L1-01_REF-SCALE-W_v03_claude-composite', EL03: 'img-102', EL04: 'img-001', EL05: 'img-001', EL06: 'img-111', EL07: 'img-008', EL08: 'img-019', EL09: 'img-121', EL10: 'img-101', EL11: 'img-123', EL13: 'img-120', EL14: 'img-033', EL15: 'img-112', EL16: 'img-109' };
-    const hk = (def && def.hero) || HERO[meta.id];
+    const meta = ctx.meta, id = meta.id;
+    const info = BQ.coverInfo(id);
+    const hk = (def && def.hero) || HERO[id];
     const heroSrc = hk && BQ.hasImg(hk) ? BQ.img(hk) : null;
-    const play = ctx.frame.querySelector('.elp-play'); if (play) play.classList.add('has-cover');
-    const go = () => { if (play) play.classList.remove('has-cover'); c.remove(); onStart(); };
-    const startBtn = h('button.bq-start', { type: 'button', onclick: () => { A.unlock(); go(); } }, h('span.bq-start-ic', { 'aria-hidden': 'true', html: I.play }), h('span', null, 'ابْدَأْ'));
-    const lead = meta.cover_lead || (def && def.cover) || meta.goal.split('.')[0].split('؛')[0];
-    const skip = ((D.skip_by_age || {})[BQ.state.age] || []).includes(meta.id);
-    let body;
-    if (meta.id === 'EL16') BQ.state.el16Preview = null;
-    if (meta.id === 'EL16' && BQ.gate.el16().early) {
+    const play = ctx.frame.querySelector('.elp-play');
+    if (play) play.classList.add('has-cover');
+    ctx.frame.classList.add('has-cover');
+    const go = () => { if (play) play.classList.remove('has-cover'); ctx.frame.classList.remove('has-cover'); c.remove(); onStart(); };
+    const lead = meta.cover_lead || (def && def.cover) || String(meta.goal || '').split('.')[0].split('؛')[0];
+    const skip = ((D.skip_by_age || {})[BQ.state.age] || []).includes(id);
+    const tid = 'elp-cv-t';
+    const early = id === 'EL16' && BQ.gate.el16().early;
+    if (id === 'EL16') BQ.state.el16Preview = null;
+
+    /* الفنّ */
+    const art = h('div.cv-art.is-wait' + (heroSrc ? '' : '.is-glyph'), { 'aria-hidden': 'true' },
+      heroSrc ? h('img.cv-img', { src: heroSrc, alt: '', decoding: 'async', draggable: 'false' }) : h('span.cv-glyph', null, 'م'));
+    designedCover(id).then((src) => {
+      // الغلاف المصمَّم يحمل بارق نفسه ⇒ لا بارق متحرّك فوقه (يُخفى إلى أن يُعرف وجود الغلاف)
+      art.classList.remove('is-wait');
+      if (!src) { brq.classList.remove('is-wait'); return; }
+      brq.remove();
+      if (!c.isConnected) return;
+      art.classList.remove('is-glyph'); art.classList.add('is-designed');
+      art.replaceChildren(h('img.cv-img', { src, alt: '', decoding: 'async', draggable: 'false' }));
+    });
+
+    /* بارق + زرّ البدء */
+    const brq = UI.brq(info.pose, 'cv-brq.is-wait');
+    let action;
+    if (early) {
       const hrs = BQ.gate.el16().hours;
-      body = [
-        h('p.elp-start-child', null, 'هَذا لِلْغَدِ!'),
-        h('p.elp-start-lead', null, 'التحقّق المؤجَّل يصحّ في يوم لاحق، قبل الدرس الثاني — لا في يوم الدرس نفسه.'),
-        h('p.elp-start-note', null, hrs == null ? 'لا سجلّ لإتمام «تدرّب» على هذا الجهاز بعد.' : 'مرّ على إتمام «تدرّب» أقلّ من ١٢ ساعة.'),
-        h('button.bq-btn.ghost.elp-preview', { type: 'button', onclick: () => { BQ.state.el16Preview = { hours: hrs, at: Date.now() }; A.unlock(); go(); } }, BQ.icon('adult'), 'معاينة الآن (للكبير)')];
+      action = h('button.bq-btn.ghost.elp-preview.cv-preview', { type: 'button', onclick: () => { BQ.state.el16Preview = { hours: hrs, at: Date.now() }; A.unlock(); go(); } }, BQ.icon('adult'), 'معاينة الآن (للكبير)');
     } else {
-      body = [h('p.elp-start-lead', null, lead), skip ? h('p.elp-start-note', null, 'اختياريّ لعمر ' + ageLabel(BQ.state.age) + ' سنوات، ولا يدخل في «التالي».') : null, startBtn];
+      action = h('button.bq-start.cv-start', { type: 'button', 'aria-label': 'ابْدَأْ: ' + info.title, onclick: () => { A.unlock(); go(); } },
+        h('span.cv-start-disc', { 'aria-hidden': 'true' }, h('span.bq-start-ic', { html: I.play })),
+        h('span.cv-start-l', null, 'ابْدَأْ'));
     }
-    const c = h('div.elp-start', null,
-      h('figure.elp-hero' + (heroSrc ? '' : '.glyph'), null, heroSrc ? h('img', { src: heroSrc, alt: '' }) : h('span', { 'aria-hidden': 'true' }, 'م')),
-      h('div.elp-start-txt', null, body));
-    ctx.stage.append(c);
+    const adultTxt = early
+      ? [h('b', null, 'للكبير: '), 'التحقّق المؤجَّل يصحّ في يوم لاحق، قبل الدرس الثاني. ', BQ.gate.el16().hours == null ? 'لا سجلّ لإتمام «تدرّب» على هذا الجهاز بعد.' : 'مرّ على إتمام «تدرّب» أقلّ من ١٢ ساعة.']
+      : [h('b', null, 'للكبير: '), lead, skip ? ' · اختياريّ لعمر ' + ageLabel(BQ.state.age) + ' سنوات، ولا يدخل في «التالي».' : ''];
+
+    const c = h('div.elp-start.elp-cover', { role: 'group', 'aria-labelledby': tid, dataset: { el: id } }, h('div.cv-in', null,
+      art,
+      h('div.cv-shade', { 'aria-hidden': 'true' }),
+      h('div.cv-text', null,
+        h('p.cv-kicker', null, h('span.cv-num', { 'aria-hidden': 'true' }, AR(meta.menu || '')), h('span', null, kicker(id))),
+        h('h3.cv-title', { id: tid }, info.title),
+        h('p.cv-child', { lang: 'ar' }, early ? 'هَذا لِلْغَدِ!' : info.child)),
+      h('div.cv-go', null, brq, action),
+      h('p.cv-adult', null, BQ.icon('adult'), h('span', null, adultTxt))));
+    (play || ctx.stage).append(c);
   }
 
   /* ---------- التمرير والتركيز ---------- */
   const behavior = () => (BQ.reduced() ? 'auto' : 'smooth');
-  const headerH = () => { const hd = $('.header'); if (!hd) return 0; const cs = getComputedStyle(hd); return cs.position === 'sticky' || cs.position === 'fixed' ? hd.getBoundingClientRect().height : 0; };
-  function reveal(el, force) {
-    if (!el) return;
-    const r = el.getBoundingClientRect(), top = headerH() + 8;
-    if (force ? Math.abs(r.top - top) > 24 : (r.top < top - 2 || r.top > innerHeight * 0.4)) el.scrollIntoView({ block: 'start', behavior: behavior() });
-  }
+  /* v0-12: الإطار يبدأ تحت الرأس مباشرةً ويتّسع للشاشة ⇒ النشاط كلّه مرئيّ عند أعلى الصفحة؛ لا تمرير إلى الإطار */
+  function toTop() { const se = document.scrollingElement || document.documentElement; if (se && se.scrollTop > 0) window.scrollTo({ top: 0, behavior: 'auto' }); }
+  function reveal() { toTop(); }
   function focusIn(root) {
     const f = $$('button:not([disabled]), [href], input, [tabindex]:not([tabindex="-1"])', root).find((x) => x.offsetParent !== null && !x.closest('.elp-instr'));
     const t = f || $('.elp-say', root.closest('.elp') || document);
@@ -690,7 +832,9 @@
       const on = b.dataset.id === id && (b.dataset.pos == null || +b.dataset.pos === pos || !$$('.item[data-pos][data-id="' + id + '"]').some((x) => +x.dataset.pos === pos));
       if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
     });
-    if (window.innerWidth < 768) { const sel = $('.menu-list:not([hidden]) .item[aria-current]'); if (sel && sel.scrollIntoView) sel.scrollIntoView({ inline: 'center', block: 'nearest', behavior: behavior() }); }
+    // القائمة تتمرّر داخلياً فقط (لا تمرير للصفحة): تُظهر العنصر الحاليّ
+    const menu = $('.menu'); const sel = $('.menu-list:not([hidden]) .item[aria-current]');
+    if (menu && sel) { const mr = menu.getBoundingClientRect(), r = sel.getBoundingClientRect(); if (r.top < mr.top + 90 || r.bottom > mr.bottom - 8) menu.scrollTop += r.top - mr.top - mr.height / 2 + r.height / 2; }
   }
   let lastEl = null, pendingAge = null;
   /** BQ.open(id, {pos, skipCover, history:'push'|'replace'|'none', src:'menu'|'next'|'boot'|'history'}) */
@@ -764,15 +908,16 @@
       UI.brq('cheer', 'bq-end-brq', 6000), // [brq-anim v1]
       h('p.bq-end-t', null, 'أَحْسَنْتَ!'),
       h('p.bq-sess-child', null, child),
-      h('div.bq-sess-adult', null, h('b', null, 'للكبير: '), adult),
-      S.home && S.home.length ? homeBox(S.home) : null,
       h('div.bq-end-row', null, row),
-      doneNote);
+      doneNote,
+      h('div.bq-sess-more', null,
+        h('div.bq-sess-adult', null, h('b', null, 'للكبير: '), adult),
+        S.home && S.home.length ? homeBox(S.home) : null));
     const pv = prevFrom('end-' + key, pos);
     const nav = h('nav.elp-nav', { 'aria-label': 'التنقّل في مسار الدرس' },
       pv ? h('button.elp-navbtn.ghost', { type: 'button', onclick: () => BQ.open(pv.id, { pos: pv.pos, src: 'next' }) }, BQ.icon('prev'), h('span', null, h('small', null, 'السابق'), nameOf(pv.id))) : h('span'),
       h('button.elp-navbtn.primary.nextbtn', { type: 'button', onclick: () => { A.unlock(); BQ.goNext(); } }, h('span', null, h('small', null, final ? 'التالي' : 'الجلسة ' + nextS.label), nameOf(nx.id)), BQ.icon('next')));
-    const f = h('section.bq-frame.elp.elp-endses', { dataset: { el: 'end-' + key }, 'aria-labelledby': tid },
+    const f = h('section.bq-frame.elp.elp-endses', { dataset: { el: 'end-' + key, ses: key.charAt(0) }, 'aria-labelledby': tid },
       h('header.elp-head', null,
         h('div.elp-ic.elp-ic-m', { 'aria-hidden': 'true' }, 'م'),
         h('div.elp-titles', null,
@@ -785,17 +930,55 @@
   }
 
   /* ---------- خطة الدرس ---------- */
+  /* v0-12: «خطة الدرس» صفحة مستقلّة (#plan): تُخفي واجهة الطفل كلّها، ولها شريطها و«العودة إلى الدرس» */
   function showPlan(hmode) {
     BQ.state.current = 'plan';
     document.body.classList.add('show-plan');
+    closeMenu(); closeAdultPop();
     markMenu(null, -1);
-    const p = $('#plan');
+    const lv = $('#lessonView'); if (lv) lv.hidden = true;
+    const p = $('#plan'); p.hidden = false;
     if (!p.dataset.ready && window.BQ_PLAN) { window.BQ_PLAN.render(p); p.dataset.ready = '1'; }
     setHistory('plan', null, hmode || 'push');
-    $('#planBtn').setAttribute('aria-pressed', 'true');
-    p.scrollIntoView({ block: 'start' });
+    document.title = 'خطة الدرس · صوت الميم · بارق';
+    window.scrollTo({ top: 0, behavior: 'auto' }); requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'auto' })); setTimeout(() => { if (BQ.state.current === 'plan' && !location.hash.slice(1).startsWith('lp')) window.scrollTo({ top: 0, behavior: 'auto' }); }, 120);
+    const t = p.querySelector('.lp-bar-t h2'); if (t) { t.setAttribute('tabindex', '-1'); try { t.focus({ preventScroll: true }); } catch (e) { /* */ } }
   }
-  function hidePlan() { document.body.classList.remove('show-plan'); const b = $('#planBtn'); if (b) b.setAttribute('aria-pressed', 'false'); }
+  function hidePlan() {
+    if (!document.body.classList.contains('show-plan')) return;
+    document.body.classList.remove('show-plan');
+    const lv = $('#lessonView'); if (lv) lv.hidden = false;
+    const p = $('#plan'); if (p) p.hidden = true;
+    document.title = 'بارق · صوت الميم';
+  }
+
+  /* ---------- قائمة العناصر (درج على الهاتف/اللوح الطوليّ) و«للكبير» ---------- */
+  const DRAWER_MQ = '(max-width: 1023.98px), (max-width: 1100px) and (orientation: portrait)';
+  const isDrawer = () => !!(window.matchMedia && matchMedia(DRAWER_MQ).matches);
+  function openMenu() {
+    const m = $('.menu'), b = $('#menuBtn'), sc = $('#menuScrim'); if (!m || !isDrawer()) return;
+    m.classList.add('is-open'); if (sc) sc.hidden = false; if (b) b.setAttribute('aria-expanded', 'true');
+    document.body.classList.add('menu-open');
+    markMenu(BQ.state.current, BQ.state.seqPos);
+    setTimeout(() => { const f = $('.menu-list:not([hidden]) .item[aria-current]') || $('.menu-tab'); if (f) f.focus({ preventScroll: true }); }, 60);
+  }
+  function closeMenu(refocus) {
+    const m = $('.menu'), b = $('#menuBtn'), sc = $('#menuScrim'); if (!m || !m.classList.contains('is-open')) return;
+    m.classList.remove('is-open'); if (sc) sc.hidden = true; if (b) b.setAttribute('aria-expanded', 'false');
+    document.body.classList.remove('menu-open');
+    if (refocus && b) b.focus({ preventScroll: true });
+  }
+  function closeAdultPop(refocus) {
+    const p = $('#adultMenu'), b = $('#adultBtn'); if (!p || p.hidden) return;
+    p.hidden = true; if (b) b.setAttribute('aria-expanded', 'false'); closeConfirm();
+    if (refocus && b) b.focus({ preventScroll: true });
+  }
+  function toggleAdultPop() {
+    const p = $('#adultMenu'), b = $('#adultBtn'); if (!p) return;
+    if (!p.hidden) { closeAdultPop(); return; }
+    closeMenu(); p.hidden = false; if (b) b.setAttribute('aria-expanded', 'true');
+    const f = p.querySelector('input:checked') || p.querySelector('input, a, button'); if (f) setTimeout(() => f.focus({ preventScroll: true }), 30);
+  }
 
   /* ---------- التقدّم والمتابعة ---------- */
   function updateProgress() {
@@ -839,7 +1022,8 @@
   /* ---------- القائمة: «العناصر ١–١٦» (افتراضيّ) + «حسب الجلسات» ---------- */
   function itemBtn(e, pos, extra) {
     const b = h('button.item' + (BQ.state.done.has(e.id) ? '.is-done' : '') + (extra || ''), { type: 'button', dataset: { id: e.id }, onclick: () => {
-      if (BQ.state.current === e.id && (pos == null || pos === BQ.state.seqPos)) { reveal($('#content .elp')); return; } // T15: لا إعادة صامتة
+      closeMenu();
+      if (BQ.state.current === e.id && (pos == null || pos === BQ.state.seqPos)) { reveal(); return; } // T15: لا إعادة صامتة
       BQ.open(e.id, { pos: pos == null ? undefined : pos, src: 'menu' });
     } },
       h('span.ic', null, h('img', { src: e.icon, alt: '' })),
@@ -910,11 +1094,9 @@
     } }, 'نعم، امسح');
     const no = h('button.bq-btn.ghost', { type: 'button', onclick: () => { closeConfirm(); btn.focus({ preventScroll: true }); } }, 'إلغاء');
     confirmEl = h('div.lh-confirm', { role: 'alertdialog', 'aria-label': 'تأكيد البدء من جديد' }, h('p', null, 'سيُمسح تقدّم الدرس كلّه على هذا الجهاز. متابعة؟'), h('div', null, yes, no));
-    const lh = btn.closest('.lh');
-    if (lh) lh.insertAdjacentElement('afterend', confirmEl); else btn.parentNode.append(confirmEl);
+    btn.insertAdjacentElement('afterend', confirmEl);
     document.addEventListener('keydown', confirmKeys, true);
     no.focus({ preventScroll: true });
-    const r = confirmEl.getBoundingClientRect(); if (r.bottom > innerHeight) confirmEl.scrollIntoView({ block: 'nearest', behavior: behavior() });
   }
 
   /* ---------- الإقلاع ---------- */
@@ -937,7 +1119,20 @@
       const k = location.hash.slice(1);
       if (k !== BQ.state.current && (k === 'plan' || BQ.meta(k) || /^end-(A|B|C|C1|C2)$/.test(k))) BQ.open(k, { history: 'replace', src: 'history' });
     });
-    $('#planBtn').addEventListener('click', () => (BQ.state.current === 'plan' ? BQ.open(lastEl || BQ.path()[0].id) : BQ.open('plan')));
+    $('#planBtn').addEventListener('click', (e) => { e.preventDefault(); closeAdultPop(); BQ.open('plan'); });
+    const hl = $('#homeLink'); if (hl) hl.addEventListener('click', (e) => { e.preventDefault(); if (BQ.state.current === 'plan') BQ.open(lastEl || BQ.path()[0].id); else toTop(); });
+    // «العناصر» (درج) و«للكبير» (قائمة منبثقة)
+    const mb = $('#menuBtn'); if (mb) mb.addEventListener('click', () => ($('.menu').classList.contains('is-open') ? closeMenu(true) : openMenu()));
+    const mx = $('#menuClose'); if (mx) mx.addEventListener('click', () => closeMenu(true));
+    const ms = $('#menuScrim'); if (ms) ms.addEventListener('click', () => closeMenu(true));
+    const ab = $('#adultBtn'); if (ab) ab.addEventListener('click', (e) => { e.stopPropagation(); toggleAdultPop(); });
+    document.addEventListener('click', (e) => { const pop = $('#adultMenu'); if (pop && !pop.hidden && !e.target.closest('.hdr-adult')) closeAdultPop(); });
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape' || e.defaultPrevented) return;
+      if ($('.menu.is-open')) { e.preventDefault(); closeMenu(true); }
+      else if ($('#adultMenu') && !$('#adultMenu').hidden) { e.preventDefault(); closeAdultPop(true); }
+    });
+    window.addEventListener('resize', () => { if (!isDrawer()) closeMenu(); });
     // «العودة إلى الدرس» في الخطة تعيد إلى آخر عنصر (QA-11)
     document.addEventListener('click', (e) => { const b = e.target.closest && e.target.closest('.lp-back'); if (b) { e.preventDefault(); e.stopImmediatePropagation(); BQ.open(lastEl || BQ.path()[0].id); } }, true);
     $$('#ageSeg input').forEach((r) => {

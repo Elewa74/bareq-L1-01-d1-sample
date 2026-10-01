@@ -644,9 +644,7 @@
       if (b && root.contains(b)) {
         ev.preventDefault();
         if (window.BQ && BQ.open) {
-          BQ.open(b.dataset.open);
-          const t = document.querySelector('.title-row') || document.getElementById('content');
-          if (t && t.scrollIntoView) t.scrollIntoView({ block: 'start' });
+          BQ.open(b.dataset.open); // v0-12: الدرس صفحة أخرى — BQ.open يعيد الصفحة إلى أعلاها
         }
         return;
       }

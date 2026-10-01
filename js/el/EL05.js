@@ -7,7 +7,7 @@
    · رؤوس الشخصيات المتكلّمة (ماجد/سيف) تنبض مع أسطرها، وبارق يطلّ من الحافّة (نسخة لا تتعلّق).
    · خرزات البوصلة، يد الإرشاد الشبحية، شرارات، طيران الخرزة، المقابلة «تقارب ثم انفصال»، موجة السمّاعة.
    · محرّك جولة «اسمع والمس» بمحاولتين وصفوف التغذية (صواب · خطأ أوّل · خطأ ثانٍ). */
-const MK = (BQ.mk && BQ.mk.v === 3) ? BQ.mk : (BQ.mk = (function () {
+const MK = (BQ.mk && BQ.mk.v === 4) ? BQ.mk : (BQ.mk = (function () {
   const h = BQ.h;
   const AR = (n) => String(n).replace(/\d/g, (d) => '٠١٢٣٤٥٦٧٨٩'[d]);
   const never = () => new Promise(() => {});
@@ -37,6 +37,7 @@ ${SC}.a46 .bq-listen.mk-listen { width: clamp(96px, 14cqi, 120px); }
 ${SC} .bq-choices { flex-wrap: nowrap; gap: clamp(10px, 3cqi, 28px); }
 ${SC} .bq-choice { width: clamp(92px, 26cqi, 236px); transition: transform .2s ease-out, opacity .3s, filter .3s, box-shadow .3s; }
 ${SC}.a46 .bq-choice { width: clamp(98px, 28cqi, 248px); }
+${SC} .mk-body .bq-choice { max-width: max(88px, calc(var(--play-h, 700px) - 330px)); } /* v0-12: البطاقات بارتفاع الإطار (٧٢٠) */
 ${SC} .bq-choice.is-lift { transform: translateY(-8px) scale(1.05); box-shadow: 0 0 0 5px var(--sun-soft), 0 16px 30px var(--shade); z-index: 2; opacity: 1; }
 ${SC} .bq-choice.is-ok.fx-pulse { animation: mkRing .5s ease-in-out 2; }
 @keyframes mkRing { 50% { box-shadow: 0 0 0 10px var(--ok), 0 12px 24px var(--shade); } }
@@ -177,14 +178,19 @@ ${SC} button:focus-visible { outline: 4px solid var(--navy); outline-offset: 3px
     S.pick = (...ids) => ids.find((i) => BQ.hasAudio(i)) || ids[0];
 
     /** بارق يطلّ من حافّة الإطار ويقول سطراً (نسخة لا تتعلّق عند المقاطعة) */
+    /*  v0-12: بارق المتحرّك (BQ.ui.brq) — يتكلّم أثناء السطر، ثم مزاج (cheer للتعزيز · think لإعادة المحاولة) قبل أن يخرج */
     S.bariq = async function (lineId, opt) {
       opt = opt || {};
-      const pop = h('div.bq-bariq' + (opt.side === 'left' ? '.left' : ''), { 'aria-hidden': 'true' }, h('img', { src: BQ.char.BRQ, alt: '' }));
+      const anim = BQ.ui.brq ? BQ.ui.brq(lineId ? 'talk' : 'wave') : h('img', { src: BQ.char.BRQ, alt: '' });
+      const pop = h('div.bq-bariq' + (BQ.ui.brq ? '.has-anim' : '') + (opt.side === 'left' ? '.left' : ''), { 'aria-hidden': 'true' }, anim);
       stage.append(pop);
       requestAnimationFrame(() => pop.classList.add('in'));
       await S.sleep(180);
       if (lineId) await S.play(lineId); else await S.sleep(opt.ms || 1200);
       if (!S.ok()) return never();
+      const id = lineId || '';
+      const mood = opt.mood || (/fb-yes|FB_0[1235]|EL06_05|_key_|s1_01|scr06/.test(id) ? 'cheer' : /retry|EL02_04|FB_04/.test(id) ? 'think' : '');
+      if (mood && anim.brq) { anim.brq(mood); await S.sleep(opt.moodMs || 750); }
       pop.classList.remove('in'); setTimeout(() => pop.remove(), 450);
     };
 
@@ -380,7 +386,7 @@ ${SC} button:focus-visible { outline: 4px solid var(--navy); outline-offset: 3px
     return o;
   }
 
-  return { v: 3, session, arrange, css, CMP_SVG, SC, AR };
+  return { v: 4, session, arrange, css, CMP_SVG, SC, AR };
 })());
 /* EL05 «التراكيب اللغوية» — غير مرصود · شاشتان:
    (١) «اسمع وردّد»: أربع صور تظهر واحدةً بعد واحدة، كلٌّ بجملتها على نمط «هَذا/هَذِهِ …» ثم سكتة ترديد (٤/٣/٢ ث بحسب العمر).
@@ -408,6 +414,10 @@ ${SC} button:focus-visible { outline: 4px solid var(--navy); outline-offset: 3px
 ${SC} .e05-strip { display: flex; gap: clamp(10px, 2.6cqi, 24px); justify-content: center; align-items: flex-end; }
 ${SC} .e05-card { position: relative; width: clamp(110px, 20cqi, 200px); aspect-ratio: 1; border-radius: var(--r-md); overflow: hidden; background: color-mix(in srgb, var(--white) 55%, transparent); border: 3px dashed var(--sky-line); display: grid; place-items: center; transition: transform .45s cubic-bezier(.2,1.3,.4,1), opacity .35s, box-shadow .3s; }
 ${SC} .e05-card > * { visibility: hidden; }
+${SC} .e05-card:not(.in) { border: 3px solid var(--white); background: linear-gradient(110deg, var(--white) 35%, var(--sky-wash) 50%, var(--white) 65%) 0 0 / 300% 100%; opacity: .55; animation: e05Wait 2.4s linear infinite; }
+@keyframes e05Wait { to { background-position: -150% 0; } }
+${SC} .e05-card.now::after { content: ""; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 4px var(--sun-soft); animation: e05Now 1.4s ease-in-out infinite; pointer-events: none; }
+@keyframes e05Now { 50% { box-shadow: inset 0 0 0 8px var(--sun-soft); } }
 ${SC} .e05-card.in { background: var(--white); border: 4px solid var(--white); box-shadow: 0 6px 0 var(--sky-line), 0 12px 24px var(--shade); opacity: .6; animation: e05In .5s cubic-bezier(.2,1.3,.4,1); }
 ${SC} .e05-card.in > * { visibility: visible; }
 @keyframes e05In { from { opacity: 0; transform: translateY(24px) scale(.85); } }
@@ -439,7 +449,8 @@ ${SC} .e05-say4 .bq-choice { width: clamp(96px, 19cqi, 190px); }
 }
 @media (prefers-reduced-motion: reduce) {
   ${SC} .e05-card, ${SC} .e05-card.now { transform: none; transition: opacity .2s; }
-  ${SC} .e05-turn.on .bq-ic, ${SC} .e05-turn.on .e05-dots i { animation: none; opacity: 1; }
+  ${SC} .e05-turn.on .bq-ic, ${SC} .e05-turn.on .e05-dots i, ${SC} .e05-card:not(.in), ${SC} .e05-card.now::after { animation: none; opacity: 1; }
+  ${SC} .e05-card:not(.in) { opacity: .55; }
 }`;
 
   function render(stage, ctx) {

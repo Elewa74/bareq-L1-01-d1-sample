@@ -27,7 +27,7 @@
 .elp .sx-photo > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; transition: opacity .7s ease, transform .7s ease; }
 .elp .sx-photo.bq-choice { width: auto; aspect-ratio: auto; display: block; }
 .elp button.sx-photo { cursor: pointer; transition: transform .18s ease, box-shadow .25s, opacity .35s; }
-.elp button.sx-photo:hover:not(:disabled) { transform: translateY(-4px); }
+@media (hover: hover) { .elp button.sx-photo:hover:not(:disabled) { transform: translateY(-4px); } }
 .elp button.sx-photo:disabled { cursor: default; }
 /* حالات موحّدة مع بطاقات المحرّك (.bq-choice): مختار = حلقة كحلية · إضاءة الدليل = هالة شمسية · باهت = ٠٫٦ */
 .elp .bq-choice.is-picked, .elp .sx-photo.is-picked { border-color: var(--navy); box-shadow: 0 0 0 4px var(--navy), 0 12px 24px var(--shade); }
@@ -117,12 +117,18 @@
         const iv = setInterval(() => { if (done) return clearInterval(iv); if (BQ.audio.token !== tok || !alive()) { clearInterval(iv); res(false); } }, 120);
       });
     }
+    /** بارق المتحرّك (BQ.ui.brq): يتكلّم أثناء السطر ثم مزاج قصير (cheer للتعزيز · think لإعادة المحاولة) ويخرج — v0-12 */
     function bariq(stage, id, side) {
       if (!alive()) return Promise.resolve(false);
-      const el = h('div.bq-bariq' + (side === 'left' ? '.left' : ''), { 'aria-hidden': 'true' }, h('img', { src: BQ.char.BRQ, alt: '' }));
+      const anim = BQ.ui.brq ? BQ.ui.brq('talk') : h('img', { src: BQ.char.BRQ, alt: '' });
+      const el = h('div.bq-bariq' + (BQ.ui.brq ? '.has-anim' : '') + (side === 'left' ? '.left' : ''), { 'aria-hidden': 'true' }, anim);
       stage.append(el);
       requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('in')));
-      return say(id).then((r) => { el.classList.remove('in'); setTimeout(() => el.remove(), 480); return r; });
+      const mood = /fb-yes|FB_0[1235]|EL06_05|_key_|s1_01|scr06/.test(id || '') ? 'cheer' : /retry|EL02_04|FB_04/.test(id || '') ? 'think' : '';
+      return say(id).then((r) => new Promise((res) => {
+        if (r && mood && anim.brq) anim.brq(mood);
+        setTimeout(() => { el.classList.remove('in'); setTimeout(() => el.remove(), 480); res(r && alive()); }, r && mood ? 700 : 0);
+      }));
     }
     /** main: «للكبير» (≤ ٣ أوامر قصيرة) · meta: «ملاحظات المراجِع» المطويّة (المحطّة، الرصد، ما يُسجَّل) */
     function adult(main, meta) {
@@ -182,6 +188,8 @@ ${S} .t16 .bq-choices.icons .bq-choice img { object-fit: contain; padding: 12%; 
 ${S} .t16-glyph { font: 700 clamp(84px, 16cqi, 150px)/1.1 var(--ff-child); color: var(--coral); background: var(--paper); border: 2px solid var(--paper-edge); border-radius: 22px; padding: 0 .35em .12em; flex: none; }
 ${S} .t16-pic { position: relative; width: clamp(180px, 38cqi, 320px); aspect-ratio: 1; }
 ${S} .t16-pic img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+${S} .t16-pic { max-width: max(140px, calc(var(--play-h, 700px) - 410px)); } /* v0-12: شريط ملاحظة الكبير و«التّالي» داخل الإطار */
+${S} .t16-pad { max-width: max(220px, calc(var(--play-h, 700px) - 250px)); }
 ${S} .t16-foot { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 14px; }
 ${S} .t16-next.soft { background: var(--white); color: var(--navy); box-shadow: 0 0 0 1.5px var(--sky-line) inset; }
 ${S} .t16-tick { width: 64px; aspect-ratio: 1; border-radius: 50%; border: 3px dashed var(--sky-2); display: grid; place-items: center; color: var(--white); background: var(--white); transition: background .3s, border-color .3s; }
@@ -336,7 +344,7 @@ ${S} .t16-rev .it .bq-listen { width: 56px; border-width: 3px; }
       }
       const mkTick = () => h('span.t16-tick', { 'aria-hidden': 'true' }, BQ.icon('check'));
       function nextOf(k) { return k + 1 < items.length ? () => item(k + 1) : report; }
-      const softNext = () => h('button.bq-btn.t16-next', { type: 'button', onclick: () => advance && advance() }, 'التّالي', BQ.icon('next'));
+      const softNext = () => h('button.bq-btn.t16-next.soft', { type: 'button', onclick: () => advance && advance() }, 'التّالي', BQ.icon('next'));
 
       /* ---------- ت١ · ت٢ · ت٤: لمس صورة/أيقونة ---------- */
       function tapItem(k) {
@@ -457,12 +465,12 @@ ${S} .t16-rev .it .bq-listen { width: 56px; border-width: 3px; }
         // تحقّق بالترتيب بتسامح واسع (بلا تلميح — مراجعة مؤجَّلة)
         const cv = box.querySelector('canvas');
         const cps = V.cps.map((c) => [c[0] / 100, c[1] / 100]);
-        const TOL = 0.1;
+        let TOL = 0.1; // يتّسع للإصبع/القلم ×١٫٢ — v0-12
         let next = 0, drawing = false, done = false;
         const pos = (e) => { const rc = cv.getBoundingClientRect(); return [(e.clientX - rc.left) / rc.width, (e.clientY - rc.top) / rc.height]; };
         const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
         cv.addEventListener('pointerdown', (e) => {
-          if (done) return; drawing = true;
+          if (done) return; drawing = true; TOL = e.pointerType === 'mouse' ? 0.1 : 0.12;
           const p = pos(e);
           if (next === 0 && r.start_ok == null) r.start_ok = dist(p, cps[0]) < TOL * 1.35;
         });
@@ -474,6 +482,7 @@ ${S} .t16-rev .it .bq-listen { width: 56px; border-width: 3px; }
         });
         const up = () => { drawing = false; };
         cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
+        if (BQ.elGuard) BQ.elGuard(box); // v0-12: إصبع واحد · لا تمرير/تكبير
         async function complete() {
           if (done) return; done = true; drawing = false;
           pad.classList.add('done');
@@ -570,7 +579,7 @@ ${S} .t16-rev .it .bq-listen { width: 56px; border-width: 3px; }
         gen++; clearTimers(); BQ.audio.stop(); advance = null;
         stage.querySelectorAll('.bq-end, .t16-rev').forEach((n) => n.remove());
         ctx.done();
-        BQ.ui.endCard(stage, { title: 'أَحْسَنْتَ!', note: 'التقرير بالمهارة للكبير في الشاشة السابقة.', onReplay: () => { res.forEach((r) => Object.assign(r, blank())); item(0); } });
+        BQ.ui.endCard(stage, { title: 'أَحْسَنْتَ!', note: 'للكبير: التقرير بالمهارة للكبير في الشاشة السابقة.', onReplay: () => { res.forEach((r) => Object.assign(r, blank())); item(0); } });
       }
       item(0);
     },

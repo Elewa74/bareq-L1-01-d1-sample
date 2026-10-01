@@ -1,13 +1,45 @@
 /* EL01 — بارق L1-01-d1 · مسوّدة · مبنيّ من kit.js + EL01.body.js (WP2 v0-8) */
 (function () {
 'use strict';
+/* v0-12 — عقد اللمس المشترك لملفّات العناصر الستّة عشر (لمس · قلم · فأرة؛ iPad/أندرويد):
+   · لا تأخير ٣٠٠ms ولا تكبير بالنقر المزدوج على عناصر اللعب (touch-action: manipulation)
+   · لا قائمة ضغط مطوّل ولا تحديد نصّ ولا سحب صورة على قطع اللعب (callout/user-select/user-drag)
+   · أسطح الرسم والقطع المسحوبة لا تمرّر الصفحة (touch-action: none) */
+if (!document.getElementById('st-el-touch')) {
+  const st = document.createElement('style'); st.id = 'st-el-touch';
+  st.textContent = '.bq-frame .elp-stage :is(button, [role="button"], .bq-choice, .k7-card, .k9-oc, .k9-wb, .t15-card, .t15-slot, .t8-zone, .e3-pad, .k11-w, .k11-hit) { touch-action: manipulation; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }' +
+    '.bq-frame .elp-stage :is(img, svg, .bq-glyph) { -webkit-user-drag: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }' +
+    '.bq-frame .elp-stage :is(.bq-trace, .bq-trace canvas, .k9-oc, .t15-card, .t8-snd, .t15-drawcard canvas) { touch-action: none; -webkit-touch-callout: none; }';
+  document.head.append(st);
+}
+/** v0-12 — حارس سطح الرسم للّمس: إصبع واحد فقط (يُتجاهل الثاني وراحة اليد)، ولا تمرير ولا تكبير ولا قائمة
+ *  أثناء الرسم (touchstart/touchmove غير سلبيّة لـiOS القديم)، والتقاط المؤشّر على اللوحة. يعمل قبل مستمعي المحرّك (طور الالتقاط). */
+BQ.elGuard = BQ.elGuard || function (el) {
+  if (!el || el._tg) return; el._tg = true;
+  let active = null;
+  const block = (e) => { e.stopImmediatePropagation(); if (e.cancelable) e.preventDefault(); };
+  el.addEventListener('pointerdown', (e) => {
+    if (e.target.closest && e.target.closest('button')) return; // زرّ الكبير داخل اللوحة
+    if (active != null && e.pointerId !== active) return block(e);
+    active = e.pointerId;
+    try { e.target.setPointerCapture(e.pointerId); } catch (x) { /* */ }
+  }, true);
+  ['pointermove', 'pointerup', 'pointercancel'].forEach((t) => el.addEventListener(t, (e) => {
+    if (active != null && e.pointerId !== active) return block(e);
+    if (t !== 'pointermove') active = null;
+  }, true));
+  const noScroll = (e) => { if (e.cancelable && !(e.target.closest && e.target.closest('button'))) e.preventDefault(); };
+  el.addEventListener('touchstart', noScroll, { passive: false });
+  el.addEventListener('touchmove', noScroll, { passive: false });
+  el.addEventListener('contextmenu', (e) => e.preventDefault());
+};
 /* ---- BQ.mk: أدوات مشتركة لعناصر الاستماع EL01 · EL05 · EL13 · EL14 (نسخة واحدة مضمَّنة في كل ملف؛ أوّل ملف يُحمَّل يعرّفها) ----
    v0-8 (WP2): يستعمل عقد المحرّك حين يتوفّر (ctx.alive · BQ.ui.steps) مع بديل محلّيّ مطابق؛ كلّ متابعة غير متزامنة تُحرس بـS.ok().
    · جلسة تتوقّف عند مغادرة العنصر (S.play/S.sleep لا تُكمل بعد الخروج، ولا تتعلّق إذا قُطع الصوت بإعادة).
    · رؤوس الشخصيات المتكلّمة (ماجد/سيف) تنبض مع أسطرها، وبارق يطلّ من الحافّة (نسخة لا تتعلّق).
    · خرزات البوصلة، يد الإرشاد الشبحية، شرارات، طيران الخرزة، المقابلة «تقارب ثم انفصال»، موجة السمّاعة.
    · محرّك جولة «اسمع والمس» بمحاولتين وصفوف التغذية (صواب · خطأ أوّل · خطأ ثانٍ). */
-const MK = (BQ.mk && BQ.mk.v === 3) ? BQ.mk : (BQ.mk = (function () {
+const MK = (BQ.mk && BQ.mk.v === 4) ? BQ.mk : (BQ.mk = (function () {
   const h = BQ.h;
   const AR = (n) => String(n).replace(/\d/g, (d) => '٠١٢٣٤٥٦٧٨٩'[d]);
   const never = () => new Promise(() => {});
@@ -37,6 +69,7 @@ ${SC}.a46 .bq-listen.mk-listen { width: clamp(96px, 14cqi, 120px); }
 ${SC} .bq-choices { flex-wrap: nowrap; gap: clamp(10px, 3cqi, 28px); }
 ${SC} .bq-choice { width: clamp(92px, 26cqi, 236px); transition: transform .2s ease-out, opacity .3s, filter .3s, box-shadow .3s; }
 ${SC}.a46 .bq-choice { width: clamp(98px, 28cqi, 248px); }
+${SC} .mk-body .bq-choice { max-width: max(88px, calc(var(--play-h, 700px) - 330px)); } /* v0-12: البطاقات بارتفاع الإطار (٧٢٠) */
 ${SC} .bq-choice.is-lift { transform: translateY(-8px) scale(1.05); box-shadow: 0 0 0 5px var(--sun-soft), 0 16px 30px var(--shade); z-index: 2; opacity: 1; }
 ${SC} .bq-choice.is-ok.fx-pulse { animation: mkRing .5s ease-in-out 2; }
 @keyframes mkRing { 50% { box-shadow: 0 0 0 10px var(--ok), 0 12px 24px var(--shade); } }
@@ -177,14 +210,19 @@ ${SC} button:focus-visible { outline: 4px solid var(--navy); outline-offset: 3px
     S.pick = (...ids) => ids.find((i) => BQ.hasAudio(i)) || ids[0];
 
     /** بارق يطلّ من حافّة الإطار ويقول سطراً (نسخة لا تتعلّق عند المقاطعة) */
+    /*  v0-12: بارق المتحرّك (BQ.ui.brq) — يتكلّم أثناء السطر، ثم مزاج (cheer للتعزيز · think لإعادة المحاولة) قبل أن يخرج */
     S.bariq = async function (lineId, opt) {
       opt = opt || {};
-      const pop = h('div.bq-bariq' + (opt.side === 'left' ? '.left' : ''), { 'aria-hidden': 'true' }, h('img', { src: BQ.char.BRQ, alt: '' }));
+      const anim = BQ.ui.brq ? BQ.ui.brq(lineId ? 'talk' : 'wave') : h('img', { src: BQ.char.BRQ, alt: '' });
+      const pop = h('div.bq-bariq' + (BQ.ui.brq ? '.has-anim' : '') + (opt.side === 'left' ? '.left' : ''), { 'aria-hidden': 'true' }, anim);
       stage.append(pop);
       requestAnimationFrame(() => pop.classList.add('in'));
       await S.sleep(180);
       if (lineId) await S.play(lineId); else await S.sleep(opt.ms || 1200);
       if (!S.ok()) return never();
+      const id = lineId || '';
+      const mood = opt.mood || (/fb-yes|FB_0[1235]|EL06_05|_key_|s1_01|scr06/.test(id) ? 'cheer' : /retry|EL02_04|FB_04/.test(id) ? 'think' : '');
+      if (mood && anim.brq) { anim.brq(mood); await S.sleep(opt.moodMs || 750); }
       pop.classList.remove('in'); setTimeout(() => pop.remove(), 450);
     };
 
@@ -380,7 +418,7 @@ ${SC} button:focus-visible { outline: 4px solid var(--navy); outline-offset: 3px
     return o;
   }
 
-  return { v: 3, session, arrange, css, CMP_SVG, SC, AR };
+  return { v: 4, session, arrange, css, CMP_SVG, SC, AR };
 })());
 /* EL01 «تهيّأ للدرس (الاستدعاء)» — L1-01-AS-gme-006 · غير مرصود.
    §٦ يحكم: محاولة واحدة؛ أيّ لمس ينتهي بسماع صوت المصدر الصحيح وتكبّر صورته — لا حالة خطأ ولا «جرّب مرّة أخرى».

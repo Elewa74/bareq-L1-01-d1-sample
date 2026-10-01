@@ -29,7 +29,7 @@
 .elp .sx-photo > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; transition: opacity .7s ease, transform .7s ease; }
 .elp .sx-photo.bq-choice { width: auto; aspect-ratio: auto; display: block; }
 .elp button.sx-photo { cursor: pointer; transition: transform .18s ease, box-shadow .25s, opacity .35s; }
-.elp button.sx-photo:hover:not(:disabled) { transform: translateY(-4px); }
+@media (hover: hover) { .elp button.sx-photo:hover:not(:disabled) { transform: translateY(-4px); } }
 .elp button.sx-photo:disabled { cursor: default; }
 /* حالات موحّدة مع بطاقات المحرّك (.bq-choice): مختار = حلقة كحلية · إضاءة الدليل = هالة شمسية · باهت = ٠٫٦ */
 .elp .bq-choice.is-picked, .elp .sx-photo.is-picked { border-color: var(--navy); box-shadow: 0 0 0 4px var(--navy), 0 12px 24px var(--shade); }
@@ -119,12 +119,18 @@
         const iv = setInterval(() => { if (done) return clearInterval(iv); if (BQ.audio.token !== tok || !alive()) { clearInterval(iv); res(false); } }, 120);
       });
     }
+    /** بارق المتحرّك (BQ.ui.brq): يتكلّم أثناء السطر ثم مزاج قصير (cheer للتعزيز · think لإعادة المحاولة) ويخرج — v0-12 */
     function bariq(stage, id, side) {
       if (!alive()) return Promise.resolve(false);
-      const el = h('div.bq-bariq' + (side === 'left' ? '.left' : ''), { 'aria-hidden': 'true' }, h('img', { src: BQ.char.BRQ, alt: '' }));
+      const anim = BQ.ui.brq ? BQ.ui.brq('talk') : h('img', { src: BQ.char.BRQ, alt: '' });
+      const el = h('div.bq-bariq' + (BQ.ui.brq ? '.has-anim' : '') + (side === 'left' ? '.left' : ''), { 'aria-hidden': 'true' }, anim);
       stage.append(el);
       requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('in')));
-      return say(id).then((r) => { el.classList.remove('in'); setTimeout(() => el.remove(), 480); return r; });
+      const mood = /fb-yes|FB_0[1235]|EL06_05|_key_|s1_01|scr06/.test(id || '') ? 'cheer' : /retry|EL02_04|FB_04/.test(id || '') ? 'think' : '';
+      return say(id).then((r) => new Promise((res) => {
+        if (r && mood && anim.brq) anim.brq(mood);
+        setTimeout(() => { el.classList.remove('in'); setTimeout(() => el.remove(), 480); res(r && alive()); }, r && mood ? 700 : 0);
+      }));
     }
     /** main: «للكبير» (≤ ٣ أوامر قصيرة) · meta: «ملاحظات المراجِع» المطويّة (المحطّة، الرصد، ما يُسجَّل) */
     function adult(main, meta) {
@@ -405,7 +411,9 @@ ${S} .bq-adult .t15-save .t15-save-t { margin: 0; font-weight: 600; color: var(-
               over = null;
             }
           };
-          c.addEventListener('pointerup', end); c.addEventListener('pointercancel', end);
+          c.addEventListener('pointerup', end);
+          // إلغاء النظام أثناء السحب: تعود البطاقة إلى مكانها ولا تُحتسب محاولة (لا خانة من إحداثيات ٠،٠) — v0-12
+          c.addEventListener('pointercancel', (e) => { if (over) over.classList.remove('over'); over = null; end(e); });
           c.addEventListener('click', () => {
             if (c._fromDrag) { c._fromDrag = false; return; }
             if (c.classList.contains('done')) return;
@@ -515,7 +523,8 @@ ${S} .bq-adult .t15-save .t15-save-t { margin: 0; font-weight: 600; color: var(-
         const pos = (e) => { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) / r.width * 600, (e.clientY - r.top) / r.height * 600]; };
         cv.addEventListener('pointerdown', (e) => { dn = true; last = pos(e); cv.setPointerCapture(e.pointerId); });
         cv.addEventListener('pointermove', (e) => { if (!dn) return; const p = pos(e); cx.strokeStyle = getComputedStyle(stage).getPropertyValue('--ink') || 'currentColor'; cx.lineWidth = 14; cx.lineCap = 'round'; cx.beginPath(); cx.moveTo(last[0], last[1]); cx.lineTo(p[0], p[1]); cx.stroke(); last = p; });
-        cv.addEventListener('pointerup', () => { dn = false; });
+        cv.addEventListener('pointerup', () => { dn = false; }); cv.addEventListener('pointercancel', () => { dn = false; });
+        if (BQ.elGuard) BQ.elGuard(cv);
         const close = (save) => {
           if (save) {
             const url = cv.toDataURL('image/png');
@@ -584,7 +593,7 @@ ${S} .bq-adult .t15-save .t15-save-t { margin: 0; font-weight: 600; color: var(-
         gen++; clearTimers(); BQ.audio.stop(); advance = null;
         stage.querySelectorAll('.bq-end').forEach((n) => n.remove());
         ctx.done();
-        BQ.ui.endCard(stage, { title: 'أَحْسَنْتَ!', note: 'أوّل ذراع في «بَوْصَلَةِ الأَصْواتِ».', onReplay: () => s1() });
+        BQ.ui.endCard(stage, { title: 'أَحْسَنْتَ!', note: 'أَوَّلُ ذِراعٍ في «بَوْصَلَةِ الأَصْواتِ»!', onReplay: () => s1() });
         panel();
       }
 
@@ -602,7 +611,7 @@ ${S} .bq-adult .t15-save .t15-save-t { margin: 0; font-weight: 600; color: var(-
         MAPCACHE.url = null;
         const body = ctx.frame.querySelector('.elp-adult-body');
         if (body && !body.querySelector('.t15-save')) body.append(mapSaveBox(ctx.frame));
-        BQ.ui.endCard(stage, { title: 'أَحْسَنْتَ!', note: 'أوّل ذراع في «بَوْصَلَةِ الأَصْواتِ». صورة الخريطة للبيت في دليل الكبير.', onReplay: () => BQ.open(ID, { skipCover: true, history: 'replace' }) });
+        BQ.ui.endCard(stage, { title: 'أَحْسَنْتَ!', note: 'أَوَّلُ ذِراعٍ في «بَوْصَلَةِ الأَصْواتِ»!', onReplay: () => BQ.open(ID, { skipCover: true, history: 'replace' }) });
       },
     });
   }

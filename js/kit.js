@@ -180,41 +180,56 @@
     opt = opt || {};
     if (!S.live) return never;
     BQ.audio.stop();
-    const au = new Audio(K.srcOf(id));
+    // v0-12: عنصر الكلام المشترك «المفتوح» بلمسة (iOS يرفض عنصراً جديداً خارج اللمسة) — لا new Audio()
+    const au = (BQ.audio.voice && BQ.audio.voice()) || new Audio();
+    try { au.pause(); } catch (e) {}
     au.preload = 'auto';
+    au.src = K.srcOf(id);
+    try { au.playbackRate = 1; } catch (e) {}
     BQ.audio.cur = au;
     const myTok = BQ.audio.token;
     const L = BQ.line(id);
     if (opt.caption !== false && L) K.caption(K.spk(id), opt.captionText || L.t.replace(/⏸\S*/g, ' '));
     if (BQ.audio.onLine) BQ.audio.onLine(id);
     return S.gate(new Promise((res) => {
-      let done = false, lastT = -1, lastAt = performance.now();
-      const fin = () => {
-        if (done) return; done = true;
-        try { au.pause(); } catch (e) {}
-        if (BQ.audio.token === myTok) { K.caption(null); if (BQ.audio.cur === au) BQ.audio.cur = null; }
+      let done = false, blocked = false, lastT = -1, lastAt = performance.now();
+      const mine = () => BQ.audio.token === myTok && BQ.audio.cur === au;
+      const off = () => { au.removeEventListener('ended', fin); au.removeEventListener('error', fin); au.removeEventListener('loadedmetadata', start); };
+      function fin() {
+        if (done) return; done = true; off();
+        if (mine()) { try { au.pause(); } catch (e) {} K.caption(null); BQ.audio.cur = null; BQ.audio.segLive = false; }
         opt.onEnd && opt.onEnd(); res();
-      };
+      }
       const tick = () => {
         if (done) return;
-        if (BQ.audio.cur !== au || BQ.audio.token !== myTok || !S.live) return fin();
+        if (!mine() || !S.live) return fin();
         const t = au.currentTime;
         const now = performance.now();
-        if (t !== lastT) { lastT = t; lastAt = now; } else if (now - lastAt > 4000) return fin(); // تعطّل: لا تقدّم ٤ ث
+        if (t !== lastT || blocked || document.hidden) { lastT = t; lastAt = now; } else if (now - lastAt > 4000) return fin(); // تعطّل: لا تقدّم ٤ ث
         opt.onTime && opt.onTime(t);
         if (to != null && t >= to) return fin();
         requestAnimationFrame(tick);
       };
-      au.addEventListener('ended', fin); au.addEventListener('error', fin);
-      const start = () => {
+      const play = () => {
+        if (done || !mine()) return;
+        let p; try { p = au.play(); } catch (e) { p = null; }
+        if (p && p.then) p.then(() => { blocked = false; }).catch((err) => {
+          if (done) return;
+          if (err && err.name === 'NotAllowedError' && BQ.audio.blocked) { blocked = true; BQ.audio.blocked(play); } else setTimeout(fin, 500);
+        });
+      };
+      function start() {
+        if (done || !mine()) return;
         if (opt.rate) au.playbackRate = opt.rate;
         try { if (from) au.currentTime = from; } catch (e) {}
         lastAt = performance.now();
-        const p = au.play(); if (p && p.catch) p.catch(() => setTimeout(fin, 500));
+        BQ.audio.segLive = true;
+        play();
         requestAnimationFrame(tick);
-      };
+      }
+      au.addEventListener('ended', fin); au.addEventListener('error', fin);
       if (au.readyState >= 1) start(); else au.addEventListener('loadedmetadata', start, { once: true });
-      setTimeout(() => { if (!done && au.readyState < 1) fin(); }, 6000);
+      setTimeout(() => { if (!done && au.readyState < 1 && !blocked) fin(); }, 6000);
     }));
   };
   /** نسخة بلا ملفّ: نصّ مصاحب + ساعة تقديرية تُغذّي onTime */

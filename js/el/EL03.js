@@ -24,6 +24,7 @@
 .bq-frame[data-el="EL03"] .e3-pad .bq-tick{position:absolute;top:6%;inset-inline-end:6%;width:20%;aspect-ratio:1;border-radius:50%;background:var(--ok);color:var(--white);display:none;place-items:center;padding:4%;z-index:2}
 .bq-frame[data-el="EL03"] .e3-pad.is-ok .bq-tick{display:grid}
 .bq-frame[data-el="EL03"] .e3-pad.tap{animation:bqPop .35s ease-out}
+.bq-frame[data-el="EL03"] .e3-screen>.bq-btn{min-height:60px;padding-inline:1.5em;animation:bqPop .35s ease-out}
 .bq-frame[data-el="EL03"] .e3-line{position:absolute;left:50%;top:50%;width:clamp(28px,12cqi,120px);height:5px;border-radius:5px;background:var(--ok);transform:translate(-50%,-50%) scaleX(0);transition:transform .5s .35s ease-out;z-index:1}
 .bq-frame[data-el="EL03"] .e3-row.joined .e3-line{transform:translate(-50%,-50%) scaleX(1)}
 .bq-frame[data-el="EL03"] .e3-ghost{position:absolute;left:50%;top:58%;width:64px;color:var(--navy);opacity:0;pointer-events:none;z-index:3;filter:drop-shadow(0 6px 10px var(--shade))}
@@ -101,7 +102,7 @@
     let guide;
     // ordered: نقاط التحقّق بالترتيب، والبدء قرب النقطة الخضراء (QA-03 · P2-3)
     const box = BQ.ui.trace(scr, {
-      glyph: 'م', path: PATH, ordered: true, startTol: 0.08,
+      glyph: 'م', path: PATH, ordered: true, startTol: 0.11, tol: 0.09, // v0-12: تسامح أوسع للإصبع (كان ٠٫٠٨ للبدء و٠٫٠٧٥ للمسار)
       async onDone() {
         if (!G.alive()) return;
         const f = h('span.e3-fill', { 'aria-hidden': 'true' }, 'م'); box.append(f);
@@ -113,7 +114,7 @@
         await BQ.ui.bariq(stage, 'bariq_L1-01_d1-FB_03_ar');
         if (!G.alive()) return;
         ctx.done();
-        BQ.ui.endCard(stage, { title: 'أَحْسَنْتَ!', note: 'رأى الصوت في الفم، ولمس الحرف، وتتبّعه مرّة. التتبّع الكامل في «اكتب».', onReplay: () => BQ.open('EL03', { skipCover: true }) });
+        BQ.ui.endCard(stage, { title: 'أَحْسَنْتَ!', note: 'للكبير: رأى الصوت في الفم، ولمس الحرف، وتتبّعه مرّة. التتبّع الكامل في «اكتب».', onReplay: () => BQ.open('EL03', { skipCover: true }) });
       },
     });
     guide = h('span', { 'aria-hidden': 'true', html:
@@ -125,6 +126,7 @@
       '<circle cx="47" cy="73" r="3.6" fill="currentColor"/><text x="47" y="74.8" text-anchor="middle">٢</text></svg>' });
     guide.style.transition = 'opacity .4s';
     box.insertBefore(guide, box.querySelector('canvas'));
+    if (BQ.elGuard) BQ.elGuard(box); // إصبع واحد · لا تمرير/تكبير أثناء التتبّع
   }
 
   BQ.register('EL03', {
