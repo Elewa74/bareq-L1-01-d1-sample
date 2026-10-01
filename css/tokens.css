@@ -1,0 +1,62 @@
+/* tokens.css — مولَّد من tools/build_tokens.py · لا يُحرَّر يدوياً */
+:root {
+  --c-page-bg: #FFFFFF; /* colors_semantic.page.bg */
+  --c-topbar-bg: #00345B; /* colors_semantic.topbar.bg */
+  --c-topbar-fg: #FFFFFF; /* colors_semantic.topbar.fg */
+  --c-brand-blue: #00AEED; /* colors_semantic.brand.blue */
+  --c-menu-bg: #FFFFFF; /* colors_semantic.menu.bg */
+  --c-menu-divider: #EEEEEE; /* colors_semantic.menu.divider */
+  --c-menu-text: #45474F; /* colors_semantic.menu.text */
+  --c-menu-selected-bg: #64C9EA; /* colors_semantic.menu.selected.bg */
+  --c-menu-selected-text: #00345B; /* contrast_checks …recommended (Q-UI1 ب) */
+  --c-menu-selected-text-platform: #FFFFFF; /* colors_semantic.menu.selected.text (Q-UI1 أ) */
+  --c-menu-icon-ring: #0F880F; /* colors_semantic.menu.icon.ring */
+  --c-menu-icon-ring-light: #6EB36E; /* colors_semantic.menu.icon.ring.light */
+  --c-menu-icon-bg: #EEEEEE; /* g1_ar_live colors_confirmed_ar.color.menu.icon.bg */
+  --c-status-done: #43A047; /* colors_semantic.status.done */
+  --c-title-text: #212529; /* colors_semantic.title.text */
+  --c-nav-text: #323232; /* colors_semantic.nav.text */
+  --c-footer-bg: #088BBC; /* colors_semantic.footer.strip */
+  --c-video-bg: #000000; /* colors_semantic.content.video.bg */
+  --c-modal-bg: #00335A; /* colors_semantic.element.modal.bg */
+  --c-modal-text: #FCE74F; /* colors_semantic.element.modal.text */
+  --c-close-btn: #EC5E50; /* colors_measured.color.activity.close.btn */
+  --c-start-btn: #F89928; /* colors_semantic.element.start.btn */
+  --c-shell-bg: #1E96E2; /* colors_semantic.element.godot.shell.bg */
+  --c-godot-btn: #FEBA02; /* colors_semantic.element.godot.btn */
+  --c-card-fill: #FEFEDE; /* colors_semantic.element.instruction.card */
+  --c-card-border: #DEC68E; /* colors_semantic.element.instruction.card.border */
+  --c-answer-tile: #FAD27E; /* colors_semantic.element.answer.tile */
+  --c-word-card: #D6EEFE; /* colors_measured.color.godot.word.card */
+  --c-cover-bg: #F1FAFE; /* colors_measured.color.activity.cover.bg */
+  --c-header-light: #82C3E8; /* colors_measured.color.activity.header.light */
+  --c-focus-ring: #00345B; /* colors_semantic.focus.ring */
+  --c-brq: #FBE65B; /* colors_characters.BRQ */
+  --c-say: #2E6CA6; /* colors_characters.SAY */
+  --c-maj-sleeve: #2FB5B0; /* colors_characters.MAJ-SLEEVE */
+  --c-success-ring: #2E6B5E; /* colors_retired.ACCENT2 — «يبقى وظيفياً … لحلقة النجاح داخل مشهد اللعب» */
+  --d-topbar-h: 47px; /* g1 topbar.height */
+  --d-logo-w: 170px; /* g1 logo.bbox */
+  --d-logo-h: 55px; /* 02 header.logo.bbox (owner logo 170×55) */
+  --d-title-icon: 60px; /* g1 lesson.title.icon */
+  --d-menu-w: 309px; /* g1 menu.box.x */
+  --d-menu-item-h: 56px; /* 02 menu.item.height */
+  --d-menu-divider: 2px; /* 02 menu.item.divider */
+  --d-menu-icon: 40px; /* 02 menu.icon.diameter */
+  --d-menu-icon-inset: 16px; /* g1 menu.icon.inset_end_px */
+  --d-menu-text-inset: 64px; /* g1 menu.text.end_x (1367−1303) */
+  --d-gap: 13px; /* g1 gap.content_menu */
+  --d-content-w: 909px; /* 02 content.width = g1 content */
+  --d-container-w: 1231px; /* g1 container.x */
+  --d-menu-top: 241px; /* g1 menu.top */
+  --d-fs-menu: 19px; /* g1 typography menu.item */
+  --d-fs-title: 18px; /* g1 typography lesson.title */
+  --d-fs-nav: 16px; /* g1 typography nav */
+  --d-fw-ui: 700; /* g1 weight_fallback (Noto لـHacen) */
+  --touch-4-6: 60px; --touch-7-12: 44px; --touch-gap: 16px;
+  --shadow-menu: 0 0 3px 0 color-mix(in srgb, var(--c-title-text) 18%, transparent); /* 02 menu.width «ظلّ ناعم ≈3px» */
+  --overlay-dim: color-mix(in srgb, var(--c-topbar-bg) 55%, transparent); /* طبقة الوقفات: تجميد بتلاشٍ (T-VIDEO) */
+  --tag-bg: color-mix(in srgb, var(--c-topbar-bg) 80%, transparent); /* وسوم PLACEHOLDER/POC للمراجِع */
+  --ff-ui: 'Noto Sans Arabic', 'Hacen Algeria', sans-serif; /* g1 typography: المنصّة Hacen Algeria */
+  --ff-child: 'Noto Naskh Arabic', serif; /* 02 typography child.glyph_and_word.family */
+}
