@@ -953,7 +953,7 @@
   }
 
   /* ---------- قائمة العناصر (درج على الهاتف/اللوح الطوليّ) و«للكبير» ---------- */
-  const DRAWER_MQ = '(max-width: 1023.98px), (max-width: 1100px) and (orientation: portrait)';
+  const DRAWER_MQ = '(max-width: 767.98px), (pointer: coarse) and (orientation: portrait) and (max-width: 1100px)';
   const isDrawer = () => !!(window.matchMedia && matchMedia(DRAWER_MQ).matches);
   function openMenu() {
     const m = $('.menu'), b = $('#menuBtn'), sc = $('#menuScrim'); if (!m || !isDrawer()) return;

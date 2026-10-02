@@ -543,6 +543,15 @@ body.show-plan .hdr-tools { display: none; }
   .hdr-badge { width: 34px; height: 34px; font-size: 22px; border-radius: 10px; }
   .hdr-crumb { display: none; }
   .hdr-title { font-size: 17px; }
+  .elp { gap: 6px; }
+  .elp-play { border-radius: 20px; padding: 10px 10px 0; }
+  .elp-say { width: 60px; height: 60px; }
+  .elp-fn { width: 46px; height: 46px; }
+  .elp-instr { gap: 10px; min-height: 60px; }
+  .ft-in .status { margin-inline-start: 0; }
+}
+/* الدرج للهاتف واللوح العمودي اللمسي فقط؛ على الكمبيوتر تبقى القائمة عموداً ثابتاً على اليمين (طلب المالك) */
+@media (max-width: 767.98px), (pointer: coarse) and (orientation: portrait) and (max-width: 1100px) {
   .hdr-menu-btn { display: inline-flex; }
   .lesson { padding-inline: 10px; }
   .lesson-grid { display: block; max-width: none; }
@@ -554,14 +563,9 @@ body.show-plan .hdr-tools { display: none; }
   .menu-x { display: grid; }
   .menu .item { height: 52px; font-size: 16px; }
   .menu .item .ic { width: 38px; height: 38px; }
-  .elp { gap: 6px; }
-  .elp-play { border-radius: 20px; padding: 10px 10px 0; }
-  .elp-say { width: 60px; height: 60px; }
-  .elp-fn { width: 46px; height: 46px; }
-  .elp-instr { gap: 10px; min-height: 60px; }
-  .ft-in .status { margin-inline-start: 0; }
 }
-@media (max-width: 1023.98px) and (prefers-reduced-motion: reduce), (max-width: 1100px) and (orientation: portrait) and (prefers-reduced-motion: reduce) { .menu { transition: none !important; } }
+@media (min-width: 768px) and (max-width: 1100px) { :root { --menu-w: 220px; } .menu .item { font-size: 14px; gap: 8px; } }
+@media (max-width: 767.98px) and (prefers-reduced-motion: reduce), (pointer: coarse) and (orientation: portrait) and (max-width: 1100px) and (prefers-reduced-motion: reduce) { .menu { transition: none !important; } }
 @media (max-width: 640px) {
   .elp-ic { display: none; }
   .elp-title { font-size: 18px; }
@@ -606,8 +610,8 @@ body.show-plan .hdr-tools { display: none; }
 @media (max-width: 1023.98px), (max-width: 1100px) and (orientation: portrait) {
   :root { --frame-h: clamp(470px, calc(100svh - var(--hdr-h) - var(--sa-t) - var(--sa-b) - 2 * var(--gap)), 980px); }
   @supports not (height: 100svh) { :root { --frame-h: clamp(470px, calc(100vh - var(--hdr-h) - 2 * var(--gap)), 980px); } }
-  .menu { top: 0; padding-top: calc(12px + var(--sa-t)); padding-bottom: calc(24px + var(--sa-b)); padding-inline-start: max(12px, var(--sa-r)); }
 }
+@media (max-width: 767.98px), (pointer: coarse) and (orientation: portrait) and (max-width: 1100px) { .menu { top: 0; padding-top: calc(12px + var(--sa-t)); padding-bottom: calc(24px + var(--sa-b)); padding-inline-start: max(12px, var(--sa-r)); } }
 /* صفحة الدرس بطول الشاشة تماماً: لا تمرير للصفحة ولا ارتداد أثناء النشاط (التذييل في صفحة الخطة وحدها؛ حالة العيّنة في «للكبير») */
 html { overscroll-behavior: none; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 body:not(.show-plan) .footer { display: none; }
@@ -632,3 +636,9 @@ button, a, label, input, summary, [role="button"], .bq-choice, .item { touch-act
   .elp-tool:active, .menu .item:active, .hdr-btn:active, .hdr-pop-link:active { background: var(--sky-wash); }
   .bq-btn:active { transform: translateY(3px); box-shadow: none; }
 }
+
+/* v0-12b: زرّ «ابْدَأْ» لا يتداخل مع النصّ — مسافة تتّسع لحلقة النبض (−١٢ + ٤ بكسل) وفاصل قبل شارة الجلسة */
+.cv-start { gap: 22px !important; }
+.cv-go { margin-bottom: 14px; }
+/* الشاشات العمودية الطويلة (ومنها «نسخة سطح المكتب» في متصفّح الهاتف): الإطار يملأ الطول بلا فراغ أبيض تحته */
+@media (orientation: portrait) { :root { --frame-h: max(470px, calc(100svh - var(--hdr-h) - var(--sa-t) - var(--sa-b) - 2 * var(--gap))); } }
