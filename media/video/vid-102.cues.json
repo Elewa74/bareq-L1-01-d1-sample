@@ -198,5 +198,6 @@
  "qa_v013": "v5/articulation/AV_SYNC_QA.md · v5/articulation/PHONETICS.md",
  "status": "draft_unapproved",
  "qa_v014": "v5/video/REALISM_AUDIT.md · v5/realism/qa/",
- "resolution": "1920x1080"
+ "resolution": "1920x1080",
+ "fix_v014b": "hum tails: after an isolated «مْـ» the lips stay pressed (V1/V1b) until the sound is fully silent, then V0 (v5/articulation/qa/humqa_v014b.json)"
 }
