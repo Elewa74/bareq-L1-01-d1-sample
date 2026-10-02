@@ -148,7 +148,7 @@
       const end = () => {
         if (!G.alive()) return;
         ctx.done();
-        BQ.ui.endCard(stage, { title: 'سَمِعْتُ فَرْقاً!', note: 'للكبير: غنّيتما الأنشودة. أعيدا الغناء متى شئتما بلا أصوات الشخصيات.', onReplay: () => BQ.open('EL06', { skipCover: true }) });
+        BQ.ui.endCard(stage, { title: 'سَمِعْتُ فَرْقاً!', note: 'للمعلّم: غنّيتما الأنشودة. أعيدا الغناء متى شئتما بلا أصوات الشخصيات.', onReplay: () => BQ.open('EL06', { skipCover: true }) });
       };
       const video = (then) => {
         const s = go();

@@ -413,10 +413,7 @@ body { overflow-x: clip; min-height: 100svh; }
 .elp-dock > * { pointer-events: auto; }
 .elp-play:has(> .elp-dock:not(:empty)) > .elp-stage { padding-bottom: 96px; }
 
-/* ---------- الغلاف المصمَّم ---------- */
-.elp[data-ses="B"] { --ses: #E4553F; --ses-ink: #B8321F; --ses-soft: #FDEDE9; }
-.elp[data-ses="C"] { --ses: #1FA36A; --ses-ink: #17784C; --ses-soft: #E4F6EC; }
-.elp[data-ses="D"] { --ses: #7C5CC4; --ses-ink: #5B3FA6; --ses-soft: #EFEAFA; }
+/* ---------- الغلاف المصمَّم (v0-12: لون إبراز واحد · بلا سطر للمعلّم — الغلاف للطفل وحده) ---------- */
 .elp-cover { position: absolute; inset: 0; z-index: 10; overflow: hidden; container-type: size; container-name: cover; border-radius: inherit; }
 .cv-in { position: absolute; inset: 0; display: grid; grid-template-columns: minmax(0, 47%) minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto auto minmax(0, 1fr) auto; padding: 0 5.5% 3.2%;
   background: radial-gradient(120% 90% at 100% 0%, var(--white) 0%, var(--ses-soft) 60%, #FFF7DD 100%); }

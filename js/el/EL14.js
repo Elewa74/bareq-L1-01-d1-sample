@@ -280,7 +280,7 @@ ${SC} button:focus-visible { outline: 4px solid var(--navy); outline-offset: 3px
       return { stop() { S.cancel(t); } };
     };
 
-    /** قسم أدوات الكبير يُلحق باللوحة الافتراضية (لا يستبدلها) */
+    /** قسم أدوات المعلّم يُلحق باللوحة الافتراضية (لا يستبدلها) */
     S.adultBox = function (title) {
       const panel = frame.querySelector('.bq-adult');
       const box = h('div.mk-adult', null, title ? h('h4', null, title) : null);
@@ -288,7 +288,7 @@ ${SC} button:focus-visible { outline: 4px solid var(--navy); outline-offset: 3px
       if (metaSec) panel.insertBefore(box, metaSec); else panel.append(box);
       return box;
     };
-    /** سجلّ مطويّ داخل أدوات الكبير (تفاصيل للمراجِع) */
+    /** سجلّ مطويّ داخل أدوات المعلّم (تفاصيل للمراجِع) */
     S.adultLog = function (box, summary, empty) {
       const p = h('p.log', null, empty || '');
       const metaEl = frame.querySelector('.elp-meta-el'); // المحرّك: قسم «ملاحظات المراجِع» المطويّ
@@ -334,7 +334,7 @@ ${SC} button:focus-visible { outline: 4px solid var(--navy); outline-offset: 3px
         S.cur = {
           R, wrap,
           replay() { if (phase !== 'await') return false; R.replays++; S.log.replays++; auto.stop(); cfg.stim(); return true; },
-          hide2() { // تلميح ٢ (من لوحة الكبير): إخفاء بديل غير صحيح — مساعدة
+          hide2() { // تلميح ٢ (من لوحة المعلّم): إخفاء بديل غير صحيح — مساعدة
             if (phase === 'done') return false;
             const vis = wrap.btns.filter((b) => !b.classList.contains('is-hidden'));
             const w = vis.filter((b) => b.dataset.id !== cfg.key);
@@ -390,7 +390,7 @@ ${SC} button:focus-visible { outline: 4px solid var(--navy); outline-offset: 3px
 })());
 /* EL14 «العب» — «بَوْصَلَةُ سَيْفٍ» · L1-01-AS-gme-103 · unscored:HotspotScene.
    v0-8 (pedagogy P1-5): غرفة البقع HTML هي التجربة الأساسية لـEL14؛ تحتها بطاقة اختيارية «رحلة الميم» (لعبة المحطّات)،
-   وبطاقة «رحلة البوصلة» مطويّة للكبير «مراجعة الوحدة — للكبير، بعد دروس الوحدة» (فيها حروف لم تُدرَّس) بلا زرّ كبير للطفل.
+   وبطاقة «رحلة البوصلة» مطويّة للمعلّم «مراجعة الوحدة — للمعلّم، بعد دروس الوحدة» (فيها حروف لم تُدرَّس) بلا زرّ كبير للطفل.
    مناطق اللمس تُوسَّع بمنطقة غير مرئية حتى ٦٤ بكسل (٤–٦) أو ٤٨ على الأقلّ، دون تداخل.
    المستوى ١: اكتشاف حرّ (المس فاسمع) — الصحن: صبّ ثم «ماء.» · الباب: طرقتان · البوصلة: تكّة؛ بعد المصادر الثلاثة يظهر «التّالي».
    المستوى ٢: «أَيْنَ هَذا الصَّوْتُ؟» ٦ جولات (٤ لـ٤–٦ · ٨ لـ١٠–١٢)؛ كلّ مصدر يُوجَد تُضاء خرزة (تقدّم لا درجة، لا خسارة)؛
@@ -502,8 +502,8 @@ ${SC} .e14-unit .bq-btn { margin-bottom: 12px; font-size: 14px; min-height: 44px
     let phase = 'intro', curRound = null, replays = 0, results = [];
     const setPhase = (v) => { phase = v; S.stage.dataset.phase = v; };
 
-    /* ---- لوحة الكبير ---- */
-    const box = S.adultBox('أدوات الكبير · غير مرصود');
+    /* ---- لوحة المعلّم ---- */
+    const box = S.adultBox('أدوات المعلّم · غير مرصود');
     const zb = h('button', { type: 'button', 'aria-pressed': 'false', onclick: () => { const on = S.frame.classList.toggle('show-zones'); zb.setAttribute('aria-pressed', String(on)); } }, 'إظهار المناطق');
     let curR = null;
     const h2 = h('button', { type: 'button', onclick: () => { if (curRound && phase === 'await') { Object.keys(spots).forEach((k) => spots[k].classList.toggle('dim', k !== curRound.key)); if (curR) curR.assisted = true; S.adultNote(box, 'تلميح ٢: عُتِّم ما ليس مصدراً لهذا الصوت — سُجّلت الجولة «بمساعدة».'); } } }, 'تلميح ٢: عتّم غير المصدر');
@@ -721,15 +721,15 @@ ${SC} .e14-unit .bq-btn { margin-bottom: 12px; font-size: 14px; min-height: 44px
   }
 
   /* الصفحة (v0-9): التجربة الأساسية لعبة Godot «بارِقٌ يوقِظُ البَوْصَلَةَ» (محطّة play في games/meem) عبر BQ.ui.godotRender؛
-     الغرفة HTML بديل آليّ (بلا WebGL أو إن تعذّر التحميل) ورابط «النسخة الخفيفة» للكبير. تحت المسرح «لعب إضافيّ»: بطاقة «رحلة الميم»
-     الاختيارية وبطاقة «رحلة البوصلة» مطويّة للكبير. فتح أيّ منهما يوقف اللعبة الأساسية ويضعه في المسرح، و«العودة إلى اللعبة» يعيدها. */
+     الغرفة HTML بديل آليّ (بلا WebGL أو إن تعذّر التحميل) ورابط «النسخة الخفيفة» للمعلّم. تحت المسرح «لعب إضافيّ»: بطاقة «رحلة الميم»
+     الاختيارية وبطاقة «رحلة البوصلة» مطويّة للمعلّم. فتح أيّ منهما يوقف اللعبة الأساسية ويضعه في المسرح، و«العودة إلى اللعبة» يعيدها. */
   const playSummary = (r) => {
     r = r || {};
     const A = MK.AR;
     const lv = Array.isArray(r.levels) ? r.levels : [];
     const names = ['أصوات البيت', 'فقّاعات الميم', 'جسر الأصوات', 'املأ الصحن', 'البوصلة تضيء'];
     const rows = lv.map((x, i) => x && x.items ? `${names[i] || ('المستوى ' + A(i + 1))}: ${A(x.first_try || 0)} من ${A(x.items)} من أوّل محاولة` + (x.assisted ? ` · ${A(x.assisted)} بعد تلميح` : '') + (x.revealed ? ` · ${A(x.revealed)} أظهرته اللعبة` : '') : '').filter(Boolean);
-    return '<p class="goal"><b>«العب» — بارِقٌ يوقِظُ البَوْصَلَةَ (غير مرصود):</b> أتمّ طفلك المستويات الخمسة' + (r.stars ? ' ونال ' + A(r.stars) + ' من ٣ نجوم' : '') + (r.minutes ? ' في نحو ' + A(Math.max(1, Math.round(r.minutes))) + ' دقائق' : '') + '.</p>' +
+    return '<p class="goal"><b>«العب» — بارِقٌ يوقِظُ البَوْصَلَةَ (غير مرصود):</b> أتمّ الطفل المستويات الخمسة' + (r.stars ? ' ونال ' + A(r.stars) + ' من ٣ نجوم' : '') + (r.minutes ? ' في نحو ' + A(Math.max(1, Math.round(r.minutes))) + ' دقائق' : '') + '.</p>' +
       (rows.length ? '<p>' + rows.join('<br>') + '</p>' : '') +
       '<p>إعادات الصوت: ' + A(r.replays || 0) + '. النجوم للتشجيع وحده؛ الرصد في «تدرّب» (EL13).</p>';
   };
@@ -786,11 +786,11 @@ ${SC} .e14-unit .bq-btn { margin-bottom: 12px; font-size: 14px; min-height: 44px
       go.onclick = () => openGame(null, 'journey', 'رحلة الميم', go);
       more.append(h('div.bq-gcard', null,
         h('img', { src: 'games/meem/index.icon.png', alt: '' }),
-        h('span', null, h('b', null, 'رحلة الميم'), h('small', null, 'محطّات هذا الدرس في لعبة واحدة — إن رغب طفلك في اللعب مرّة أخرى')),
+        h('span', null, h('b', null, 'رحلة الميم'), h('small', null, 'محطّات هذا الدرس في لعبة واحدة — إن رغب الطفل في اللعب مرّة أخرى')),
         go));
     }
     const unit = h('details.e14-unit', null,
-      h('summary', null, 'مراجعة الوحدة — للكبير، بعد دروس الوحدة'),
+      h('summary', null, 'مراجعة الوحدة — للمعلّم، بعد دروس الوحدة'),
       h('p', null, '«رحلة البوصلة» لعبة لمراجعة الوحدة الأولى كلّها، وفيها حروف وكلمات لم تُدرَّس بعد؛ افتحها بعد إتمام دروس الوحدة، لا في هذا الدرس.'));
     if (canGame) {
       const ob = h('button.bq-btn.ghost', { type: 'button' }, 'افتح لعبة المراجعة');
@@ -802,6 +802,6 @@ ${SC} .e14-unit .bq-btn { margin-bottom: 12px; font-size: 14px; min-height: 44px
     (cap || stage).after(more);
   }
 
-  BQ.register('EL14', { hero: 'img-033', cover: 'لعبة: يساعد طفلك بارقاً على إيقاظ بوصلة الأصوات — يجد مصدر كلّ صوت، ويلتقط «مْـ»، ويملأ الصحن بالماء.', render: renderPage });
+  BQ.register('EL14', { hero: 'img-033', cover: 'لعبة: يساعد الطفل بارقاً على إيقاظ بوصلة الأصوات — يجد مصدر كلّ صوت، ويلتقط «مْـ»، ويملأ الصحن بالماء.', render: renderPage });
 })();
 })();

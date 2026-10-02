@@ -3,7 +3,7 @@
    · جلسة تتوقّف تلقائياً عند مغادرة العنصر (S.play/S.sleep لا تُكمل بعد الخروج، ولا تتعلّق إذا قُطع الصوت أو تعطّل).
    · تشغيل مقطع من ملفّ صوتيّ بزمنه (playSeg) + تحليل الصمت لإيجاد حدود الكلمات والجمل (analyze).
    · مشغّل جولة «استمع واختر» بصفوف التغذية الثلاثة (صواب · خطأ أوّل · خطأ ثانٍ).
-   · دليل الكبير: «للكبير» (≤ ٣ أوامر) + «ملاحظات المراجِع» المطويّة — بلا رموز داخلية ولا سجلّات خام. */
+   · دليل المعلّم: «للمعلّم» (≤ ٣ أوامر) + «ملاحظات المراجِع» المطويّة — بلا رموز داخلية ولا سجلّات خام. */
 (function () {
   'use strict';
   if (!window.BQ || BQ.kit) return;
@@ -81,7 +81,7 @@
     return S;
   };
 
-  /* ---------- دليل الكبير: «للكبير» + «ملاحظات المراجِع» ---------- */
+  /* ---------- دليل المعلّم: «للمعلّم» + «ملاحظات المراجِع» ---------- */
   const PIN = 'قُلِ الصَّوْتَ لا اسْمَ الحَرْفِ: «مْـ» ممدودةٌ والشَّفَتانِ مُطبَقَتانِ، بلا «مِيم» وبلا حَرَكةٍ بعدَها.';
   const panelOf = (ctx) => (ctx.frame && ctx.frame.querySelector('.bq-adult, .elp-adult')) || document.querySelector('.elp-adult');
   /** o: {main: html|fn, meta: html|fn, pin: bool} — تُحفظ لتحديث الملاحظات لاحقاً بـ K.meta */
@@ -110,7 +110,7 @@
     if (typeof ctx.adultMeta === 'function') { const m = ctx._kx.meta; ctx.adultMeta(typeof m === 'function' ? m() : m || ''); }
     else K.adult(ctx, {});
   };
-  /** نصّ العمر للكبير: حقل المحرّك ages_adult إن وُجد، وإلا نصّ العنصر */
+  /** نصّ العمر للمعلّم: حقل المحرّك ages_adult إن وُجد، وإلا نصّ العنصر */
   K.ageText = (meta, age, fallback) => (meta && meta.ages_adult && meta.ages_adult[age]) || (fallback && fallback[age]) || '';
 
   /* ---------- تحليل الصوت: مناطق الكلام والصمت ---------- */
@@ -308,12 +308,12 @@
       requestAnimationFrame(() => b.focus({ preventScroll: true }));
     });
   };
-  /** بوّابة الكبير: ضغط مطوّل (٠٫٨ ث) أو Enter — تعيد 'open' أو 'skip' */
+  /** بوّابة المعلّم: ضغط مطوّل (٠٫٨ ث) أو Enter — تعيد 'open' أو 'skip' */
   K.adultGate = function (S, parent, opt) {
     return new Promise((res) => {
       let t = null;
       const open = () => { box.remove(); res('open'); };
-      const btn = h('button.kx-gate-open', { type: 'button', 'aria-label': opt.label || 'لِلْكَبيرِ: افْتَحْ' }, h('span.kx-gate-fill'), BQ.icon('adult'), h('span', null, opt.label || 'لِلْكَبيرِ: اضْغَطْ مُطَوَّلاً لِلْفَتْحِ'));
+      const btn = h('button.kx-gate-open', { type: 'button', 'aria-label': opt.label || 'لِلْمُعَلِّمِ: افْتَحْ' }, h('span.kx-gate-fill'), BQ.icon('adult'), h('span', null, opt.label || 'لِلْمُعَلِّمِ: اضْغَطْ مُطَوَّلاً لِلْفَتْحِ'));
       btn.addEventListener('pointerdown', () => { btn.classList.add('is-hold'); t = setTimeout(open, 800); });
       const cancel = () => { btn.classList.remove('is-hold'); clearTimeout(t); };
       btn.addEventListener('pointerup', cancel); btn.addEventListener('pointerleave', cancel); btn.addEventListener('pointercancel', cancel);

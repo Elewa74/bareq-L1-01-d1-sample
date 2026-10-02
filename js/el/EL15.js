@@ -49,7 +49,7 @@
 :where(.elp .sx-hear .bq-ic) { width: 52%; height: 52%; }
 :where(.elp .sx-hear.is-playing)::after { content: ""; position: absolute; inset: -11px; border-radius: 50%; border: 4px solid var(--sky-ink, var(--navy)); animation: bqRing 1s ease-out infinite; }
 :where(.elp.sx-a46 .sx-hear) { min-width: 72px; }
-/* شريط «ملاحظة الكبير»: خارج مساحة الطفل بصرياً */
+/* شريط «ملاحظة المعلّم»: خارج مساحة الطفل بصرياً */
 .elp .sx-adult { align-self: stretch; display: flex; align-items: center; gap: 14px; background: var(--navy); color: var(--white); border-radius: var(--r-md); padding: 10px 12px 10px 16px; box-shadow: 0 10px 24px var(--shade); position: relative; }
 .elp .sx-adult::before { content: ""; position: absolute; inset-inline: 22px; top: -9px; height: 9px; background: repeating-linear-gradient(90deg, var(--sky-line) 0 8px, transparent 8px 14px); border-radius: 4px 4px 0 0; opacity: .9; }
 .elp .sx-adult-tag { display: flex; align-items: center; gap: 10px; font: 500 13px/1.35 var(--ff-ui); color: var(--sky-line); min-width: 0; flex: none; }
@@ -101,9 +101,9 @@
     const c = Math.min(Math.max(i, 0) + 1, n);
     return h('div.sx-steps', { role: 'img', 'aria-label': 'الخُطْوَةُ ' + sxAR(c) + ' مِنْ ' + sxAR(n) }, d, BQ.state.age === '10-12' ? h('b', { 'aria-hidden': 'true' }, sxAR(c) + ' / ' + sxAR(n)) : null);
   };
-  const sxAdultTool = (frame) => { const t = [...frame.querySelectorAll('.elp-tool')]; return t.find((b) => /دليل الكبير/.test(b.textContent)) || t[0] || null; };
+  const sxAdultTool = (frame) => { const t = [...frame.querySelectorAll('.elp-tool')]; return t.find((b) => /دليل المعلّم/.test(b.textContent)) || t[0] || null; };
   const SX_PIN = 'قُلِ الصَّوْتَ لا اسْمَ الحَرْفِ: «مْـ» ممدودةٌ والشَّفَتانِ مُطبَقَتانِ، بلا «مِيم» وبلا حَرَكةٍ بعدَها.';
-  /** أدوات آمنة لكلّ عنصر: لا صوت ولا متابعة بعد مغادرته (ctx.alive من المحرّك إن وُجد) + دليل الكبير بقسمين */
+  /** أدوات آمنة لكلّ عنصر: لا صوت ولا متابعة بعد مغادرته (ctx.alive من المحرّك إن وُجد) + دليل المعلّم بقسمين */
   const sxKit = (ctx) => {
     let gone = false;
     ctx.onCleanup(() => { gone = true; });
@@ -132,7 +132,7 @@
         setTimeout(() => { el.classList.remove('in'); setTimeout(() => el.remove(), 480); res(r && alive()); }, r && mood ? 700 : 0);
       }));
     }
-    /** main: «للكبير» (≤ ٣ أوامر قصيرة) · meta: «ملاحظات المراجِع» المطويّة (المحطّة، الرصد، ما يُسجَّل) */
+    /** main: «للمعلّم» (≤ ٣ أوامر قصيرة) · meta: «ملاحظات المراجِع» المطويّة (المحطّة، الرصد، ما يُسجَّل) */
     function adult(main, meta) {
       if (typeof ctx.adultMeta === 'function') { ctx.adult(main); ctx.adultMeta(meta || ''); }
       else ctx.adult(main + (meta ? '<details class="sx-meta"><summary>ملاحظات المراجِع</summary>' + meta + '</details>' : ''));
@@ -255,12 +255,12 @@ ${S} .bq-adult .t15-save .t15-save-t { margin: 0; font-weight: 600; color: var(-
   ];
   const SNAP = 'bariq_L1-01_sfx-tile-snap';
 
-  /** «احفظ خريطة طفلك»: صورة PNG للخريطة المكتملة تُنزَّل أو تُحفظ من الصورة نفسها (بلا طباعة آلية ولا إرسال) */
+  /** «احفظ خريطة الطفل»: صورة PNG للخريطة المكتملة تُنزَّل أو تُحفظ من الصورة نفسها (بلا طباعة آلية ولا إرسال) */
   const MAPCACHE = { url: null };
   function mapSaveBox(frame) {
     const box = h('div.t15-save');
     const help = 'إن لم يبدأ التنزيل: اضغط على الصورة مطوّلاً (أو بالزرّ الأيمن للفأرة) واختر «حفظ الصورة»، ثم اطبعها من الصور إن شئت.';
-    const show = (url) => box.replaceChildren(h('p.t15-save-t', null, 'خريطة طفلك جاهزة:'), h('img.t15-snap', { src: url, alt: 'خريطة الميم المكتملة' }),
+    const show = (url) => box.replaceChildren(h('p.t15-save-t', null, 'خريطة الطفل جاهزة:'), h('img.t15-snap', { src: url, alt: 'خريطة الميم المكتملة' }),
       h('a.bq-btn', { href: url, download: 'خريطة-الميم.png' }, BQ.icon('check'), 'تنزيل الصورة'),
       h('p', null, help));
     if (MAPCACHE.url) { show(MAPCACHE.url); return box; }
@@ -268,7 +268,7 @@ ${S} .bq-adult .t15-save .t15-save-t { margin: 0; font-weight: 600; color: var(-
       btn.disabled = true;
       try { MAPCACHE.url = await mapImage(frame); show(MAPCACHE.url); }
       catch (e) { console.warn('EL15 map image', e); btn.disabled = false; }
-    } }, BQ.icon('star'), 'احفظ خريطة طفلك صورةً');
+    } }, BQ.icon('star'), 'احفظ خريطة الطفل صورةً');
     box.append(h('p.t15-save-t', null, 'للبيت: صورة للخريطة المكتملة تحفظها أو تطبعها.'), btn);
     return box;
   }
@@ -299,7 +299,7 @@ ${S} .bq-adult .t15-save .t15-save-t { margin: 0; font-weight: 600; color: var(-
   }
 
   BQ.register(ID, {
-    cover: 'يضع طفلك كلّ بطاقة في مكانها حول «م»: الصوت، والشفتان، والماء، وشكل الحرف.',
+    cover: 'يضع الطفل كلّ بطاقة في مكانها حول «م»: الصوت، والشفتان، والماء، وشكل الحرف.',
     render(stage, ctx) {
       const age = ctx.age();
       const K = sxKit(ctx);
@@ -600,11 +600,11 @@ ${S} .bq-adult .t15-save .t15-save-t { margin: 0; font-weight: 600; color: var(-
       s1();
     },
   });
-  // Godot «رحلة الميم» · محطّة compass هي التجربة الأساسية؛ النسخة HTML أعلاه بديل آليّ أو برابط الكبير «نسخة بلا Godot»
+  // Godot «رحلة الميم» · محطّة compass هي التجربة الأساسية؛ النسخة HTML أعلاه بديل آليّ أو برابط المعلّم «نسخة بلا Godot»
   if (BQ.ui.godotRender) {
     BQ.defs[ID].render = BQ.ui.godotRender('compass', BQ.defs[ID].render, {
       name: 'بوصلة الأصوات',
-      // بعد اكتمال المحطّة: بطاقة الختام + «احفظ خريطة طفلك صورةً» في دليل الكبير (الخريطة المكتملة واحدة دائماً)
+      // بعد اكتمال المحطّة: بطاقة الختام + «احفظ خريطة الطفل صورةً» في دليل المعلّم (الخريطة المكتملة واحدة دائماً)
       after(ctx, result, stage) {
         stage = stage || ctx.stage;
         if (typeof ctx.alive === 'function' && !ctx.alive()) return;

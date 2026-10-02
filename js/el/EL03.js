@@ -16,8 +16,8 @@
 .bq-frame[data-el="EL03"] .e3-pad:focus-visible{outline:4px solid var(--navy);outline-offset:4px}
 .bq-frame[data-el="EL03"] .e3-pad .g{display:grid;place-items:center;height:100%;font:700 clamp(96px,24cqi,210px)/1 var(--ff-child);color:var(--navy);margin-top:-.12em}
 .bq-frame[data-el="EL03"] .e3-pad img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 34%;transform:scale(1.5);transform-origin:50% 38%}
-.bq-frame[data-el="EL03"] .e3-pad img.o{opacity:0;transition:opacity 55ms}
-.bq-frame[data-el="EL03"] .e3-pad img.o.on{opacity:1}
+.bq-frame[data-el="EL03"] .e3-pad img.v{object-position:50% 50%;transform:none;opacity:0}
+.bq-frame[data-el="EL03"] .e3-pad img.v.on{opacity:1}
 .bq-frame[data-el="EL03"] .e3-pad.touched{box-shadow:0 0 0 5px var(--sun-soft),0 16px 30px var(--shade)}
 .bq-frame[data-el="EL03"] .e3-pad.hintdim{opacity:.7}
 .bq-frame[data-el="EL03"] .e3-pad.is-ok{box-shadow:0 0 0 5px var(--ok),0 16px 30px var(--shade)}
@@ -45,27 +45,34 @@
     const row = h('div.e3-row', { role: 'group', 'aria-label': 'صُوَرٌ لِلاخْتِيارِ' });
     const tick = () => h('span.bq-tick', { 'aria-hidden': 'true', html: BQ.icons.check });
     const glyph = h('button.e3-pad.glyph', { type: 'button', 'aria-label': 'الحَرْفُ م' }, h('span.g', { 'aria-hidden': 'true' }, 'م'), tick());
-    const oImg = h('img.o', { src: BQ.img('img-102'), alt: '' });
-    const lips = h('button.e3-pad', { type: 'button', 'aria-label': 'فَمُ سَيْفٍ' }, h('img', { src: BQ.img('img-101'), alt: '' }), oImg, tick());
+    // v0-13: فم سيف = صور GPT للأوضاع (V0 راحة · V1/V1b مطبقتان للهمهمة · V2 نصف · V3/V4 «آ» واسعة · V5 إغلاق) مسجّلة على نقطة واحدة
+    const VIS = ['V0', 'V1', 'V1b', 'V2', 'V3', 'V4', 'V5'];
+    const vImgs = {}; VIS.forEach((v) => { vImgs[v] = h('img.v' + (v === 'V0' ? '.on' : ''), { src: 'media/img/vis/saif-' + v + '.webp', alt: '' }); });
+    const lips = h('button.e3-pad', { type: 'button', 'aria-label': 'فَمُ سَيْفٍ' }, ...VIS.map((v) => vImgs[v]), tick());
+    let shown = 'V0';
+    const showVis = (v) => { if (v === shown) return; vImgs[shown].classList.remove('on'); vImgs[v].classList.add('on'); shown = v; };
     const ghost = h('span.e3-ghost', { 'aria-hidden': 'true' }, BQ.icon('hand'));
     row.append(glyph, h('span.e3-line', { 'aria-hidden': 'true' }), lips, ghost); // RTL: الحرف يميناً ثم الفم
     scr.append(row);
     let touched = new Set(), last = null, same = 0, finished = false;
     if (!BQ.reduced()) ghost.animate([{ opacity: 0, transform: 'translate(-50%,40%)' }, { opacity: .9, transform: 'translate(-50%,0)', offset: .4 }, { opacity: .9, transform: 'translate(-50%,0) scale(.86)', offset: .6 }, { opacity: .9, transform: 'translate(-50%,0)', offset: .75 }, { opacity: 0, transform: 'translate(-50%,10%)' }], { duration: 2000, delay: 600, easing: 'ease-in-out' });
+    // مسار الأوضاع إطاراً بإطار (24/ث) محسوب من صوت السطر نفسه (v5/articulation/visemes.py — نفس محرّك الفيديو):
+    // «مْـ… مْـ…» شفتان مطبقتان طوال الهمهمة (1/b) · «الميمُ في الفَمِ» تنفتح قبل الصائت بإطار وتنطبق على م/ف.
+    const TRACK = '001bbb1bbb1bbb1bbb10000000001bbb1bbb1bbb1bbb100000002332221b233341b223352523331bbb1b000000000';
+    const CODE = { 0: 'V0', 1: 'V1', b: 'V1b', 2: 'V2', 3: 'V3', 4: 'V4', 5: 'V5' };
     const mouthPlay = async () => {
       const id = 'bariq_L1-01_L1-build_02_ar';
-      const env = await BQ.voiced(id);
       if (!G.alive()) return;
       const p = G.say(id); const au = BQ.hasAudio(id) ? BQ.audio.cur : null;
-      let on = true; const pat = ['m', 'm', 'talk'];
+      let on = true;
       const loop = () => {
         if (!on || !G.alive()) return;
-        const t = au ? au.currentTime : 0; let open = false;
-        (env ? env.segs : []).forEach(([a, b], i) => { if (t >= a && t <= b) { const k = pat[Math.min(i, 2)]; const lt = t - a; open = k === 'm' ? false : Math.floor(lt / 0.13) % 3 !== 2 && lt > 0.05; } });
-        oImg.classList.toggle('on', open); requestAnimationFrame(loop);
+        const k = au ? Math.floor(au.currentTime * 24) : -1;
+        showVis(k >= 0 && k < TRACK.length ? CODE[TRACK[k]] : 'V0');
+        requestAnimationFrame(loop);
       };
       requestAnimationFrame(loop);
-      await p; on = false; oImg.classList.remove('on');
+      await p; on = false; showVis('V0');
     };
     const tap = async (which, btn, other) => {
       btn.classList.remove('tap'); void btn.offsetWidth; btn.classList.add('tap');
@@ -114,7 +121,7 @@
         await BQ.ui.bariq(stage, 'bariq_L1-01_d1-FB_03_ar');
         if (!G.alive()) return;
         ctx.done();
-        BQ.ui.endCard(stage, { title: 'أَحْسَنْتَ!', note: 'للكبير: رأى الصوت في الفم، ولمس الحرف، وتتبّعه مرّة. التتبّع الكامل في «اكتب».', onReplay: () => BQ.open('EL03', { skipCover: true }) });
+        BQ.ui.endCard(stage, { title: 'أَحْسَنْتَ!', note: 'للمعلّم: رأى الصوت في الفم، ولمس الحرف، وتتبّعه مرّة. التتبّع الكامل في «اكتب».', onReplay: () => BQ.open('EL03', { skipCover: true }) });
       },
     });
     guide = h('span', { 'aria-hidden': 'true', html:
@@ -131,7 +138,7 @@
 
   BQ.register('EL03', {
     hero: 'img-102',
-    cover: 'يرى طفلك «مْـ» على الشفتين، ثم يلمس الحرف «م» ويتتبّعه مرّة.',
+    cover: 'يرى الطفل «مْـ» على الشفتين، ثم يلمس الحرف «م» ويتتبّعه مرّة.',
     render(stage, ctx) {
       css();
       const h = BQ.h;
@@ -139,7 +146,7 @@
       const G = V.liveGuard(ctx);
       V.pinAdult(ctx);
       V.adultNote(ctx,
-        h('p', null, h('b', null, 'للكبير: '), 'بعد المقطع: «المس الحرف، والمس الفم» — لا خطأ في هذه الخطوة. ثم التتبّع: من النقطة الخضراء، السهم ١ ثم ٢، مرّة واحدة.'));
+        h('p', null, h('b', null, 'للمعلّم: '), 'بعد المقطع: «المس الحرف، والمس الفم» — لا خطأ في هذه الخطوة. ثم التتبّع: من النقطة الخضراء، السهم ١ ثم ٢، مرّة واحدة.'));
       const steps = V.steps(stage, NSTEPS);
       let scr = null;
       const go = (i) => {

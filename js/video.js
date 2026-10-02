@@ -789,7 +789,7 @@
       runFrom(Math.max(0, Math.min(scenes.length - 1, i)));
     }
 
-    /* شريط المشاهد في دليل الكبير */
+    /* شريط المشاهد في دليل المعلّم */
     const stripBtns = [];
     const adultP = ctx.frame && ctx.frame.querySelector('.bq-adult');
     if (adultP && opt.strip !== false) {
@@ -818,7 +818,7 @@
   /* ================================================================================================
      BQ.video.mp4(stage, ctx, o) — المقطع المُصيَّر (MP4) في إطار فيديو المنصّة (خلفية سوداء · تشغيل/إيقاف · تقدّم)
      مع وقفات الدعوة ونقاط اللمس نفسها تقودها ملفّات media/video/<id>.cues.json:
-     عند كلّ وقفة يتوقّف الفيديو، تظهر الطبقة (قُل / ما؟ / ○○ ○□)، ثم يُستأنف من resume بعد فعل الطفل/الكبير.
+     عند كلّ وقفة يتوقّف الفيديو، تظهر الطبقة (قُل / ما؟ / ○○ ○□)، ثم يُستأنف من resume بعد فعل الطفل/المعلّم.
      إن تعذّر تحميل الفيديو أو ملفّ الوقفات → o.fallback() (مشغّل المشاهد في الصفحة) تلقائياً.
      o = { id:'vid-102', aria, captions:true|false, adultExtra: () => Node, fallback: () => player }
      يعيد واجهة المشغّل نفسها: { root, done, goto(i), destroy(), scene, ended, pause(), play(), toggle() }
@@ -1005,7 +1005,7 @@
       try { console.info('[BQ.video.mp4] ' + o.id + ' → scene player (' + why + ')'); } catch (e) {}
       teardown();
       root.remove();
-      // لا عودة إلى الرسوم المقصوصة (قرار المالك): ملصق المقطع ورسالة، و«تابِعْ» للكبير
+      // لا عودة إلى الرسوم المقصوصة (قرار المالك): ملصق المقطع ورسالة، و«تابِعْ» للمعلّم
       impl = posterFail(stage, ctx, o, why);
       impl.done.then((v) => resolveDone(v));
     }
@@ -1246,14 +1246,14 @@
     return { el, set(i) { dots.forEach((d, j) => { d.className = j < i ? 'done' : j === i ? 'cur' : ''; }); el.setAttribute('aria-valuenow', String(i + 1)); num.textContent = BQ.state.age === '10-12' ? AR(i + 1) + ' / ' + AR(n) : ''; } };
   }
 
-  /* السطر المثبَّت أعلى «دليل الكبير» (القرار ٤) — يُضاف مرّة واحدة إن لم يضفه المحرّك */
+  /* السطر المثبَّت أعلى «دليل المعلّم» (القرار ٤) — يُضاف مرّة واحدة إن لم يضفه المحرّك */
   const PIN = 'قُلِ الصَّوْتَ لا اسْمَ الحَرْفِ: «مْـ» ممدودةٌ والشَّفَتانِ مُطبَقَتانِ، بلا «مِيم» وبلا حَرَكةٍ بعدَها.';
   function pinAdult(ctx) {
     const body = ctx.frame && (ctx.frame.querySelector('.elp-adult-body') || ctx.frame.querySelector('.bq-adult'));
     if (!body || /لا اسْمَ الحَرْفِ|لا اسم الحرف/.test(ctx.frame.querySelector('.elp-adult, .bq-adult').textContent)) return;
     body.prepend(h('p.pin', { style: { background: 'var(--sun-soft)', borderRadius: '12px', padding: '8px 12px', fontWeight: '600' } }, PIN));
   }
-  /** عقدة نصّ للكبير تُلحق بالدليل (تُزال عند مغادرة العنصر تلقائياً لأنّ الإطار يُبنى من جديد) */
+  /** عقدة نصّ للمعلّم تُلحق بالدليل (تُزال عند مغادرة العنصر تلقائياً لأنّ الإطار يُبنى من جديد) */
   function adultNote(ctx, ...kids) {
     const body = ctx.frame && (ctx.frame.querySelector('.elp-adult-body') || ctx.frame.querySelector('.bq-adult'));
     if (!body) return null;

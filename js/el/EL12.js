@@ -1,8 +1,8 @@
 /* EL12 «اكتب» — gme-101 · TraceCanvas (غير مرصود: trace_completed = إتمام لا إتقان)
    ش١ نموذج «م» المنفصلة ثابتاً (نقطة بدء + أسهم مرقّمة) — لا حركة قلم قبل حسم الصيغة.
    ش٢ تتبّع بالإصبع من نقطة البدء: موجَّه بالنقاط ← نموذج باهت ← حرّ على المسطرة (١٠–١٢: موجَّه ← حرّ).
-   ش٣ ورقة التتبّع (للكبير) — نظيرها في كتاب الطالب المطبوع.
-   الصيغة معلّقة للمالك: (أ) النسخ المدرسي · (ب) خطّ اليد المبسّط — مفتاح صغير للكبير يبدّل بينهما (محلّياً؛ يستعمله EL16).
+   ش٣ ورقة التتبّع (للمعلّم) — نظيرها في كتاب الطالب المطبوع.
+   الصيغة معلّقة للمالك: (أ) النسخ المدرسي · (ب) خطّ اليد المبسّط — مفتاح صغير للمعلّم يبدّل بينهما (محلّياً؛ يستعمله EL16).
    سطح الرسم من BQ.ui.trace؛ التحقّق بالترتيب ونقطة البدء والتلميحات محلّية. تصميم v2: صفحتا دفتر تمارين. */
 (function () {
   'use strict';
@@ -50,7 +50,7 @@
 :where(.elp .sx-hear .bq-ic) { width: 52%; height: 52%; }
 :where(.elp .sx-hear.is-playing)::after { content: ""; position: absolute; inset: -11px; border-radius: 50%; border: 4px solid var(--sky-ink, var(--navy)); animation: bqRing 1s ease-out infinite; }
 :where(.elp.sx-a46 .sx-hear) { min-width: 72px; }
-/* شريط «ملاحظة الكبير»: خارج مساحة الطفل بصرياً */
+/* شريط «ملاحظة المعلّم»: خارج مساحة الطفل بصرياً */
 .elp .sx-adult { align-self: stretch; display: flex; align-items: center; gap: 14px; background: var(--navy); color: var(--white); border-radius: var(--r-md); padding: 10px 12px 10px 16px; box-shadow: 0 10px 24px var(--shade); position: relative; }
 .elp .sx-adult::before { content: ""; position: absolute; inset-inline: 22px; top: -9px; height: 9px; background: repeating-linear-gradient(90deg, var(--sky-line) 0 8px, transparent 8px 14px); border-radius: 4px 4px 0 0; opacity: .9; }
 .elp .sx-adult-tag { display: flex; align-items: center; gap: 10px; font: 500 13px/1.35 var(--ff-ui); color: var(--sky-line); min-width: 0; flex: none; }
@@ -102,9 +102,9 @@
     const c = Math.min(Math.max(i, 0) + 1, n);
     return h('div.sx-steps', { role: 'img', 'aria-label': 'الخُطْوَةُ ' + sxAR(c) + ' مِنْ ' + sxAR(n) }, d, BQ.state.age === '10-12' ? h('b', { 'aria-hidden': 'true' }, sxAR(c) + ' / ' + sxAR(n)) : null);
   };
-  const sxAdultTool = (frame) => { const t = [...frame.querySelectorAll('.elp-tool')]; return t.find((b) => /دليل الكبير/.test(b.textContent)) || t[0] || null; };
+  const sxAdultTool = (frame) => { const t = [...frame.querySelectorAll('.elp-tool')]; return t.find((b) => /دليل المعلّم/.test(b.textContent)) || t[0] || null; };
   const SX_PIN = 'قُلِ الصَّوْتَ لا اسْمَ الحَرْفِ: «مْـ» ممدودةٌ والشَّفَتانِ مُطبَقَتانِ، بلا «مِيم» وبلا حَرَكةٍ بعدَها.';
-  /** أدوات آمنة لكلّ عنصر: لا صوت ولا متابعة بعد مغادرته (ctx.alive من المحرّك إن وُجد) + دليل الكبير بقسمين */
+  /** أدوات آمنة لكلّ عنصر: لا صوت ولا متابعة بعد مغادرته (ctx.alive من المحرّك إن وُجد) + دليل المعلّم بقسمين */
   const sxKit = (ctx) => {
     let gone = false;
     ctx.onCleanup(() => { gone = true; });
@@ -133,7 +133,7 @@
         setTimeout(() => { el.classList.remove('in'); setTimeout(() => el.remove(), 480); res(r && alive()); }, r && mood ? 700 : 0);
       }));
     }
-    /** main: «للكبير» (≤ ٣ أوامر قصيرة) · meta: «ملاحظات المراجِع» المطويّة (المحطّة، الرصد، ما يُسجَّل) */
+    /** main: «للمعلّم» (≤ ٣ أوامر قصيرة) · meta: «ملاحظات المراجِع» المطويّة (المحطّة، الرصد، ما يُسجَّل) */
     function adult(main, meta) {
       if (typeof ctx.adultMeta === 'function') { ctx.adult(main); ctx.adultMeta(meta || ''); }
       else ctx.adult(main + (meta ? '<details class="sx-meta"><summary>ملاحظات المراجِع</summary>' + meta + '</details>' : ''));
@@ -250,7 +250,7 @@ ${S} .t12-big .t12-big-bar { display: flex; gap: 10px; align-items: center; just
   ${S} .t12-glyph { font-size: 72px; }
   ${S} .t12-sheetwrap { max-width: 220px; }
 }
-/* v0-12: هاتف — مفتاح الصيغة للكبير في الدليل وحده (يبقى هناك)، والحرف المرجعيّ صغير، ولوح التتبّع بارتفاع الإطار */
+/* v0-12: هاتف — مفتاح الصيغة للمعلّم في الدليل وحده (يبقى هناك)، والحرف المرجعيّ صغير، ولوح التتبّع بارتفاع الإطار */
 @container stage (max-width: 560px) {
   ${S} .t12-top .sx-var { display: none; }
   ${S} .t12-top { justify-content: center; }
@@ -324,7 +324,7 @@ ${S} .t12-big .t12-big-bar { display: flex; gap: 10px; align-items: center; just
 
   const HOME12 = ['اطبعا ورقة تتبّع «م» أو افتحاها في كتاب الطالب المطبوع.', 'ابدأ من النقطة الخضراء واتّبع الأسهم.', 'قل «مْـ» ممدودة وأنت تتبّع.'];
 
-  /** خطوة ورقة التتبّع (للكبير) — تُستعمل في النسخة HTML وبعد انتهاء محطّة «اكتب» في «رحلة الميم» */
+  /** خطوة ورقة التتبّع (للمعلّم) — تُستعمل في النسخة HTML وبعد انتهاء محطّة «اكتب» في «رحلة الميم» */
   function worksheet(stage, ctx, opt) {
     opt = opt || {};
     const v = getVar(), V = VAR[v];
@@ -353,7 +353,7 @@ ${S} .t12-big .t12-big-bar { display: flex; gap: 10px; align-items: center; just
     }
     const prev = mkSheet(h('button.t12-sheetwrap', { type: 'button', 'aria-label': 'افتح ورقة التتبّع', onclick: openBig }));
     ref.append(h('div.t12-print', null,
-      h('p', { html: '<b>للكبير:</b> ورقة اختيارية للقلم في البيت؛ الدرس مكتمل بدونها.' }),
+      h('p', { html: '<b>للمعلّم:</b> ورقة اختيارية للقلم في البيت؛ الدرس مكتمل بدونها.' }),
       h('p', null, 'ابدأ من النقطة الخضراء واتّبع الأسهم، وقل «مْـ» ممدودة وأنت تتبّع.'),
       h('button.bq-btn.ghost', { type: 'button', onclick: openBig }, BQ.icon('hand'), 'افتح الورقة'),
       h('p.book', null, BQ.icon('star'), 'الورقة نفسها في كتاب الطالب المطبوع.')));
@@ -372,7 +372,7 @@ ${S} .t12-big .t12-big-bar { display: flex; gap: 10px; align-items: center; just
   const touchGuard = (el) => { if (BQ.elGuard) BQ.elGuard(el); }; // v0-12: حارس اللمس المشترك (EL01.js)
 
   BQ.register(ID, {
-    cover: 'يشاهد طفلك حركة «م»، ثم يتتبّعها بإصبعه من النقطة الخضراء.',
+    cover: 'يشاهد الطفل حركة «م»، ثم يتتبّعها بإصبعه من النقطة الخضراء.',
     render(stage, ctx) {
       const age = ctx.age();
       const K = sxKit(ctx);
@@ -396,7 +396,7 @@ ${S} .t12-big .t12-big-bar { display: flex; gap: 10px; align-items: center; just
 
       function varToggle() {
         const v = getVar();
-        const box = h('div.sx-var', { role: 'group', 'aria-label': 'صيغة الكتابة — للكبير' }, BQ.icon('adult'), h('span', null, 'الصيغة · للكبير'));
+        const box = h('div.sx-var', { role: 'group', 'aria-label': 'صيغة الكتابة — للمعلّم' }, BQ.icon('adult'), h('span', null, 'الصيغة · للمعلّم'));
         ['A', 'B'].forEach((k) => box.append(h('button', { type: 'button', 'aria-pressed': String(v === k), 'aria-label': 'الصيغة ' + VAR[k].tag + ': ' + VAR[k].name, title: VAR[k].name, onclick: () => { if (getVar() === k) return; BQ.store.set('write-variant', k); rec.variant = k; SCREENS[cur](); } }, VAR[k].tag)));
         return box;
       }
@@ -457,7 +457,7 @@ ${S} .t12-big .t12-big-bar { display: flex; gap: 10px; align-items: center; just
         const counted = mode !== 'free'; // التتبّع المعدود مرّتان؛ الحرّ تكرار بلا حدّ
         const { ref, work, foot } = scaffold(1 + Math.min(round, plan.length - 1), 's2', true);
         const pad = h('div.t12-pad');
-        // المسار البديل للكبير (ضغطة مطوّلة في لوح التتبّع) يُتمّ «بمساعدة»؛ تحقّق الطفل نفسه محلّيّ أدناه
+        // المسار البديل للمعلّم (ضغطة مطوّلة في لوح التتبّع) يُتمّ «بمساعدة»؛ تحقّق الطفل نفسه محلّيّ أدناه
         const box = BQ.ui.trace(pad, { glyph: '', path: V.cps.map((c) => [c[0] / 100, c[1] / 100]), onDone(info) { if (info && info.assisted && !done) { rec.assisted = true; next = cps.length; complete(); } } });
         const svg = modelSVG(v, mode);
         box.insertBefore(svg, box.querySelector('canvas'));
@@ -466,7 +466,7 @@ ${S} .t12-big .t12-big-bar { display: flex; gap: 10px; align-items: center; just
         const clearBtn = h('button.sx-round', { type: 'button', 'aria-label': 'امْسَحْ وَابْدَأْ مِنْ جَديدٍ', onclick: () => restart(true) }, BQ.icon('replay'));
         ref.append(h('span.t12-glyph', { 'aria-hidden': 'true' }, 'م'), h('div.t12-tools', null, modelBtn, clearBtn));
         ctx.instruction('');
-        const errMsg = { 1: 'أُعيد النموذج على المسار نفسه (الأسهم بالترتيب): لم يبدأ من النقطة الخضراء أو خالف الاتّجاه.', 2: 'أُضيئت نقطة البدء.', 3: 'أمسِك إصبع طفلك وتتبّعا معاً مرّة (تُسجَّل «بمساعدة»).' };
+        const errMsg = { 1: 'أُعيد النموذج على المسار نفسه (الأسهم بالترتيب): لم يبدأ من النقطة الخضراء أو خالف الاتّجاه.', 2: 'أُضيئت نقطة البدء.', 3: 'أمسِك إصبع الطفل وتتبّعا معاً مرّة (تُسجَّل «بمساعدة»).' };
         const refreshPanel = (extra) => panel('<p>دعه يتتبّع من النقطة الخضراء متّبعاً الأسهم، ولا تصحّح الخروج عن المسار.</p>' +
           (age === '4-6' ? '<p>في المرّة الأولى يمكنك أن تمسك إصبعه.</p>' : '') +
           '<p>بديل اللمس: المس النقطة الخضراء ثم المس الحرف.</p>', extra);
@@ -558,7 +558,7 @@ ${S} .t12-big .t12-big-bar { display: flex; gap: 10px; align-items: center; just
         else later(hint1, 300);
       }
 
-      /* ---------- ش٣ · ورقة التتبّع (للكبير) — نظيرها في الكتاب المطبوع ---------- */
+      /* ---------- ش٣ · ورقة التتبّع (للمعلّم) — نظيرها في الكتاب المطبوع ---------- */
       function s3() {
         reset(); cur = 2;
         worksheet(stage, ctx, { steps: [NSTEP, NSTEP - 1], onFinish: finish });

@@ -1,7 +1,7 @@
 /* EL16 «اختبر نفسك» — gme-108 · تحقّق مؤجَّل (audio_match + ObservationButtons + TraceCanvas) — خارج محرّك الإتقان
-   ت١ استماع · ت٢ تعرّف الرسم · ت٣ نطق (ملاحظة الكبير) · ت٤ تفاعل/تمييز · ت٥ خطّ (نقطة البدء وحدها) · ت٦ تقرير الكبير.
+   ت١ استماع · ت٢ تعرّف الرسم · ت٣ نطق (ملاحظة المعلّم) · ت٤ تفاعل/تمييز · ت٥ خطّ (نقطة البدء وحدها) · ت٦ تقرير المعلّم.
    محاولة واحدة لكلّ بند؛ الإعادة مسموحة ولا تُعدّ مساعدة. بعد كلّ جواب نغمة محايدة واحدة وتتلوّن دائرة ✓ أيّاً كان الجواب —
-   لا صواب ولا خطأ أمام الطفل، ولا نسبة ولا عدد. التقرير للكبير: سطر لكلّ مهارة «من أوّل مرّة · بعد إعادة · لم يُجب». */
+   لا صواب ولا خطأ أمام الطفل، ولا نسبة ولا عدد. التقرير للمعلّم: سطر لكلّ مهارة «من أوّل مرّة · بعد إعادة · لم يُجب». */
 (function () {
   'use strict';
   const h = BQ.h;
@@ -47,7 +47,7 @@
 :where(.elp .sx-hear .bq-ic) { width: 52%; height: 52%; }
 :where(.elp .sx-hear.is-playing)::after { content: ""; position: absolute; inset: -11px; border-radius: 50%; border: 4px solid var(--sky-ink, var(--navy)); animation: bqRing 1s ease-out infinite; }
 :where(.elp.sx-a46 .sx-hear) { min-width: 72px; }
-/* شريط «ملاحظة الكبير»: خارج مساحة الطفل بصرياً */
+/* شريط «ملاحظة المعلّم»: خارج مساحة الطفل بصرياً */
 .elp .sx-adult { align-self: stretch; display: flex; align-items: center; gap: 14px; background: var(--navy); color: var(--white); border-radius: var(--r-md); padding: 10px 12px 10px 16px; box-shadow: 0 10px 24px var(--shade); position: relative; }
 .elp .sx-adult::before { content: ""; position: absolute; inset-inline: 22px; top: -9px; height: 9px; background: repeating-linear-gradient(90deg, var(--sky-line) 0 8px, transparent 8px 14px); border-radius: 4px 4px 0 0; opacity: .9; }
 .elp .sx-adult-tag { display: flex; align-items: center; gap: 10px; font: 500 13px/1.35 var(--ff-ui); color: var(--sky-line); min-width: 0; flex: none; }
@@ -99,9 +99,9 @@
     const c = Math.min(Math.max(i, 0) + 1, n);
     return h('div.sx-steps', { role: 'img', 'aria-label': 'الخُطْوَةُ ' + sxAR(c) + ' مِنْ ' + sxAR(n) }, d, BQ.state.age === '10-12' ? h('b', { 'aria-hidden': 'true' }, sxAR(c) + ' / ' + sxAR(n)) : null);
   };
-  const sxAdultTool = (frame) => { const t = [...frame.querySelectorAll('.elp-tool')]; return t.find((b) => /دليل الكبير/.test(b.textContent)) || t[0] || null; };
+  const sxAdultTool = (frame) => { const t = [...frame.querySelectorAll('.elp-tool')]; return t.find((b) => /دليل المعلّم/.test(b.textContent)) || t[0] || null; };
   const SX_PIN = 'قُلِ الصَّوْتَ لا اسْمَ الحَرْفِ: «مْـ» ممدودةٌ والشَّفَتانِ مُطبَقَتانِ، بلا «مِيم» وبلا حَرَكةٍ بعدَها.';
-  /** أدوات آمنة لكلّ عنصر: لا صوت ولا متابعة بعد مغادرته (ctx.alive من المحرّك إن وُجد) + دليل الكبير بقسمين */
+  /** أدوات آمنة لكلّ عنصر: لا صوت ولا متابعة بعد مغادرته (ctx.alive من المحرّك إن وُجد) + دليل المعلّم بقسمين */
   const sxKit = (ctx) => {
     let gone = false;
     ctx.onCleanup(() => { gone = true; });
@@ -130,7 +130,7 @@
         setTimeout(() => { el.classList.remove('in'); setTimeout(() => el.remove(), 480); res(r && alive()); }, r && mood ? 700 : 0);
       }));
     }
-    /** main: «للكبير» (≤ ٣ أوامر قصيرة) · meta: «ملاحظات المراجِع» المطويّة (المحطّة، الرصد، ما يُسجَّل) */
+    /** main: «للمعلّم» (≤ ٣ أوامر قصيرة) · meta: «ملاحظات المراجِع» المطويّة (المحطّة، الرصد، ما يُسجَّل) */
     function adult(main, meta) {
       if (typeof ctx.adultMeta === 'function') { ctx.adult(main); ctx.adultMeta(meta || ''); }
       else ctx.adult(main + (meta ? '<details class="sx-meta"><summary>ملاحظات المراجِع</summary>' + meta + '</details>' : ''));
@@ -188,7 +188,7 @@ ${S} .t16 .bq-choices.icons .bq-choice img { object-fit: contain; padding: 12%; 
 ${S} .t16-glyph { font: 700 clamp(84px, 16cqi, 150px)/1.1 var(--ff-child); color: var(--coral); background: var(--paper); border: 2px solid var(--paper-edge); border-radius: 22px; padding: 0 .35em .12em; flex: none; }
 ${S} .t16-pic { position: relative; width: clamp(180px, 38cqi, 320px); aspect-ratio: 1; }
 ${S} .t16-pic img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-${S} .t16-pic { max-width: max(140px, calc(var(--play-h, 700px) - 410px)); } /* v0-12: شريط ملاحظة الكبير و«التّالي» داخل الإطار */
+${S} .t16-pic { max-width: max(140px, calc(var(--play-h, 700px) - 410px)); } /* v0-12: شريط ملاحظة المعلّم و«التّالي» داخل الإطار */
 ${S} .t16-pad { max-width: max(220px, calc(var(--play-h, 700px) - 250px)); }
 ${S} .t16-foot { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 14px; }
 ${S} .t16-next.soft { background: var(--white); color: var(--navy); box-shadow: 0 0 0 1.5px var(--sky-line) inset; }
@@ -206,7 +206,7 @@ ${S} .t16-pad svg { position: absolute; inset: 0; width: 100%; height: 100%; poi
 ${S} .t16-pad .rule { stroke: var(--sky-2); stroke-width: .7; }
 ${S} .t16-pad .rule.top { stroke-dasharray: 2 2; }
 ${S} .t16-pad .dots { fill: none; stroke: var(--navy); stroke-width: 3; stroke-linecap: round; stroke-dasharray: .01 5; opacity: .7; }
-/* تقرير الكبير — جدول نظيف */
+/* تقرير المعلّم — جدول نظيف */
 ${S} .t16-rep { width: min(100%, 780px); background: var(--white); border-radius: 22px; box-shadow: 0 2px 0 var(--sky-line), 0 18px 40px var(--shade); overflow: hidden; font: 400 15px/1.6 var(--ff-ui); color: var(--ink); }
 ${S} .t16-rep-h { display: flex; align-items: center; gap: 12px; background: var(--navy); color: var(--white); padding: 14px 20px; }
 ${S} .t16-rep-h .bq-ic { width: 36px; height: 36px; padding: 8px; border-radius: 50%; background: color-mix(in srgb, var(--white) 14%, transparent); color: var(--sun-soft); flex: none; }
@@ -264,14 +264,14 @@ ${S} .t16-rev .it .bq-listen { width: 56px; border-width: 3px; }
   const OBS_REP = { ind: 'قالها وحده', help: 'قالها بمساعدة', none: 'لم يقلها بعد', unobs: 'لم تُلاحَظ' };
   const ST = { first: 'من أوّل مرّة', again: 'بعد إعادة', none: 'لم يُجِب' };
 
-  // البنود الخمسة (استماع · رسم · نطق · تمييز · خطّ) — للكبير سطر واحد لكلّ بند
+  // البنود الخمسة (استماع · رسم · نطق · تمييز · خطّ) — للمعلّم سطر واحد لكلّ بند
   const ITEMS = [
     { key: 'C1', skill: 'الاستماع', link: ['EL02', 'شاهد وتعلّم'], correct: 'img-001', opts: ['img-007', 'img-008', 'img-001'],
       adult: 'لا تلميح ولا إراءة فم. إعادة الصوت مسموحة ولا تُعدّ مساعدة.' },
     { key: 'C2', skill: 'تعرّف الرسم', link: ['EL03', 'لاحظ وتعلّم'], correct: 'img-001', opts: ['img-008', 'img-001', 'img-007'],
       adult: 'أشِر إلى الحرف ولا تقل صوته.' },
     { key: 'C3', skill: 'النطق', link: ['EL10', 'تحدّث'],
-      adult: 'لا تقل الكلمة. المس في شريط «ملاحظة الكبير»: قالها وحده · قالها بمساعدة · لم يقلها بعد.' },
+      adult: 'لا تقل الكلمة. المس في شريط «ملاحظة المعلّم»: قالها وحده · قالها بمساعدة · لم يقلها بعد.' },
     { key: 'C4', skill: 'التمييز', link: ['EL09', 'استمع وتعلّم'], correct: 'img-010', opts: ['img-009', 'img-010'],
       adult: 'إن قال «سَمِعْتُ فَرْقاً!» وحده فالمس ذلك في الشريط.' },
     { key: 'C5', skill: 'الخطّ', link: ['EL12', 'اكتب'],
@@ -300,12 +300,12 @@ ${S} .t16-rev .it .bq-listen { width: 56px; border-width: 3px; }
   }
 
   BQ.register(ID, {
-    cover: 'مراجعة قصيرة في يوم لاحق: يسمع طفلك ويلمس ويقول ويتتبّع، والتقرير لك.',
+    cover: 'مراجعة قصيرة في يوم لاحق: يسمع الطفل ويلمس ويقول ويتتبّع، والتقرير لك.',
     render(stage, ctx) {
       const age = ctx.age();
       const K = sxKit(ctx);
       const say = K.say, bariq = K.bariq;
-      const items = age === '4-6' ? ITEMS.slice(0, 4) : ITEMS; // ٤–٦: أربعة بنود (الخطّ في دفتر الخطّ مع الكبير)
+      const items = age === '4-6' ? ITEMS.slice(0, 4) : ITEMS; // ٤–٦: أربعة بنود (الخطّ في دفتر الخطّ مع المعلّم)
       let gen = 0, advance = null;
       const timers = new Set();
       const later = (fn, ms) => { const t = setTimeout(() => { timers.delete(t); if (K.alive()) fn(); }, ms); timers.add(t); return t; };
@@ -320,7 +320,7 @@ ${S} .t16-rev .it .bq-listen { width: 56px; border-width: 3px; }
       function panel(k, extra) {
         const it = items[k];
         K.adult((it ? '<p><b>' + tag(it) + ' · ' + it.skill + ':</b> ' + it.adult + '</p>' : '') + (extra || '') +
-          '<p>بعد كلّ جواب تتلوّن دائرة ✓ أيّاً كان الجواب؛ لا صواب ولا خطأ أمام طفلك.</p>',
+          '<p>بعد كلّ جواب تتلوّن دائرة ✓ أيّاً كان الجواب؛ لا صواب ولا خطأ أمام الطفل.</p>',
           '<p>مراجعة مؤجَّلة ليوم لاحق: بند واحد لكلّ مهارة، ومحاولة واحدة لكلّ بند، بلا تلميح. غير مرصودة ولا تغيّر فتح الدرس التالي.</p>' +
           '<p><b>عمر ' + sxAR(age.replace('-', '–')) + ' سنوات:</b> ' + ageLine + '</p>' + logText());
       }
@@ -383,10 +383,10 @@ ${S} .t16-rev .it .bq-listen { width: 56px; border-width: 3px; }
             await answered(k, tick); if (!live()) return;
             panel(k, '<p>إن لم يجب فالمس «التّالي»؛ يُسجَّل البند «لم يُجِب».</p>');
             if (it.key === 'C4') {
-              // ملاحظة اختيارية للكبير: قال العبارة وحده؟
+              // ملاحظة اختيارية للمعلّم: قال العبارة وحده؟
               const b = h('button', { type: 'button', 'aria-pressed': 'false' }, 'قالَ «سَمِعْتُ فَرْقاً!» وحدَه');
               b.addEventListener('click', () => { r.phrase = !r.phrase; b.setAttribute('aria-pressed', String(r.phrase)); });
-              const strip = h('div.sx-adult.t16-in', { role: 'group', 'aria-label': 'مُلاحَظَةُ الكَبيرِ' }, h('span.sx-adult-tag', null, BQ.icon('adult'), h('span', null, h('b', null, 'ملاحظة الكبير'), 'اختياريّ')), h('div.sx-adult-btns', null, b));
+              const strip = h('div.sx-adult.t16-in', { role: 'group', 'aria-label': 'مُلاحَظَةُ المُعَلِّمِ' }, h('span.sx-adult-tag', null, BQ.icon('adult'), h('span', null, h('b', null, 'ملاحظة المعلّم'), 'اختياريّ')), h('div.sx-adult-btns', null, b));
               nextB.classList.remove('soft');
               foot.prepend(strip);
               return;
@@ -409,7 +409,7 @@ ${S} .t16-rev .it .bq-listen { width: 56px; border-width: 3px; }
         }, 350);
       }
 
-      /* ---------- ت٣ · نطق: ملاحظة الكبير ---------- */
+      /* ---------- ت٣ · نطق: ملاحظة المعلّم ---------- */
       function sayItem(k) {
         const g = reset(); const live = () => g === gen && K.alive();
         const r = res[k];
@@ -417,7 +417,7 @@ ${S} .t16-rev .it .bq-listen { width: 56px; border-width: 3px; }
         const pic = h('div.sx-photo.t16-pic.t16-in', { role: 'img', 'aria-label': 'صُورَةٌ' }, h('img', { src: BQ.img('img-001'), alt: '' }));
         const tick = mkTick();
         const main = h('div.t16-main', null, pic);
-        const obs = h('div.sx-adult', { role: 'group', 'aria-label': 'مُلاحَظَةُ الكَبيرِ' }, h('span.sx-adult-tag', null, BQ.icon('adult'), h('span', null, h('b', null, 'ملاحظة الكبير'), 'لا تقل الكلمة')));
+        const obs = h('div.sx-adult', { role: 'group', 'aria-label': 'مُلاحَظَةُ المُعَلِّمِ' }, h('span.sx-adult-tag', null, BQ.icon('adult'), h('span', null, h('b', null, 'ملاحظة المعلّم'), 'لا تقل الكلمة')));
         const btns = Object.keys(OBS).map((lv) => {
           const b = h('button', { type: 'button', 'aria-pressed': 'false', dataset: { lv } }, OBS[lv]);
           b.addEventListener('click', async () => {
@@ -503,18 +503,18 @@ ${S} .t16-rev .it .bq-listen { width: 56px; border-width: 3px; }
         return tapItem(k);
       }
 
-      /* ---------- ت٦ · تقرير الكبير: سطر لكلّ مهارة — بلا نسبة ولا عدد ---------- */
+      /* ---------- ت٦ · تقرير المعلّم: سطر لكلّ مهارة — بلا نسبة ولا عدد ---------- */
       function status(k) {
         const it = items[k], r = res[k];
         if (it.key === 'C3') {
           if (r.obs === 'ind') return [r.replays ? 'again' : 'first', OBS_REP.ind, r.replays ? 'بعد إعادة السؤال' : 'من أوّل مرّة'];
           if (r.obs === 'help') return ['again', OBS_REP.help, 'قالها معك أو بعد أن أريته فمك'];
           if (r.obs === 'none') return ['none', OBS_REP.none, 'أعد النموذج معه في «تحدّث»'];
-          return ['none', OBS_REP.unobs, 'لم يلمس الكبير شريط الملاحظة'];
+          return ['none', OBS_REP.unobs, 'لم يلمس المعلّم شريط الملاحظة'];
         }
         if (it.key === 'C5') {
           if (!r.trace_completed) return ['none', 'لم يُتمّ', 'لم يُتمّ التتبّع'];
-          if (r.assisted) return ['again', 'بمساعدة', 'أتمّه الكبير بالضغطة المطوّلة'];
+          if (r.assisted) return ['again', 'بمساعدة', 'أتمّه المعلّم بالضغطة المطوّلة'];
           return [r.replays ? 'again' : 'first', r.replays ? ST.again : ST.first, 'أتمّ التتبّع' + (r.start_ok === false ? '، ولم يبدأ من النقطة الخضراء' : ' من نقطة البدء')];
         }
         if (!r.answered) return ['none', ST.none, 'انتقل بلا جواب'];
@@ -541,8 +541,8 @@ ${S} .t16-rev .it .bq-listen { width: 56px; border-width: 3px; }
         const hrs = gate && gate.hours != null ? Math.max(0, Math.round(gate.hours)) : ts ? Math.max(0, Math.round((Date.now() - ts) / 36e5)) : null;
         const early = gate ? !!gate.early : hrs == null || hrs < 12;
         const weak = items.some((it, k) => (it.key === 'C1' || it.key === 'C2') && status(k)[0] === 'none');
-        const rep = h('div.t16-rep.t16-in', { role: 'region', 'aria-label': 'تَقْريرُ الكَبيرِ' },
-          h('div.t16-rep-h', null, BQ.icon('adult'), h('div', null, h('b', null, own ? 'تَقْريري — وَلِلْكَبيرِ' : 'تقرير الكبير — بالمهارة'), h('span', null, 'مراجعة في يوم لاحق · بلا نسبة ولا عدد'))),
+        const rep = h('div.t16-rep.t16-in', { role: 'region', 'aria-label': 'تَقْريرُ المُعَلِّمِ' },
+          h('div.t16-rep-h', null, BQ.icon('adult'), h('div', null, h('b', null, own ? 'تَقْريري — وَلِلْمُعَلِّمِ' : 'تقرير المعلّم — بالمهارة'), h('span', null, 'مراجعة في يوم لاحق · بلا نسبة ولا عدد'))),
           h('table', null, h('thead', null, h('tr', null, h('th', null, 'المهارة'), h('th', null, 'النتيجة'), h('th', null, 'ما لوحظ'), h('th', null, ''))), tbody),
           h('div.t16-rep-f', null,
             early ? h('p.note', null, hrs == null ? 'لا سجلّ لإتمام «تدرّب» في هذا المتصفّح؛ هذه معاينة لا تقيس ما بقي بعد يوم.' : 'لم يمرّ يوم على إتمام «تدرّب» بعد؛ هذه معاينة لا تقيس ما بقي بعد يوم.') : null,
@@ -579,7 +579,7 @@ ${S} .t16-rev .it .bq-listen { width: 56px; border-width: 3px; }
         gen++; clearTimers(); BQ.audio.stop(); advance = null;
         stage.querySelectorAll('.bq-end, .t16-rev').forEach((n) => n.remove());
         ctx.done();
-        BQ.ui.endCard(stage, { title: 'أَحْسَنْتَ!', note: 'للكبير: التقرير بالمهارة للكبير في الشاشة السابقة.', onReplay: () => { res.forEach((r) => Object.assign(r, blank())); item(0); } });
+        BQ.ui.endCard(stage, { title: 'أَحْسَنْتَ!', note: 'للمعلّم: التقرير بالمهارة للمعلّم في الشاشة السابقة.', onReplay: () => { res.forEach((r) => Object.assign(r, blank())); item(0); } });
       }
       item(0);
     },

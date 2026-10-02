@@ -1,14 +1,14 @@
 /* EL02 · شاهد وتعلّم — المقطع vid-101 «أَيْنَ الماءُ؟» (مونتاج لقطات Grok الحقيقية · video_src/build101.py · v0-8: ≈ ١٠٦ ث)
    مشغّل فيديو أسود ١٦:٩ بعرض المسرح؛ الوقفات من media/video/vid-101.cues.json:
    «أين؟» (أذن+؟) · «قُل» · ○○/○□ حتى «أَكْمِلْ» (scr02) · شريط «سَمِعْتُ فَرْقاً!» (scr03).
-   يُعلَّم العنصر منجَزاً فقط إذا شوهد المقطع حتى نهايته فعلاً (≥ ٨٥٪ من ثوانيه بتشغيل عاديّ)، أو إذا علّمه الكبير من «دليل الكبير».
+   يُعلَّم العنصر منجَزاً فقط إذا شوهد المقطع حتى نهايته فعلاً (≥ ٨٥٪ من ثوانيه بتشغيل عاديّ)، أو إذا علّمه المعلّم من «دليل المعلّم».
    إن تعذّر تشغيل المقطع: ملصقه ورسالة (لا رسوم مقصوصة) — ولا يُعلَّم منجَزاً. */
 (function () {
   const PARTS = [0, 72.7, 83.9]; // scr01 المشاهد ١–٤ · scr02 من المشهد ٥ حتى وقفة الحكم · scr03 بعدها (تُحدَّث من ملفّ الوقفات)
 
   BQ.register('EL02', {
     hero: 'img-119',
-    cover: 'شاهِدا المقطع معاً، وتوقّفا عند كلّ وقفة ليجيب طفلك.',
+    cover: 'شاهِدا المقطع معاً، وتوقّفا عند كلّ وقفة ليجيب الطفل.',
     render(stage, ctx) {
       const h = BQ.h;
       const V = BQ.video;
@@ -21,13 +21,13 @@
       const finish = () => {
         if (finished || !alive()) return; finished = true;
         ctx.done();
-        BQ.ui.endCard(stage, { title: 'سَمِعْتُ فَرْقاً!', note: 'للكبير: انتهى المقطع. قولا العبارة معاً مرّة أخرى، ثم انتقلا إلى النشاط التالي.', onReplay: () => BQ.open('EL02', { skipCover: true }) });
+        BQ.ui.endCard(stage, { title: 'سَمِعْتُ فَرْقاً!', note: 'للمعلّم: انتهى المقطع. قولا العبارة معاً مرّة أخرى، ثم انتقلا إلى النشاط التالي.', onReplay: () => BQ.open('EL02', { skipCover: true }) });
       };
-      // للكبير (في الدليل لا على الصفحة): ما يفعله + تعليم العنصر يدوياً إن شوهد المقطع بطريقة أخرى
+      // للمعلّم (في الدليل لا على الصفحة): ما يفعله + تعليم العنصر يدوياً إن شوهد المقطع بطريقة أخرى
       const mark = h('button.bq-btn.ghost', { type: 'button', onclick: () => { const sc = ctx.frame.querySelector('.elp-scrim'); if (sc && !sc.hidden) sc.click(); if (P) P.pause(); finish(); } }, BQ.icon('check'), 'شاهدناه — علِّمْه منجَزاً');
       const status = h('p.e2-status', { hidden: true, style: { fontWeight: '700', color: 'var(--navy)' } });
       V.adultNote(ctx, h('p', null, 'يُعلَّم العنصر منجَزاً حين يُشاهَد المقطع إلى آخره. إن شاهدتماه بطريقة أخرى فعلِّمه أنت:'), status, mark);
-      // انتهى المقطع بأقلّ من ٨٥٪ مشاهدة (قفز إلى الأمام): سطر قصير للكبير تحت المشغّل + الحالة في الدليل (R-05)
+      // انتهى المقطع بأقلّ من ٨٥٪ مشاهدة (قفز إلى الأمام): سطر قصير للمعلّم تحت المشغّل + الحالة في الدليل (R-05)
       let note = null;
       const onPartial = (f) => {
         if (!alive() || finished) return;
@@ -35,7 +35,7 @@
         status.hidden = false; status.textContent = 'شوهد نحو ' + pct + '٪ من المقطع، فلم يُعلَّم العنصر منجَزاً بعد.';
         if (note) note.remove();
         note = h('div.e2-partial', { role: 'status', style: { display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center', justifyContent: 'center', font: '500 15px/1.6 var(--ff-ui)', color: 'var(--ink)', background: 'var(--white)', borderRadius: 'var(--r-md)', padding: '10px 14px', boxShadow: '0 4px 14px var(--shade)' } },
-          h('span', null, h('b', null, 'للكبير: '), 'شاهِدا المقطع كاملاً ليُعلَّم منجَزاً، أو علِّمه من «دليل الكبير».'),
+          h('span', null, h('b', null, 'للمعلّم: '), 'شاهِدا المقطع كاملاً ليُعلَّم منجَزاً، أو علِّمه من «دليل المعلّم».'),
           h('button.bq-btn', { type: 'button', onclick: () => { note.remove(); note = null; P.goto(0); } }, BQ.icon('replay'), 'أَعِدِ المَقْطَعَ'));
         P.root.after(note);
       };
@@ -62,7 +62,7 @@
         if (ok !== false) { finish(); return; }
         // تعذّر التشغيل و«تابِعْ»: لا تعليم إنجاز (T02 · QA-09)
         if (finished) return;
-        BQ.ui.endCard(stage, { title: 'نُكْمِلُ لاحِقاً', note: 'للكبير: لم يُعرَض المقطع، فلم يُعلَّم العنصر منجَزاً. شاهِداه لاحقاً، أو علِّمه من «دليل الكبير».', onReplay: () => BQ.open('EL02', { skipCover: true }) });
+        BQ.ui.endCard(stage, { title: 'نُكْمِلُ لاحِقاً', note: 'للمعلّم: لم يُعرَض المقطع، فلم يُعلَّم العنصر منجَزاً. شاهِداه لاحقاً، أو علِّمه من «دليل المعلّم».', onReplay: () => BQ.open('EL02', { skipCover: true }) });
       });
     },
   });

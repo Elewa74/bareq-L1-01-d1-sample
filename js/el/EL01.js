@@ -19,7 +19,7 @@ BQ.elGuard = BQ.elGuard || function (el) {
   let active = null;
   const block = (e) => { e.stopImmediatePropagation(); if (e.cancelable) e.preventDefault(); };
   el.addEventListener('pointerdown', (e) => {
-    if (e.target.closest && e.target.closest('button')) return; // زرّ الكبير داخل اللوحة
+    if (e.target.closest && e.target.closest('button')) return; // زرّ المعلّم داخل اللوحة
     if (active != null && e.pointerId !== active) return block(e);
     active = e.pointerId;
     try { e.target.setPointerCapture(e.pointerId); } catch (x) { /* */ }
@@ -312,7 +312,7 @@ ${SC} button:focus-visible { outline: 4px solid var(--navy); outline-offset: 3px
       return { stop() { S.cancel(t); } };
     };
 
-    /** قسم أدوات الكبير يُلحق باللوحة الافتراضية (لا يستبدلها) */
+    /** قسم أدوات المعلّم يُلحق باللوحة الافتراضية (لا يستبدلها) */
     S.adultBox = function (title) {
       const panel = frame.querySelector('.bq-adult');
       const box = h('div.mk-adult', null, title ? h('h4', null, title) : null);
@@ -320,7 +320,7 @@ ${SC} button:focus-visible { outline: 4px solid var(--navy); outline-offset: 3px
       if (metaSec) panel.insertBefore(box, metaSec); else panel.append(box);
       return box;
     };
-    /** سجلّ مطويّ داخل أدوات الكبير (تفاصيل للمراجِع) */
+    /** سجلّ مطويّ داخل أدوات المعلّم (تفاصيل للمراجِع) */
     S.adultLog = function (box, summary, empty) {
       const p = h('p.log', null, empty || '');
       const metaEl = frame.querySelector('.elp-meta-el'); // المحرّك: قسم «ملاحظات المراجِع» المطويّ
@@ -366,7 +366,7 @@ ${SC} button:focus-visible { outline: 4px solid var(--navy); outline-offset: 3px
         S.cur = {
           R, wrap,
           replay() { if (phase !== 'await') return false; R.replays++; S.log.replays++; auto.stop(); cfg.stim(); return true; },
-          hide2() { // تلميح ٢ (من لوحة الكبير): إخفاء بديل غير صحيح — مساعدة
+          hide2() { // تلميح ٢ (من لوحة المعلّم): إخفاء بديل غير صحيح — مساعدة
             if (phase === 'done') return false;
             const vis = wrap.btns.filter((b) => !b.classList.contains('is-hidden'));
             const w = vis.filter((b) => b.dataset.id !== cfg.key);
@@ -551,13 +551,13 @@ ${SC} .e01-diffic { width: clamp(60px, 12cqi, 110px); height: clamp(30px, 6cqi, 
     }
     flow();
   }
-  /** ورقة الختام (للنسختين): عنوان العبارة فقط — لا نصّ للكبير على شاشة الطفل */
+  /** ورقة الختام (للنسختين): عنوان العبارة فقط — لا نصّ للمعلّم على شاشة الطفل */
   function end(stage) { BQ.ui.endCard(stage, { title: 'سَمِعْتُ فَرْقاً!', onReplay: () => BQ.open('EL01', { skipCover: true }) }); }
 
-  // لعبة «رحلة الميم» · محطّة recall هي التجربة الأساسية؛ هذه النسخة HTML بديل آليّ (بلا WebGL/WebAssembly أو إن تعذّر التحميل) أو برابط الكبير
+  // لعبة «رحلة الميم» · محطّة recall هي التجربة الأساسية؛ هذه النسخة HTML بديل آليّ (بلا WebGL/WebAssembly أو إن تعذّر التحميل) أو برابط المعلّم
   BQ.register('EL01', {
     hero: 'img-014',
-    cover: 'يسمع طفلك أصواتاً من البيت، ويلمس مصدر كلّ صوت.',
+    cover: 'يسمع الطفل أصواتاً من البيت، ويلمس مصدر كلّ صوت.',
     render: BQ.ui.godotRender ? BQ.ui.godotRender('recall', render, { name: 'تهيّأ', title: 'تهيّأ للدرس', after(c, result, stage) { c.done(); end(stage || c.stage); } }) : render,
   });
 })();

@@ -35,15 +35,15 @@
       </div>
       <button type="button" class="hdr-btn hdr-menu-btn" id="menuBtn" aria-expanded="false" aria-controls="lessonMenu"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="7" y="8" width="13" height="13" rx="3.5"/><rect x="28" y="8" width="13" height="13" rx="3.5"/><rect x="7" y="27" width="13" height="13" rx="3.5"/><rect x="28" y="27" width="13" height="13" rx="3.5"/></svg><span>العناصر</span></button>
       <div class="hdr-adult">
-        <button type="button" class="hdr-btn" id="adultBtn" aria-expanded="false" aria-controls="adultMenu" aria-haspopup="true"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="15" r="7"/><path d="M10 41c1-9 7-14 14-14s13 5 14 14z"/></svg><span>للكبير</span></button>
-        <div class="hdr-pop" id="adultMenu" hidden role="group" aria-label="أدوات الكبير">
+        <button type="button" class="hdr-btn" id="adultBtn" aria-expanded="false" aria-controls="adultMenu" aria-haspopup="true"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="15" r="7"/><path d="M10 41c1-9 7-14 14-14s13 5 14 14z"/></svg><span>للمعلّم</span></button>
+        <div class="hdr-pop" id="adultMenu" hidden role="group" aria-label="أدوات المعلّم">
           <fieldset class="seg" id="ageSeg">
             <legend>عمر الطفل</legend>
             <label><input type="radio" name="age" value="4-6"><span>٤–٦</span></label>
             <label><input type="radio" name="age" value="7-9"><span>٧–٩</span></label>
             <label><input type="radio" name="age" value="10-12"><span>١٠–١٢</span></label>
           </fieldset>
-          <a class="hdr-pop-link" id="planBtn" href="#plan"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6z M14 3v5h5 M9 12h7 M9 16h7"/></svg><span>خطة الدرس<small>صفحة مستقلّة للكبير والمعلّم</small></span></a>
+          <a class="hdr-pop-link" id="planBtn" href="#plan"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6z M14 3v5h5 M9 12h7 M9 16h7"/></svg><span>خطة الدرس<small>صفحة مستقلّة للمعلّم</small></span></a>
           <button type="button" class="hdr-pop-link is-quiet" id="resetBtn"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M12 24a12 12 0 1 0 4-9"/><path d="M9 8v10h10"/></svg><span>بدء من جديد<small>يمسح تقدّم الدرس على هذا الجهاز</small></span></button>
           <p class="hdr-pop-note"><b>عيّنة للمراجعة</b> · L1-01-d1 · v0-12 · الصور والمقاطع مولَّدة آلياً، والأصوات مؤقّتة.</p>
         </div>
@@ -57,12 +57,7 @@
     <div class="menu-scrim" id="menuScrim" hidden></div>
     <nav class="menu" id="lessonMenu" aria-label="عناصر الدرس">
       <div class="menu-head"><span>عناصر الدرس</span><span class="menu-count" id="menuCount">٠ / ١٦</span><button type="button" class="menu-x" id="menuClose" aria-label="إغلاق"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M14 14l20 20M34 14 14 34"/></svg></button></div>
-      <div class="menu-tabs" role="group" aria-label="طريقة عرض العناصر">
-        <button type="button" class="menu-tab" data-view="list" aria-pressed="true">العناصر ١–١٦</button>
-        <button type="button" class="menu-tab" data-view="ses" aria-pressed="false">حسب الجلسات</button>
-      </div>
       <ul id="menu" class="menu-list"></ul>
-      <ul id="menuSes" class="menu-list menu-sesl" hidden></ul>
     </nav>
     <section id="content" class="content" aria-label="النشاط المفتوح" tabindex="-1"></section>
   </div>

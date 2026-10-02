@@ -96,9 +96,11 @@
   },
   {
    "id": "bariq_L1-01_song_09_ar",
-   "t": 55.19,
+   "t": 55.04,
    "end": 58.95,
-   "sp": "SONG"
+   "sp": "SONG",
+   "audio_t": 55.19,
+   "caption_fix_v013": "caption started 130–310 ms after the sung onset of «سَمِعْتُ» (class onset 55.06 / ASR 54.88); song audio unchanged"
   },
   {
    "id": "bariq_L1-01_song_10_ar",
@@ -131,7 +133,7 @@
    "end": 53.31
   }
  ],
- "source": "v0-12 re-edit (video_src/build_v12.py): accepted Grok clips M-11…M-17 (v5/anim) + clean segments of GROK_CLIPS; M-11 lips driven frame-by-frame by the line audio",
+ "source": "v0-13 (video_src/build_v13.py): v0-12 cut + Saif mouth close-ups = GPT viseme stills (V0–V5, pixel-registered) driven per frame by the audio (hum → lips pressed; vowel → open with 1–2 frame anticipation; hamza → open at the stop)",
  "edl": [
   {
    "t": 0.0,
@@ -148,8 +150,8 @@
   {
    "t": 10.0,
    "d": 2.0,
-   "clip": "M-11 lips",
-   "note": "M-11 بغناء «مْـ…» مطبقة ثم تنفتح على «الماءُ»"
+   "clip": "visemes",
+   "note": "فيزيمات GPT بغناء «مْـ…» مطبقة ثم تنفتح على «الماءُ»"
   },
   {
    "t": 12.0,
@@ -160,8 +162,8 @@
   {
    "t": 14.66,
    "d": 2.3333,
-   "clip": "M-11 lips",
-   "note": "M-11: «مْـ…» مطبقة ثم «هذا…»"
+   "clip": "visemes",
+   "note": "فيزيمات GPT: «مْـ…» مطبقة ثم «هذا…»"
   },
   {
    "t": 17.0,
@@ -172,8 +174,8 @@
   {
    "t": 19.88,
    "d": 2.125,
-   "clip": "M-11 lips",
-   "note": "M-11: «مْـ…» ثم «الماءُ»"
+   "clip": "visemes",
+   "note": "فيزيمات GPT: «مْـ…» ثم «الماءُ»"
   },
   {
    "t": 22.0,
@@ -196,8 +198,8 @@
   {
    "t": 29.95,
    "d": 1.4583,
-   "clip": "M-14 0.78–1.30",
-   "note": "الطرق ×2 على صوت الطرقتين ثم «قف!» تجميد"
+   "clip": "M-14 0.71–1.46 retimed",
+   "note": "الطرقتان: تلامس المفاصل مع الخشب على إطاري صوتي الطرق (29.995 / 30.44) ثم «قف!» تجميد واليد على الخشب"
   },
   {
    "t": 31.42,
@@ -214,8 +216,8 @@
   {
    "t": 37.39,
    "d": 3.6667,
-   "clip": "M-11 lips",
-   "note": "M-11 بغناء «مْـ… الميمُ في الفم!»"
+   "clip": "visemes",
+   "note": "فيزيمات GPT بغناء «مْـ… الميمُ في الفم!»"
   },
   {
    "t": 41.05,
@@ -226,14 +228,14 @@
   {
    "t": 43.21,
    "d": 3.2083,
-   "clip": "M-11 | 102-04b",
+   "clip": "visemes | 102-04b",
    "note": "شاشة مقسومة: الشفتان تغنّيان «مْـ… الميمُ في الفم!» | بارق مطبق + «م»"
   },
   {
    "t": 46.43,
    "d": 2.1667,
-   "clip": "M-11 lips",
-   "note": "M-11: «مْـ…» (الميمُ في الماء)"
+   "clip": "visemes",
+   "note": "فيزيمات GPT: «مْـ…» (الميمُ في الماء)"
   },
   {
    "t": 48.6,
@@ -244,8 +246,8 @@
   {
    "t": 50.97,
    "d": 4.25,
-   "clip": "M-14 0–1.30",
-   "note": "سكتة ثم الطرق الثاني على صوته و«قف!» تجميد"
+   "clip": "M-14 0–1.46 retimed",
+   "note": "سكتة ثم الطرقتان على صوتيهما (52.495 / 52.94) و«قف!» تجميد"
   },
   {
    "t": 55.19,
@@ -333,5 +335,7 @@
   }
  ],
  "note": "v0-11: المالك «لا تسأل أثناء الأغنية» — الأنشودة تُكمل بلا توقّف؛ الطرقتان جزء من الإيقاع (لعبة «قف!» يؤدّيها الكبير إن شاء)",
- "qa_v012": "v5/video/LIPSYNC_QA.md · v5/video/SHOT_AUDIT.md"
+ "qa_v012": "v5/video/LIPSYNC_QA.md · v5/video/SHOT_AUDIT.md",
+ "qa_v013": "v5/articulation/AV_SYNC_QA.md · v5/articulation/PHONETICS.md",
+ "status": "draft_unapproved"
 }

@@ -103,7 +103,7 @@ ${SC} .k7-foot { display: grid; place-items: center; min-height: 54px; }
   const anim = (el, cls, ms) => { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); setTimeout(() => el.classList.remove(cls), ms || 500); };
 
   BQ.register(ID, {
-    cover: 'يقلب طفلك البطاقات ويسمع ما وراءها، ثم يسمّي صورة الماء قبل قلبها.',
+    cover: 'يقلب الطفل البطاقات ويسمع ما وراءها، ثم يسمّي صورة الماء قبل قلبها.',
     render(stage, ctx) {
       const S = K.session(ctx);
       const age = ctx.age();

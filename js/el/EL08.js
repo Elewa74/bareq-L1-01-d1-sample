@@ -1,7 +1,7 @@
 /* EL08 «فكّر وأجب» — gme-110 · ObservationButtons (غير مرصود)
    أربع شاشات بأربعة مستويات تفكير: استنتاج ← تعليل بالدليل ← توقّع ← رأي.
    كلّ جواب مقبول: لا صواب ولا خطأ؛ بعد أيّ لمس يُعرض الدليل (مشهد/صوت) ثم تعزيز بارق.
-   شارة مستوى التفكير و«لماذا؟» بلغة البيت (٧–١٢) في دليل الكبير وحده. تصميم v2: محتوى صفحة داخل المسرح.
+   شارة مستوى التفكير و«لماذا؟» بلغة البيت (٧–١٢) في دليل المعلّم وحده. تصميم v2: محتوى صفحة داخل المسرح.
    v0-8: ٤–٦ سؤالان فقط (س٢ أوّلاً ثم س٤)؛ ٧–١٢ الأربعة · بلا إنجليزية ولا رموز داخلية · مؤشّر الخطوات الموحّد. */
 (function () {
   'use strict';
@@ -48,7 +48,7 @@
 :where(.elp .sx-hear .bq-ic) { width: 52%; height: 52%; }
 :where(.elp .sx-hear.is-playing)::after { content: ""; position: absolute; inset: -11px; border-radius: 50%; border: 4px solid var(--sky-ink, var(--navy)); animation: bqRing 1s ease-out infinite; }
 :where(.elp.sx-a46 .sx-hear) { min-width: 72px; }
-/* شريط «ملاحظة الكبير»: خارج مساحة الطفل بصرياً */
+/* شريط «ملاحظة المعلّم»: خارج مساحة الطفل بصرياً */
 .elp .sx-adult { align-self: stretch; display: flex; align-items: center; gap: 14px; background: var(--navy); color: var(--white); border-radius: var(--r-md); padding: 10px 12px 10px 16px; box-shadow: 0 10px 24px var(--shade); position: relative; }
 .elp .sx-adult::before { content: ""; position: absolute; inset-inline: 22px; top: -9px; height: 9px; background: repeating-linear-gradient(90deg, var(--sky-line) 0 8px, transparent 8px 14px); border-radius: 4px 4px 0 0; opacity: .9; }
 .elp .sx-adult-tag { display: flex; align-items: center; gap: 10px; font: 500 13px/1.35 var(--ff-ui); color: var(--sky-line); min-width: 0; flex: none; }
@@ -100,9 +100,9 @@
     const c = Math.min(Math.max(i, 0) + 1, n);
     return h('div.sx-steps', { role: 'img', 'aria-label': 'الخُطْوَةُ ' + sxAR(c) + ' مِنْ ' + sxAR(n) }, d, BQ.state.age === '10-12' ? h('b', { 'aria-hidden': 'true' }, sxAR(c) + ' / ' + sxAR(n)) : null);
   };
-  const sxAdultTool = (frame) => { const t = [...frame.querySelectorAll('.elp-tool')]; return t.find((b) => /دليل الكبير/.test(b.textContent)) || t[0] || null; };
+  const sxAdultTool = (frame) => { const t = [...frame.querySelectorAll('.elp-tool')]; return t.find((b) => /دليل المعلّم/.test(b.textContent)) || t[0] || null; };
   const SX_PIN = 'قُلِ الصَّوْتَ لا اسْمَ الحَرْفِ: «مْـ» ممدودةٌ والشَّفَتانِ مُطبَقَتانِ، بلا «مِيم» وبلا حَرَكةٍ بعدَها.';
-  /** أدوات آمنة لكلّ عنصر: لا صوت ولا متابعة بعد مغادرته (ctx.alive من المحرّك إن وُجد) + دليل الكبير بقسمين */
+  /** أدوات آمنة لكلّ عنصر: لا صوت ولا متابعة بعد مغادرته (ctx.alive من المحرّك إن وُجد) + دليل المعلّم بقسمين */
   const sxKit = (ctx) => {
     let gone = false;
     ctx.onCleanup(() => { gone = true; });
@@ -131,7 +131,7 @@
         setTimeout(() => { el.classList.remove('in'); setTimeout(() => el.remove(), 480); res(r && alive()); }, r && mood ? 700 : 0);
       }));
     }
-    /** main: «للكبير» (≤ ٣ أوامر قصيرة) · meta: «ملاحظات المراجِع» المطويّة (المحطّة، الرصد، ما يُسجَّل) */
+    /** main: «للمعلّم» (≤ ٣ أوامر قصيرة) · meta: «ملاحظات المراجِع» المطويّة (المحطّة، الرصد، ما يُسجَّل) */
     function adult(main, meta) {
       if (typeof ctx.adultMeta === 'function') { ctx.adult(main); ctx.adultMeta(meta || ''); }
       else ctx.adult(main + (meta ? '<details class="sx-meta"><summary>ملاحظات المراجِع</summary>' + meta + '</details>' : ''));
@@ -267,7 +267,7 @@ ${S} .bq-adult .t8-rec .bq-btn { font-size: 15px; min-height: 44px; }
 
   BQ.register(ID, {
     hero: 'img-103',
-    cover: 'أسئلة تفكير قصيرة، وكلّ جواب مقبول؛ بعده يرى طفلك الدليل.',
+    cover: 'أسئلة تفكير قصيرة، وكلّ جواب مقبول؛ بعده يرى الطفل الدليل.',
     render(stage, ctx) {
       const age = ctx.age();
       const K = sxKit(ctx);
@@ -512,7 +512,7 @@ ${S} .bq-adult .t8-rec .bq-btn { font-size: 15px; min-height: 44px; }
         });
         main.append(ops);
         const a = ask(i, g);
-        // الكبير يلمس «أجاب» أو «لم يُجب» حين يجيب الطفل بلا لمس ← يظهر «التّالي» (الاختيار: لا شيء)
+        // المعلّم يلمس «أجاب» أو «لم يُجب» حين يجيب الطفل بلا لمس ← يظهر «التّالي» (الاختيار: لا شيء)
         adultPanel(i, { onAnswer: () => { if (!chosen && live()) nextBtn(foot, p); } });
         later(async () => { await say(Q[i].line); if (live()) a.arm(() => !!chosen); }, 350);
         function play(id, card) {
@@ -544,7 +544,7 @@ ${S} .bq-adult .t8-rec .bq-btn { font-size: 15px; min-height: 44px; }
       function finish() {
         gen++; clearTimers(); BQ.audio.stop(); noteAdult(false);
         ctx.done();
-        BQ.ui.endCard(stage, { title: 'أَحْسَنْتَ!', note: 'للكبير: كلّ جواب مقبول؛ أسئلة «لماذا؟» في دليل الكبير.', onReplay: () => go(0) });
+        BQ.ui.endCard(stage, { title: 'أَحْسَنْتَ!', note: 'للمعلّم: كلّ جواب مقبول؛ أسئلة «لماذا؟» في دليل المعلّم.', onReplay: () => go(0) });
       }
       go(0);
     },

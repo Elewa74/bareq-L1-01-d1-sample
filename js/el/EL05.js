@@ -280,7 +280,7 @@ ${SC} button:focus-visible { outline: 4px solid var(--navy); outline-offset: 3px
       return { stop() { S.cancel(t); } };
     };
 
-    /** قسم أدوات الكبير يُلحق باللوحة الافتراضية (لا يستبدلها) */
+    /** قسم أدوات المعلّم يُلحق باللوحة الافتراضية (لا يستبدلها) */
     S.adultBox = function (title) {
       const panel = frame.querySelector('.bq-adult');
       const box = h('div.mk-adult', null, title ? h('h4', null, title) : null);
@@ -288,7 +288,7 @@ ${SC} button:focus-visible { outline: 4px solid var(--navy); outline-offset: 3px
       if (metaSec) panel.insertBefore(box, metaSec); else panel.append(box);
       return box;
     };
-    /** سجلّ مطويّ داخل أدوات الكبير (تفاصيل للمراجِع) */
+    /** سجلّ مطويّ داخل أدوات المعلّم (تفاصيل للمراجِع) */
     S.adultLog = function (box, summary, empty) {
       const p = h('p.log', null, empty || '');
       const metaEl = frame.querySelector('.elp-meta-el'); // المحرّك: قسم «ملاحظات المراجِع» المطويّ
@@ -334,7 +334,7 @@ ${SC} button:focus-visible { outline: 4px solid var(--navy); outline-offset: 3px
         S.cur = {
           R, wrap,
           replay() { if (phase !== 'await') return false; R.replays++; S.log.replays++; auto.stop(); cfg.stim(); return true; },
-          hide2() { // تلميح ٢ (من لوحة الكبير): إخفاء بديل غير صحيح — مساعدة
+          hide2() { // تلميح ٢ (من لوحة المعلّم): إخفاء بديل غير صحيح — مساعدة
             if (phase === 'done') return false;
             const vis = wrap.btns.filter((b) => !b.classList.contains('is-hidden'));
             const w = vis.filter((b) => b.dataset.id !== cfg.key);
@@ -459,7 +459,7 @@ ${SC} .e05-say4 .bq-choice { width: clamp(96px, 19cqi, 190px); }
     const pause = PAUSE[S.age] || 3000;
     let support = false; // «يحتاج دعماً» (٤–٦): صورتان بدل ثلاث
     const rounds = {};
-    const box = S.adultBox('أدوات الكبير · غير مرصود');
+    const box = S.adultBox('أدوات المعلّم · غير مرصود');
     if (S.age === '4-6') {
       const cb = h('input', { type: 'checkbox', onchange: () => { support = cb.checked; } });
       box.append(h('label', null, cb, 'يحتاج دعماً: صورتان بدل ثلاث في «المس ما يقول ماجد»'));
@@ -488,7 +488,7 @@ ${SC} .e05-say4 .bq-choice { width: clamp(96px, 19cqi, 190px); }
         cards.forEach((c) => c.classList.remove('now'));
         cards[i].classList.add('in', 'now');
         await S.sleep(450);
-        await S.play(SENT[STRIP[i]]); // ماجد يقول الجملة والكبير يشير إلى الصورة
+        await S.play(SENT[STRIP[i]]); // ماجد يقول الجملة والمعلّم يشير إلى الصورة
         turn.classList.add('on'); // سكتة ترديد — دور الطفل
         await S.sleep(pause);
         turn.classList.remove('on');
@@ -594,7 +594,7 @@ ${SC} .e05-say4 .bq-choice { width: clamp(96px, 19cqi, 190px); }
         },
       });
       S.body.append(wrapBox);
-      note('<b>جولة اختيارية:</b> يقول طفلك الجملة وهو يلمس الصورة، ثم يسمع نموذج ماجد. لا تذكر له أيّ مصطلح.');
+      note('<b>جولة اختيارية:</b> يقول الطفل الجملة وهو يلمس الصورة، ثم يسمع نموذج ماجد. لا تذكر له أيّ مصطلح.');
       await S.play(L.say);
       await S.nextBtn(S.body, 'التّالي');
     }
@@ -612,6 +612,6 @@ ${SC} .e05-say4 .bq-choice { width: clamp(96px, 19cqi, 190px); }
     flow();
   }
 
-  BQ.register('EL05', { hero: 'img-001', cover: 'يسمع طفلك جملاً قصيرة من الدرس ويردّدها، ثم يلمس صورة ما يسمع.', render });
+  BQ.register('EL05', { hero: 'img-001', cover: 'يسمع الطفل جملاً قصيرة من الدرس ويردّدها، ثم يلمس صورة ما يسمع.', render });
 })();
 })();

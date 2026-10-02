@@ -1,7 +1,7 @@
 /* EL10 «تحدّث» — gme-113 · ObservationButtons (غير مرصود آلياً)
    بنية «تحدّث» المألوفة: بند · نقاط · التالي. ثلاثة بنود بترتيب ثابت (عبارة في موقف ← «مْـ» ← «مْـ… ماء.»):
-   نموذج ← سكتة بحسب العمر (٤/٣/٢ ث) ← الكبير يلمس درجة من ثلاث في شريط الكبير ← الطفل يلوّن دائرة ✓ بلمسة.
-   لا ميكروفون ولا تسجيل ولا حكم آليّ على النطق. الانتقال بلا لمسة الكبير يُسجَّل «لم تُلاحَظ». تصميم v2. */
+   نموذج ← سكتة بحسب العمر (٤/٣/٢ ث) ← المعلّم يلمس درجة من ثلاث في شريط المعلّم ← الطفل يلوّن دائرة ✓ بلمسة.
+   لا ميكروفون ولا تسجيل ولا حكم آليّ على النطق. الانتقال بلا لمسة المعلّم يُسجَّل «لم تُلاحَظ». تصميم v2. */
 (function () {
   'use strict';
   const h = BQ.h;
@@ -47,7 +47,7 @@
 :where(.elp .sx-hear .bq-ic) { width: 52%; height: 52%; }
 :where(.elp .sx-hear.is-playing)::after { content: ""; position: absolute; inset: -11px; border-radius: 50%; border: 4px solid var(--sky-ink, var(--navy)); animation: bqRing 1s ease-out infinite; }
 :where(.elp.sx-a46 .sx-hear) { min-width: 72px; }
-/* شريط «ملاحظة الكبير»: خارج مساحة الطفل بصرياً */
+/* شريط «ملاحظة المعلّم»: خارج مساحة الطفل بصرياً */
 .elp .sx-adult { align-self: stretch; display: flex; align-items: center; gap: 14px; background: var(--navy); color: var(--white); border-radius: var(--r-md); padding: 10px 12px 10px 16px; box-shadow: 0 10px 24px var(--shade); position: relative; }
 .elp .sx-adult::before { content: ""; position: absolute; inset-inline: 22px; top: -9px; height: 9px; background: repeating-linear-gradient(90deg, var(--sky-line) 0 8px, transparent 8px 14px); border-radius: 4px 4px 0 0; opacity: .9; }
 .elp .sx-adult-tag { display: flex; align-items: center; gap: 10px; font: 500 13px/1.35 var(--ff-ui); color: var(--sky-line); min-width: 0; flex: none; }
@@ -99,9 +99,9 @@
     const c = Math.min(Math.max(i, 0) + 1, n);
     return h('div.sx-steps', { role: 'img', 'aria-label': 'الخُطْوَةُ ' + sxAR(c) + ' مِنْ ' + sxAR(n) }, d, BQ.state.age === '10-12' ? h('b', { 'aria-hidden': 'true' }, sxAR(c) + ' / ' + sxAR(n)) : null);
   };
-  const sxAdultTool = (frame) => { const t = [...frame.querySelectorAll('.elp-tool')]; return t.find((b) => /دليل الكبير/.test(b.textContent)) || t[0] || null; };
+  const sxAdultTool = (frame) => { const t = [...frame.querySelectorAll('.elp-tool')]; return t.find((b) => /دليل المعلّم/.test(b.textContent)) || t[0] || null; };
   const SX_PIN = 'قُلِ الصَّوْتَ لا اسْمَ الحَرْفِ: «مْـ» ممدودةٌ والشَّفَتانِ مُطبَقَتانِ، بلا «مِيم» وبلا حَرَكةٍ بعدَها.';
-  /** أدوات آمنة لكلّ عنصر: لا صوت ولا متابعة بعد مغادرته (ctx.alive من المحرّك إن وُجد) + دليل الكبير بقسمين */
+  /** أدوات آمنة لكلّ عنصر: لا صوت ولا متابعة بعد مغادرته (ctx.alive من المحرّك إن وُجد) + دليل المعلّم بقسمين */
   const sxKit = (ctx) => {
     let gone = false;
     ctx.onCleanup(() => { gone = true; });
@@ -130,7 +130,7 @@
         setTimeout(() => { el.classList.remove('in'); setTimeout(() => el.remove(), 480); res(r && alive()); }, r && mood ? 700 : 0);
       }));
     }
-    /** main: «للكبير» (≤ ٣ أوامر قصيرة) · meta: «ملاحظات المراجِع» المطويّة (المحطّة، الرصد، ما يُسجَّل) */
+    /** main: «للمعلّم» (≤ ٣ أوامر قصيرة) · meta: «ملاحظات المراجِع» المطويّة (المحطّة، الرصد، ما يُسجَّل) */
     function adult(main, meta) {
       if (typeof ctx.adultMeta === 'function') { ctx.adult(main); ctx.adultMeta(meta || ''); }
       else ctx.adult(main + (meta ? '<details class="sx-meta"><summary>ملاحظات المراجِع</summary>' + meta + '</details>' : ''));
@@ -171,7 +171,7 @@ ${S} .t10-qbadge .bq-ic { width: 56%; height: 56%; }
 ${S} .t10-pics { display: flex; gap: clamp(12px, 3cqi, 28px); justify-content: center; }
 ${S} .t10-sq { width: clamp(120px, 28cqi, 250px); aspect-ratio: 1; }
 ${S} .t10-big { width: clamp(170px, 38cqi, 320px); aspect-ratio: 1; }
-/* v0-12: الصور تصغر بارتفاع الإطار (شاشات ٧٢٠–٨٢٠) فيبقى شريط ملاحظة الكبير و«البند التالي» داخل الإطار */
+/* v0-12: الصور تصغر بارتفاع الإطار (شاشات ٧٢٠–٨٢٠) فيبقى شريط ملاحظة المعلّم و«البند التالي» داخل الإطار */
 ${S} .t10-sq, ${S} .t10-big { max-width: max(110px, calc(var(--play-h, 700px) - 450px)); }
 ${S} .t10-spread { max-width: max(300px, calc((var(--play-h, 700px) - 230px) * 16 / 9)); }
 @media (max-height: 840px) {
@@ -206,7 +206,7 @@ ${S} .t10-next.soft { background: var(--white); color: var(--navy); box-shadow: 
   ${S} .t10-big { width: min(62cqi, 230px); }
   ${S} .t10-polaroid { width: 34cqi; bottom: -26px; inset-inline-end: -4px; }
 }
-/* v0-12: هاتف قصير (٣٦٠×٦٤٠): شريط ملاحظة الكبير صفّ واحد مضغوط، والصور أصغر */
+/* v0-12: هاتف قصير (٣٦٠×٦٤٠): شريط ملاحظة المعلّم صفّ واحد مضغوط، والصور أصغر */
 @container stage (max-width: 560px) {
   @media (max-height: 760px) {
     ${S} .sx-adult { flex-direction: row; padding: 8px; gap: 6px; }
@@ -238,7 +238,7 @@ ${S} .t10-next.soft { background: var(--white); color: var(--navy); box-shadow: 
   // البنود الثلاثة بترتيب المواصفة (الموقف أوّلاً)
   const ITEMS = [
     { key: 'phrase', model: ['bariq_L1-01_sfx-water-pour-1s', 'bariq_L1-01_sfx-door-knock', 'bariq_L1-01_ins-same_ar'], after: ['bariq_L1-01_key_ar'],
-      observe: 'يُسمَع الماء ثم الطرق ثم سؤال ماجد، فيقول طفلك «سَمِعْتُ فَرْقاً!» في دور بارق، وحده أو معك.' },
+      observe: 'يُسمَع الماء ثم الطرق ثم سؤال ماجد، فيقول الطفل «سَمِعْتُ فَرْقاً!» في دور بارق، وحده أو معك.' },
     { key: 'm', model: ['bariq_L1-01_snd-m_ar'], after: [],
       observe: '«مْـ» ممدودة والشفتان مطبقتان، بلا حركة بعدها. ليلمس شفتيه أو ينظر في المرآة: هل انطبقتا؟' },
     { key: 'maa', model: ['bariq_L1-01_vocab-w1_02_ar'], after: [],
@@ -253,7 +253,7 @@ ${S} .t10-next.soft { background: var(--white); color: var(--navy); box-shadow: 
 
   BQ.register(ID, {
     hero: 'img-028',
-    cover: 'يسمع طفلك النموذج ثم يقول: «مْـ» · «ماءْ» · «سَمِعْتُ فَرْقاً!»، وأنت تلاحظ.',
+    cover: 'يسمع الطفل النموذج ثم يقول: «مْـ» · «ماءْ» · «سَمِعْتُ فَرْقاً!»، وأنت تلاحظ.',
     render(stage, ctx) {
       const age = ctx.age();
       const K = sxKit(ctx);
@@ -271,7 +271,7 @@ ${S} .t10-next.soft { background: var(--white); color: var(--navy); box-shadow: 
         return '<table class="t10-log"><tr><th>البند</th><th>الملاحظة</th><th>إعادة النموذج</th></tr>' + log.map((l, k) =>
           '<tr><td>' + sxAR(k + 1) + ' · ' + NAMES[l.item] + '</td><td>' + (l.level ? LV[l.level].rep : '—') + '</td><td>' + sxAR(l.replays) + '</td></tr>').join('') + '</table>';
       }
-      const ageNote = age === '4-6' ? 'سكتة الترديد أربع ثوانٍ، وجلوس الكبير بجانبه ضروريّ؛ إن غاب تُسجَّل البنود «لم تُلاحَظ».'
+      const ageNote = age === '4-6' ? 'سكتة الترديد أربع ثوانٍ، وجلوس المعلّم بجانبه ضروريّ؛ إن غاب تُسجَّل البنود «لم تُلاحَظ».'
         : age === '10-12' ? 'سكتة الترديد ثانيتان؛ إن عمل وحده تُسجَّل البنود «لم تُلاحَظ».' : 'سكتة الترديد ثلاث ثوانٍ.';
       function panel(body) {
         K.adult(K.pinned() + body,
@@ -323,9 +323,9 @@ ${S} .t10-next.soft { background: var(--white); color: var(--navy); box-shadow: 
         // «اسمع النموذج» — زرّ أزرق بأذن (غير سمّاعة التعليمة الصفراء)
         const listen = h('button.bq-hear.sx-hear', { type: 'button', 'aria-label': 'اسْمَعِ النَّموذَجَ', onclick: () => replayModel(true) }, BQ.icon('ear'));
         const dock = h('div.t10-dock', null, listen, turn);
-        // شريط «ملاحظة الكبير»: ثلاثة أزرار بالمقياس الموحّد
-        const obs = h('div.sx-adult', { role: 'group', 'aria-label': 'مُلاحَظَةُ الكَبيرِ' },
-          h('span.sx-adult-tag', null, BQ.icon('adult'), h('span', null, h('b', null, 'ملاحظة الكبير'), 'ماذا لاحظت؟')));
+        // شريط «ملاحظة المعلّم»: ثلاثة أزرار بالمقياس الموحّد
+        const obs = h('div.sx-adult', { role: 'group', 'aria-label': 'مُلاحَظَةُ المُعَلِّمِ' },
+          h('span.sx-adult-tag', null, BQ.icon('adult'), h('span', null, h('b', null, 'ملاحظة المعلّم'), 'ماذا لاحظت؟')));
         const btnRow = h('div.sx-adult-btns');
         const obsBtns = ['ind', 'help', 'none'].map((lv) => {
           const b = h('button', { type: 'button', 'aria-pressed': String(L.level === lv), dataset: { lv } }, LV[lv].ar);
@@ -338,7 +338,7 @@ ${S} .t10-next.soft { background: var(--white); color: var(--navy); box-shadow: 
         stage.append(wrap);
         ctx.instruction(k === 0 ? 'هَلْ هُما صَوْتٌ واحِدٌ؟' : 'قولوا مَعي، هَيّا!');
         panel('<p><b>' + NAMES[it.key] + ':</b> ' + it.observe + '</p>' +
-          '<p>بعد النموذج دعه يقول، ثم المس في شريط «ملاحظة الكبير» ما لاحظت. إن قالها معك أو بعد أن أريته فمك فهي «قالها بمساعدة».</p>' +
+          '<p>بعد النموذج دعه يقول، ثم المس في شريط «ملاحظة المعلّم» ما لاحظت. إن قالها معك أو بعد أن أريته فمك فهي «قالها بمساعدة».</p>' +
           '<p>لا تصحّح؛ أعد النموذج بالزرّ الأزرق.</p>');
 
         async function model(first) {
@@ -427,7 +427,7 @@ ${S} .t10-next.soft { background: var(--white); color: var(--navy); box-shadow: 
         gen++; clearTimers(); BQ.audio.stop();
         stage.querySelectorAll('.bq-end').forEach((n) => n.remove());
         ctx.done();
-        sxEnd(stage, { title: 'أَحْسَنْتَ!', note: 'للكبير: ملاحظاتك الثلاث في دليل الكبير.', home: HOME, onReplay: () => { log.forEach((l) => { l.level = null; l.replays = 0; }); s1(); } });
+        sxEnd(stage, { title: 'أَحْسَنْتَ!', note: 'للمعلّم: ملاحظاتك الثلاث في دليل المعلّم.', home: HOME, onReplay: () => { log.forEach((l) => { l.level = null; l.replays = 0; }); s1(); } });
         panel('<p>انتهت البنود الثلاثة؛ السجلّ في «ملاحظات المراجِع».</p>');
       }
       s1();

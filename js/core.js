@@ -412,9 +412,9 @@
     cv.addEventListener('pointermove', (e) => { if (!drawing) return; if (e.cancelable) e.preventDefault(); const ev = e.getCoalescedEvents ? e.getCoalescedEvents() : null; if (ev && ev.length > 1) ev.forEach((c) => draw(pos(c))); else draw(pos(e)); });
     const up = (e) => { drawing = false; try { if (e && cv.hasPointerCapture && cv.hasPointerCapture(e.pointerId)) cv.releasePointerCapture(e.pointerId); } catch (x) { /* */ } };
     cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
-    // مسار بديل للوحة المفاتيح/المفاتيح الخاصّة: ضغطة مطوّلة من الكبير تُتمّ التتبّع «بمساعدة» (T25)
+    // مسار بديل للوحة المفاتيح/المفاتيح الخاصّة: ضغطة مطوّلة من المعلّم تُتمّ التتبّع «بمساعدة» (T25)
     let hold = 0;
-    const adultBtn = h('button.bq-trace-adult', { type: 'button', title: 'اضغط مطوّلاً', 'aria-label': 'للكبير: اضغط مطوّلاً لإتمام التتبّع بمساعدة' }, 'للكبير: أتمِمْ');
+    const adultBtn = h('button.bq-trace-adult', { type: 'button', title: 'اضغط مطوّلاً', 'aria-label': 'للمعلّم: اضغط مطوّلاً لإتمام التتبّع بمساعدة' }, 'للمعلّم: أتمِمْ');
     const hs = () => { clearTimeout(hold); adultBtn.classList.add('is-hold'); hold = setTimeout(() => { adultBtn.classList.remove('is-hold'); finish({ assisted: true }); }, 900); };
     const he = () => { clearTimeout(hold); adultBtn.classList.remove('is-hold'); };
     adultBtn.addEventListener('pointerdown', hs); adultBtn.addEventListener('pointerup', he); adultBtn.addEventListener('pointerleave', he);
@@ -428,7 +428,7 @@
   /** بطاقة كلمة مشكولة تظهر لحظة نطقها */
   UI.word = (text, cls) => h('span.bq-word' + (cls ? '.' + cls : ''), { lang: 'ar' }, text);
 
-  /** إشعار قصير للكبير */
+  /** إشعار قصير للمعلّم */
   UI.toast = function (text) {
     let t = $('#bqToast');
     if (!t) { t = h('div.bq-toast', { id: 'bqToast', role: 'status', 'aria-live': 'polite' }); ($('.page-root') || document.body).append(t); }
@@ -436,67 +436,33 @@
     clearTimeout(t._tm); t._tm = setTimeout(() => t.classList.remove('in'), 3600);
   };
 
-  /* ---------- البيانات المشتقّة: المسار والجلسات حسب العمر ---------- */
+  /* ---------- البيانات المشتقّة: المسار ----------
+     v0-12 (المالك: «عايز أشيل تقسيم العناصر بالجلسات»): لا جلسات ولا تخطٍّ بالعمر — «التالي» خطّيّ بترتيب القائمة ١–١٦،
+     و«اختبر نفسك» (EL16) آخره ببوّابة «اليوم التالي» كما هي. */
   BQ.register = function (id, def) { BQ.defs[id] = def; };
   BQ.meta = (id) => D.elements.find((e) => e.id === id);
-  const SES = D.sessions || {};
-  /** المسار الخطّيّ لـ«التالي» حسب العمر: [{id, s}] — بلا «اختبر نفسك» وبلا المتخطّى لهذا العمر */
-  BQ.path = function (age) {
-    age = age || BQ.state.age;
-    const skip = new Set((D.skip_by_age || {})[age] || []);
-    const out = [];
-    ((D.path_by_age || {})[age] || []).forEach((s) => (SES[s] ? SES[s].ids : []).forEach((id) => { if (!skip.has(id)) out.push({ id, s }); }));
-    if (!out.length) (D.next || []).forEach((id) => out.push({ id, s: 'A' }));
-    return out;
-  };
-  /** حرف الجلسة الأساس لِلّون (ج-١/ج-٢ ← ج) */
-  const sesKey = (id) => String(sesOf(id) || ((BQ.meta(id) || {}).session) || 'A').charAt(0);
-  const sesOf = (id) => { const p = BQ.path(); const x = p.find((q) => q.id === id); if (x) return x.s; for (const k of Object.keys(SES)) if (SES[k].ids.includes(id)) return k; return null; };
-  /** جلسة وجهةٍ ما: من موضعها في المسار إن عُرف (العنصر الواحد قد يظهر في جلستين) */
-  const sesAt = (n) => { const p = BQ.path(); return n && n.pos != null && p[n.pos] && p[n.pos].id === n.id ? p[n.pos].s : sesOf(n.id); };
-  /** موضع العنصر في المسار (يحترم seqPos إن طابق) */
+  let PATH = null;
+  BQ.path = function () { if (!PATH) PATH = D.elements.slice().sort((x, y) => x.menu - y.menu).map((e) => ({ id: e.id })); return PATH; };
   function posOf(id, hint) {
     const p = BQ.path();
     if (hint != null && p[hint] && p[hint].id === id) return hint;
-    if (p[BQ.state.seqPos] && p[BQ.state.seqPos].id === id) return BQ.state.seqPos;
     return p.findIndex((q) => q.id === id);
   }
-  /** الوجهة التالية من موضع حاليّ: عنصر أو بطاقة نهاية جلسة */
   function nextFrom(cur, pos) {
-    const p = BQ.path();
-    if (/^end-/.test(cur)) {
-      const k = cur.slice(4); const i = p.findIndex((q, j) => q.s !== k && j > 0 && p[j - 1].s === k);
-      return i >= 0 ? { id: p[i].id, pos: i } : { id: 'plan' };
-    }
-    if (cur === 'EL16') return { id: 'plan' };
-    if (pos >= 0 && p[pos]) {
-      const n = p[pos + 1];
-      if (!n || n.s !== p[pos].s) return { id: 'end-' + p[pos].s, pos };
-      return { id: n.id, pos: pos + 1 };
-    }
-    // عنصر خارج مسار هذا العمر (مثلاً «التراكيب» لـ٤–٦): أوّل عنصر من المسار يليه في الترتيب الكامل
-    const full = D.next || []; const i = full.indexOf(cur);
-    for (let j = i + 1; i >= 0 && j < full.length; j++) { const k = p.findIndex((q) => q.id === full[j]); if (k >= 0) return { id: full[j], pos: k }; }
-    return { id: 'plan' };
+    const p = BQ.path(); const i = pos >= 0 ? pos : p.findIndex((q) => q.id === cur);
+    const n = i >= 0 ? p[i + 1] : null;
+    return n ? { id: n.id, pos: i + 1 } : { id: 'plan' };
   }
   function prevFrom(cur, pos) {
-    const p = BQ.path();
-    if (/^end-/.test(cur)) return pos >= 0 && p[pos] ? { id: p[pos].id, pos } : null;
-    if (cur === 'EL16') { const l = p.length - 1; return l >= 0 ? { id: p[l].id, pos: l } : null; }
-    if (pos > 0) return { id: p[pos - 1].id, pos: pos - 1 };
-    if (pos === 0) return null;
-    const full = D.next || []; const i = full.indexOf(cur);
-    for (let j = i - 1; j >= 0; j--) { const k = p.findIndex((q) => q.id === full[j]); if (k >= 0) return { id: full[j], pos: k }; }
-    return null;
+    const p = BQ.path(); const i = pos >= 0 ? pos : p.findIndex((q) => q.id === cur);
+    return i > 0 ? { id: p[i - 1].id, pos: i - 1 } : null;
   }
-  const nameOf = (id) => (id === 'plan' ? 'خطة الدرس' : /^end-/.test(id) ? 'نهاية الجلسة ' + ((SES[id.slice(4)] || {}).label || '') : cleanName((BQ.meta(id) || {}).name));
+  const nameOf = (id) => (id === 'plan' ? 'خطة الدرس' : cleanName((BQ.meta(id) || {}).name));
   /** وصف «التالي» للعنصر الجاري: {small, name} */
   function nextInfo() {
     const cur = BQ.state.current; if (!cur || cur === 'plan') return null;
     const n = nextFrom(cur, posOf(cur));
-    const s = sesAt(n);
-    const small = /^end-/.test(n.id) ? 'التالي' : n.id === 'plan' ? 'التالي' : s && SES[s] ? 'التالي في الجلسة ' + SES[s].label : 'التالي في مسار الدرس';
-    return { small, name: nameOf(n.id), to: n };
+    return { small: 'التالي', name: nameOf(n.id), to: n };
   }
   BQ.nextInfo = nextInfo;
 
@@ -524,7 +490,7 @@
   }
   BQ.doneAt = (id) => { try { const v = localStorage.getItem(PFX + 'ts-' + id); return v ? +v : null; } catch (e) { return null; } };
   BQ.hoursSince = (id) => { const t = BQ.doneAt(id); return t ? (Date.now() - t) / 36e5 : null; };
-  /** «اختبر نفسك» تحقّق مؤجَّل: يُفتح مبكّراً (<١٢ ساعة بعد «تدرّب» أو بلا سجلّ) معاينةً للكبير فقط */
+  /** «اختبر نفسك» تحقّق مؤجَّل: يُفتح مبكّراً (<١٢ ساعة بعد «تدرّب» أو بلا سجلّ) معاينةً للمعلّم فقط */
   BQ.gate = { el16() { const hrs = BQ.hoursSince('EL13'); return { hours: hrs, early: hrs == null || hrs < 12, preview: !!BQ.state.el16Preview }; } };
   BQ.markDone = function (id) {
     const first = !BQ.state.done.has(id);
@@ -541,27 +507,22 @@
     BQ.open(n.id, { pos: n.pos, src: 'next' });
   };
   BQ.goPrev = function () {
-    const cur = BQ.state.current; const p = prevFrom(cur, /^end-/.test(cur) ? BQ.state.seqPos : posOf(cur));
+    const cur = BQ.state.current; const p = prevFrom(cur, posOf(cur));
     if (p) BQ.open(p.id, { pos: p.pos, src: 'next' });
   };
 
   /* ---------- رأس العنصر ---------- */
-  /* v0-12: لا رقائق في الرأس — المحطّة معلومة للكبير (في دليله)، والزمن في السطر الصغير فوق العنوان */
+  /* v0-12: لا رقائق في الرأس — المحطّة معلومة للمعلّم (في دليله)، والزمن في السطر الصغير فوق العنوان */
   function stationLine(meta) {
     const st = meta.station_short || String(meta.station || '').split('—')[0].trim();
     return [st, meta.time_label].filter(Boolean).join(' · ');
   }
-  function kicker(id) {
-    const p = BQ.path(); const pos = posOf(id);
-    if (id === 'EL16') return 'الجلسة د · في يوم لاحق';
-    if (pos >= 0) { const s = p[pos].s; const inS = p.filter((q) => q.s === s); const k = inS.findIndex((q, j) => p.indexOf(q) === pos); return 'الجلسة ' + SES[s].label + ' · ' + AR(k + 1) + ' من ' + AR(inS.length); }
-    const skip = ((D.skip_by_age || {})[BQ.state.age] || []).includes(id);
-    return skip ? 'اختياريّ لعمر ' + ageLabel(BQ.state.age) + ' · خارج «التالي»' : 'العنصر ' + AR((BQ.meta(id) || {}).menu || '') + ' من ' + AR(D.elements.length);
-  }
+  function kicker(id) { return 'العنصر ' + AR((BQ.meta(id) || {}).menu || '') + ' من ' + AR(D.elements.length); }
+
   const FN = [[/قول|قُل|غَنّ|رَدِّد|ما هَذا|سَمِعْتُ فَرْقاً/, 'mouth'], [/أَيْنَ|مَنْ|المِسْ|الْمِسْ|تَتَبَّع|ضَعْ|اقْلِب|رَتِّب|اخْتَر/, 'hand'], [/انْظُر|شاهِد|حَرْفُ|هَذِهِ الميمُ|^ماء/, 'eye']];
   const fnIcon = (text, line) => { const t = text || ((BQ.line(line) || {}).t) || ''; for (const [re, ic] of FN) if (re.test(t)) return ic; return 'ear'; };
 
-  /** صفحة العنصر: رأس + [تعليمة + مسرح] + نصّ مصاحب + تنقّل + دليل الكبير (درج) */
+  /** صفحة العنصر: رأس + [تعليمة + مسرح] + نصّ مصاحب + تنقّل + دليل المعلّم (درج) */
   function frame(meta) {
     const content = $('#content');
     const stage = h('div.bq-stage.elp-stage');
@@ -613,19 +574,19 @@
     }) : null;
     if (dockMO) { dockMO.observe(stage, { childList: true, subtree: true }); cleanups.push(() => dockMO.disconnect()); }
 
-    /* دليل الكبير: «للكبير» + «ملاحظات المراجِع» (مطويّة) */
+    /* دليل المعلّم: «للمعلّم» + «ملاحظات المراجِع» (مطويّة) */
     const adultBody = h('div.elp-adult-body');
     const metaEl = h('div.elp-meta-el');
     const metaData = h('div.elp-meta-data', { html: meta.adult_meta || '' });
     const scrim = h('div.elp-scrim', { hidden: true });
     const closeBtn = h('button.bq-adult-x', { type: 'button', 'aria-label': 'إغلاق', onclick: () => toggleAdult(false) }, BQ.icon('close'));
     const adultPanel = h('aside.bq-adult.elp-adult', { hidden: true, role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'elp-adult-h', tabindex: '-1' },
-      h('div.elp-adult-top', null, h('div', null, h('h3', { id: 'elp-adult-h' }, 'دليل الكبير'), h('p.elp-adult-st', null, stationLine(meta))), closeBtn),
+      h('div.elp-adult-top', null, h('div', null, h('h3', { id: 'elp-adult-h' }, 'دليل المعلّم'), h('p.elp-adult-st', null, stationLine(meta))), closeBtn),
       meta.pinned ? h('p.elp-pin', null, BQ.icon('mouth'), h('span', null, meta.pinned)) : null,
       adultBody,
       h('details.elp-adult-meta', null, h('summary', null, 'ملاحظات المراجِع'), metaEl, metaData));
     const toolLbl = (full, short) => [h('span.elp-tool-l', null, full), h('span.elp-tool-s', { 'aria-hidden': 'true' }, short)];
-    const adultBtn = h('button.elp-tool', { type: 'button', 'aria-label': 'دليل الكبير', 'aria-haspopup': 'dialog', 'aria-expanded': 'false', onclick: () => toggleAdult() }, BQ.icon('adult'), toolLbl('دليل الكبير', 'الدليل'));
+    const adultBtn = h('button.elp-tool', { type: 'button', 'aria-label': 'دليل المعلّم', 'aria-haspopup': 'dialog', 'aria-expanded': 'false', onclick: () => toggleAdult() }, BQ.icon('adult'), toolLbl('دليل المعلّم', 'الدليل'));
     let inertEls = [];
     function toggleAdult(v) {
       const on = v == null ? adultPanel.hidden : v;
@@ -665,11 +626,11 @@
     const head = h('header.elp-head', null,
       h('div.elp-ic', null, h('img', { src: meta.icon, alt: '' })),
       h('div.elp-titles', null,
-        h('p.elp-kicker', null, kicker(meta.id) + (meta.time_label ? ' · ' + meta.time_label : '')),
+        h('p.elp-kicker', null, kicker(meta.id)),
         h('h2.elp-title', { id: 'elp-t', tabindex: '-1' }, cleanName(meta.name))),
-      h('div.elp-tools', { role: 'group', 'aria-label': 'أدوات الكبير' }, adultBtn, ccBtn, restartBtn));
+      h('div.elp-tools', { role: 'group', 'aria-label': 'أدوات المعلّم' }, adultBtn, ccBtn, restartBtn));
     const nav = navBar(meta.id);
-    const f = h('section.bq-frame.elp', { dataset: { el: meta.id, ses: sesKey(meta.id) }, 'aria-labelledby': 'elp-t' }, head, play, nav, scrim, adultPanel);
+    const f = h('section.bq-frame.elp', { dataset: { el: meta.id }, 'aria-labelledby': 'elp-t' }, head, play, nav, scrim, adultPanel);
     content.replaceChildren(f);
     const ctx = {
       meta, stage, frame: f,
@@ -704,16 +665,15 @@
     const esc = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;');
     const age = BQ.state.age;
     const ag = (meta.ages_adult || {})[age];
-    return (meta.cover_lead ? '<p class="goal"><b>ماذا يفعل طفلك:</b> ' + esc(meta.cover_lead) + '</p>' : '') +
-      ((meta.adult_parent || []).length ? '<p class="lbl">للكبير</p><ul class="do">' + meta.adult_parent.map((t) => '<li>' + esc(t) + '</li>').join('') + '</ul>' : '') +
+    return (meta.cover_lead ? '<p class="goal"><b>ماذا يفعل الطفل:</b> ' + esc(meta.cover_lead) + '</p>' : '') +
+      ((meta.adult_parent || []).length ? '<p class="lbl">للمعلّم</p><ul class="do">' + meta.adult_parent.map((t) => '<li>' + esc(t) + '</li>').join('') + '</ul>' : '') +
       (ag ? '<p class="age"><b>لعمر ' + ageLabel(age) + ' سنوات:</b> ' + esc(ag) + '</p>' : '');
   }
   function navBar(id) {
-    const pos = /^end-/.test(id) ? BQ.state.seqPos : posOf(id);
+    const pos = posOf(id);
     const pv = prevFrom(id, pos);
     const nx = nextFrom(id, pos);
-    const s = sesAt(nx);
-    const small = /^end-/.test(nx.id) || nx.id === 'plan' ? 'التالي' : s && SES[s] ? 'التالي في الجلسة ' + SES[s].label : 'التالي في مسار الدرس';
+    const small = 'التالي';
     return h('nav.elp-nav', { 'aria-label': 'التنقّل في مسار الدرس' },
       pv ? h('button.elp-navbtn.ghost', { type: 'button', onclick: () => BQ.open(pv.id, { pos: pv.pos, src: 'next' }) }, BQ.icon('prev'), h('span', null, h('small', null, 'السابق'), nameOf(pv.id))) : h('span'),
       h('button.elp-navbtn.primary.nextbtn', { type: 'button', onclick: () => { A.unlock(); BQ.goNext(); } }, h('span', null, h('small', null, small), nameOf(nx.id)), BQ.icon('next')));
@@ -722,7 +682,7 @@
   /* ---------- غلاف العنصر (v0-12): لوحة مصمَّمة بملء منطقة اللعب ----------
      الفنّ: media/cover/ELxx.webp إن وُجد (١٦:١٠، الجهة اليمنى أهدأ للعنوان)، وإلا الصورة البطلة للعنصر بتدرّج ناعم.
      فوقه: رقم العنصر والجلسة · العنوان مشكولاً · جملة للطفل · بارق المتحرّك بوضعية تناسب العنصر · زرّ بدء دائريّ كبير
-     · سطر الكبير ثانوياً. لون الجلسة لمسة (أ سماويّ · ب مرجانيّ · ج أخضر · د بنفسجيّ). الحركة تحترم prefers-reduced-motion.
+     · سطر المعلّم ثانوياً. لون الجلسة لمسة (أ سماويّ · ب مرجانيّ · ج أخضر · د بنفسجيّ). الحركة تحترم prefers-reduced-motion.
      النصوص هنا مسوّدة للمراجعة؛ يمكن أن تأتي من البيانات: meta.cover_title · meta.cover_child · meta.cover_pose. */
   const COVER = {
     EL01: ['تَهَيَّأْ لِلدَّرْسِ', 'اسْمَعِ الصَّوْتَ، وَالْمِسْ مَصْدَرَهُ!', 'wave'],
@@ -761,8 +721,6 @@
     if (play) play.classList.add('has-cover');
     ctx.frame.classList.add('has-cover');
     const go = () => { if (play) play.classList.remove('has-cover'); ctx.frame.classList.remove('has-cover'); c.remove(); onStart(); };
-    const lead = meta.cover_lead || (def && def.cover) || String(meta.goal || '').split('.')[0].split('؛')[0];
-    const skip = ((D.skip_by_age || {})[BQ.state.age] || []).includes(id);
     const tid = 'elp-cv-t';
     const early = id === 'EL16' && BQ.gate.el16().early;
     if (id === 'EL16') BQ.state.el16Preview = null;
@@ -785,25 +743,20 @@
     let action;
     if (early) {
       const hrs = BQ.gate.el16().hours;
-      action = h('button.bq-btn.ghost.elp-preview.cv-preview', { type: 'button', onclick: () => { BQ.state.el16Preview = { hours: hrs, at: Date.now() }; A.unlock(); go(); } }, BQ.icon('adult'), 'معاينة الآن (للكبير)');
+      action = h('button.bq-btn.ghost.elp-preview.cv-preview', { type: 'button', onclick: () => { BQ.state.el16Preview = { hours: hrs, at: Date.now() }; A.unlock(); go(); } }, BQ.icon('adult'), 'معاينة الآن (للمعلّم)');
     } else {
       action = h('button.bq-start.cv-start', { type: 'button', 'aria-label': 'ابْدَأْ: ' + info.title, onclick: () => { A.unlock(); go(); } },
         h('span.cv-start-disc', { 'aria-hidden': 'true' }, h('span.bq-start-ic', { html: I.play })),
         h('span.cv-start-l', null, 'ابْدَأْ'));
     }
-    const adultTxt = early
-      ? [h('b', null, 'للكبير: '), 'التحقّق المؤجَّل يصحّ في يوم لاحق، قبل الدرس الثاني. ', BQ.gate.el16().hours == null ? 'لا سجلّ لإتمام «تدرّب» على هذا الجهاز بعد.' : 'مرّ على إتمام «تدرّب» أقلّ من ١٢ ساعة.']
-      : [h('b', null, 'للكبير: '), lead, skip ? ' · اختياريّ لعمر ' + ageLabel(BQ.state.age) + ' سنوات، ولا يدخل في «التالي».' : ''];
-
     const c = h('div.elp-start.elp-cover', { role: 'group', 'aria-labelledby': tid, dataset: { el: id } }, h('div.cv-in', null,
       art,
       h('div.cv-shade', { 'aria-hidden': 'true' }),
       h('div.cv-text', null,
-        h('p.cv-kicker', null, h('span.cv-num', { 'aria-hidden': 'true' }, AR(meta.menu || '')), h('span', null, kicker(id))),
+        h('p.cv-kicker', { 'aria-label': kicker(id) }, h('span.cv-num', { 'aria-hidden': 'true' }, AR(meta.menu || '')), h('span', { 'aria-hidden': 'true' }, 'مِنْ ' + AR(D.elements.length))),
         h('h3.cv-title', { id: tid }, info.title),
         h('p.cv-child', { lang: 'ar' }, early ? 'هَذا لِلْغَدِ!' : info.child)),
-      h('div.cv-go', null, brq, action),
-      h('p.cv-adult', null, BQ.icon('adult'), h('span', null, adultTxt))));
+      h('div.cv-go', null, brq, action)));
     (play || ctx.stage).append(c);
   }
 
@@ -843,12 +796,12 @@
     if (id === 'last') id = lastEl || BQ.path()[0].id;
     const src = opt.src || 'api';
     const hmode = opt.history || (src === 'boot' ? 'replace' : 'push');
-    if (id !== 'plan' && !/^end-/.test(id) && !BQ.meta(id)) return;
+    if (/^end-/.test(id)) id = (resumeTarget() || { id: BQ.path()[0].id }).id; // روابط «نهاية الجلسة» القديمة
+    if (id !== 'plan' && !BQ.meta(id)) return;
     teardown();
     if (pendingAge) applyAge(pendingAge, true);
     if (id === 'plan') { showPlan(hmode); return; }
     hidePlan();
-    if (/^end-/.test(id)) { sessionPage(id.slice(4), opt, hmode, src); return; }
     const meta = BQ.meta(id);
     BQ.state.current = id;
     BQ.state.seqPos = posOf(id, opt.pos);
@@ -873,63 +826,6 @@
     });
   };
 
-  /* ---------- بطاقة نهاية الجلسة (تربوي P1-1، P2-12) ---------- */
-  function sessionPage(key, opt, hmode, src) {
-    const S = SES[key]; if (!S) { BQ.open(BQ.path()[0].id); return; }
-    const p = BQ.path();
-    const lastIdx = (() => { let k = -1; p.forEach((q, j) => { if (q.s === key) k = j; }); return k; })();
-    const pos = opt.pos != null && p[opt.pos] && p[opt.pos].s === key ? opt.pos : lastIdx;
-    BQ.state.current = 'end-' + key; BQ.state.seqPos = pos;
-    markMenu(null, -1);
-    setHistory('end-' + key, pos, hmode);
-    const age = BQ.state.age;
-    const nx = nextFrom('end-' + key, pos);
-    const final = nx.id === 'plan';
-    const nextS = !final ? SES[sesAt(nx)] : null;
-    const goOn = key === 'A' && age !== '4-6';
-    const child = final ? 'انْتَهى الدَّرْسُ!' : goOn ? 'هَيّا نُكْمِلُ!' : 'نُكْمِلُ غَداً.';
-    let adult;
-    if (final) adult = 'اكتمل الدرس. غداً، قبل الدرس الثاني، افتحا «اختبر نفسك» — التحقّق المؤجَّل لا يصحّ في اليوم نفسه.';
-    else if (goOn) adult = 'انتهت الجلسة ' + S.label + ' (' + S.time + '). لعمر ' + ageLabel(age) + ' تُكمل الجلسة ' + nextS.label + ' في الجلوس نفسه إن كان طفلك مستعدّاً (' + nextS.time + ').';
-    else adult = 'انتهت الجلسة ' + S.label + ' (' + S.time + '). ' + (age === '4-6' ? 'لعمر ٤–٦ نتوقّف هنا؛ ' : 'الأفضل التوقّف هنا؛ ') + 'في المرّة القادمة تبدآن من «' + nameOf(nx.id) + '».';
-    const content = $('#content');
-    const doneNote = h('p.bq-sess-saved', { hidden: true, role: 'status' });
-    const stop = h('button.bq-btn' + (goOn ? '.ghost' : ''), { type: 'button', onclick: () => {
-      store.set('last', { end: key, pos, t: Date.now() }); updateResume();
-      doneNote.hidden = false; doneNote.textContent = final ? 'أحسنتما! نلتقي غداً في «اختبر نفسك».' : 'حُفظ مكانكما. في المرّة القادمة المس «تابِعْ» أعلى الصفحة.';
-      stop.disabled = true;
-    } }, BQ.icon('check'), 'انْتَهَيْنا اليَوْمَ');
-    const cont = final
-      ? h('button.bq-btn.ghost', { type: 'button', onclick: () => BQ.open('EL16', { src: 'next' }) }, 'اختبر نفسك (غداً)')
-      : h('button.bq-btn' + (goOn ? '' : '.ghost'), { type: 'button', onclick: () => { A.unlock(); BQ.open(nx.id, { pos: nx.pos, src: 'next' }); } }, 'أَكْمِلِ الآنَ', BQ.icon('next'));
-    const row = goOn ? [stop, cont] : [cont, stop];
-    const tid = 'elp-t';
-    const card = h('div.bq-sess', null,
-      UI.brq('cheer', 'bq-end-brq', 6000), // [brq-anim v1]
-      h('p.bq-end-t', null, 'أَحْسَنْتَ!'),
-      h('p.bq-sess-child', null, child),
-      h('div.bq-end-row', null, row),
-      doneNote,
-      h('div.bq-sess-more', null,
-        h('div.bq-sess-adult', null, h('b', null, 'للكبير: '), adult),
-        S.home && S.home.length ? homeBox(S.home) : null));
-    const pv = prevFrom('end-' + key, pos);
-    const nav = h('nav.elp-nav', { 'aria-label': 'التنقّل في مسار الدرس' },
-      pv ? h('button.elp-navbtn.ghost', { type: 'button', onclick: () => BQ.open(pv.id, { pos: pv.pos, src: 'next' }) }, BQ.icon('prev'), h('span', null, h('small', null, 'السابق'), nameOf(pv.id))) : h('span'),
-      h('button.elp-navbtn.primary.nextbtn', { type: 'button', onclick: () => { A.unlock(); BQ.goNext(); } }, h('span', null, h('small', null, final ? 'التالي' : 'الجلسة ' + nextS.label), nameOf(nx.id)), BQ.icon('next')));
-    const f = h('section.bq-frame.elp.elp-endses', { dataset: { el: 'end-' + key, ses: key.charAt(0) }, 'aria-labelledby': tid },
-      h('header.elp-head', null,
-        h('div.elp-ic.elp-ic-m', { 'aria-hidden': 'true' }, 'م'),
-        h('div.elp-titles', null,
-          h('p.elp-kicker', null, 'الجلسة ' + S.label + ' · ' + S.name),
-          h('h2.elp-title', { id: tid, tabindex: '-1' }, final ? 'اكتمل الدرس' : 'نهاية الجلسة ' + S.label))),
-      h('div.elp-play', null, h('div.bq-stage.elp-stage', null, card)), nav);
-    content.replaceChildren(f);
-    BQ.audio.fx(BQ.sfx.ok, 0.5);
-    requestAnimationFrame(() => { reveal(f); if (src !== 'history') $('#elp-t').focus({ preventScroll: true }); });
-  }
-
-  /* ---------- خطة الدرس ---------- */
   /* v0-12: «خطة الدرس» صفحة مستقلّة (#plan): تُخفي واجهة الطفل كلّها، ولها شريطها و«العودة إلى الدرس» */
   function showPlan(hmode) {
     BQ.state.current = 'plan';
@@ -952,7 +848,7 @@
     document.title = 'بارق · صوت الميم';
   }
 
-  /* ---------- قائمة العناصر (درج على الهاتف/اللوح الطوليّ) و«للكبير» ---------- */
+  /* ---------- قائمة العناصر (درج على الهاتف/اللوح الطوليّ) و«للمعلّم» ---------- */
   const DRAWER_MQ = '(max-width: 767.98px), (pointer: coarse) and (orientation: portrait) and (max-width: 1100px)';
   const isDrawer = () => !!(window.matchMedia && matchMedia(DRAWER_MQ).matches);
   function openMenu() {
@@ -960,7 +856,7 @@
     m.classList.add('is-open'); if (sc) sc.hidden = false; if (b) b.setAttribute('aria-expanded', 'true');
     document.body.classList.add('menu-open');
     markMenu(BQ.state.current, BQ.state.seqPos);
-    setTimeout(() => { const f = $('.menu-list:not([hidden]) .item[aria-current]') || $('.menu-tab'); if (f) f.focus({ preventScroll: true }); }, 60);
+    setTimeout(() => { const f = $('.menu-list .item[aria-current]') || $('.menu .item'); if (f) f.focus({ preventScroll: true }); }, 60);
   }
   function closeMenu(refocus) {
     const m = $('.menu'), b = $('#menuBtn'), sc = $('#menuScrim'); if (!m || !m.classList.contains('is-open')) return;
@@ -991,19 +887,17 @@
       el.setAttribute('aria-label', 'أُنجز ' + AR(n) + ' من ' + AR(t) + ' عنصراً');
     }
     const mc = $('#menuCount'); if (mc) mc.textContent = AR(n) + ' / ' + AR(t);
-    $$('.menu-ses-n').forEach((x) => { const ids = (x.dataset.ids || '').split(',').filter(Boolean); const d = ids.filter((i) => BQ.state.done.has(i)).length; x.textContent = AR(d) + ' / ' + AR(ids.length); x.classList.toggle('is-full', d === ids.length); });
     updateResume();
   }
-  /** وجهة «تابِعْ»: آخر عنصر لم يكتمل، أو ما بعده في المسار، أو أوّل الجلسة التالية */
+  /** وجهة «تابِعْ»: آخر عنصر لم يكتمل، أو ما بعده في المسار */
   function resumeTarget() {
     const p = BQ.path(); const last = store.get('last', null);
     if (!last || typeof last !== 'object') return p.length ? { id: p[0].id, pos: 0, fresh: true } : null;
-    if (last.end) { const n = nextFrom('end-' + last.end, last.pos); return n.id === 'plan' ? { id: 'EL16', pos: -1 } : n; }
+    if (last.end) return p.length ? { id: p[0].id, pos: 0 } : null; // سجلّ قديم من «نهاية الجلسة»
     if (!BQ.meta(last.id)) return { id: p[0].id, pos: 0, fresh: true };
     if (!BQ.state.done.has(last.id)) return { id: last.id, pos: posOf(last.id, last.pos) };
-    let n = nextFrom(last.id, posOf(last.id, last.pos));
-    if (/^end-/.test(n.id)) n = nextFrom(n.id, n.pos);
-    return n.id === 'plan' ? { id: 'EL16', pos: -1 } : n;
+    const n = nextFrom(last.id, posOf(last.id, last.pos));
+    return n.id === 'plan' ? { id: 'EL16', pos: posOf('EL16') } : n;
   }
   function updateResume() {
     const r = resumeTarget(); const b = $('#resumeBtn'); const hs = $('#hdrStart');
@@ -1019,7 +913,7 @@
   }
   function resume() { const r = resumeTarget(); if (!r) return; A.unlock(); BQ.open(r.id, { pos: r.pos, src: 'next' }); }
 
-  /* ---------- القائمة: «العناصر ١–١٦» (افتراضيّ) + «حسب الجلسات» ---------- */
+  /* ---------- القائمة: قائمة واحدة ١–١٦ (v0-12: لا عرض بالجلسات) ---------- */
   function itemBtn(e, pos, extra) {
     const b = h('button.item' + (BQ.state.done.has(e.id) ? '.is-done' : '') + (extra || ''), { type: 'button', dataset: { id: e.id }, onclick: () => {
       closeMenu();
@@ -1038,34 +932,10 @@
     const menu = $('#menu'); if (!menu) return;
     menu.replaceChildren();
     D.elements.slice().sort((a, b) => a.menu - b.menu).forEach((e) => menu.append(h('li', null, itemBtn(e))));
-    const ses = $('#menuSes'); if (!ses) return;
-    ses.replaceChildren();
-    const p = BQ.path(); const age = BQ.state.age; const skip = new Set((D.skip_by_age || {})[age] || []);
-    const keys = ((D.path_by_age || {})[age] || []).concat(['D']);
-    keys.forEach((k) => {
-      const S = SES[k]; if (!S) return;
-      const g = h('li.menu-ses' + (S.later ? '.is-later' : ''));
-      g.append(h('div.menu-ses-h', null, h('span.menu-ses-b', { 'aria-hidden': 'true' }, S.label), h('span.menu-ses-l', null, 'الجلسة ' + S.label + (S.later ? ' · يوم لاحق' : '')), h('span.menu-ses-t', null, S.time), h('span.menu-ses-n', { dataset: { ids: S.ids.join(',') } })));
-      const ul = h('ul');
-      S.ids.forEach((id) => {
-        const e = BQ.meta(id); if (!e) return;
-        const pos = skip.has(id) ? null : p.findIndex((q, j) => q.id === id && q.s === k);
-        const b = itemBtn(e, pos != null && pos >= 0 ? pos : null, skip.has(id) ? '.is-opt' : '');
-        if (skip.has(id)) b.querySelector('.name').append(h('small', null, 'اختياريّ'));
-        if (id === 'EL11' && k !== p.find((q) => q.id === 'EL11').s) b.querySelector('.name').append(h('small', null, 'جولة ٢'));
-        ul.append(h('li', null, b));
-      });
-      g.append(ul); ses.append(g);
-    });
     updateProgress();
     markMenu(BQ.state.current, BQ.state.seqPos);
   }
-  function setMenuView(v) {
-    const list = $('#menu'), ses = $('#menuSes'); if (!list || !ses) return;
-    list.hidden = v === 'ses'; ses.hidden = v !== 'ses';
-    $$('.menu-tab').forEach((t) => t.setAttribute('aria-pressed', String(t.dataset.view === v)));
-    store.set('menuView', v);
-  }
+
 
   /* ---------- العمر ---------- */
   function applyAge(a, silent) {
@@ -1105,23 +975,20 @@
     BQ.state.done = new Set(Array.isArray(d) ? d.filter((x) => typeof x === 'string' && BQ.meta(x)) : []);
     const a = store.get('age', '4-6');
     applyAge(AGES.includes(a) ? a : '4-6', true);
-    const mv = store.get('menuView', 'list');
-    setMenuView(mv === 'ses' ? 'ses' : 'list');
-    $$('.menu-tab').forEach((t) => t.addEventListener('click', () => setMenuView(t.dataset.view)));
     const hs = $('#hdrStart'); if (hs) hs.addEventListener('click', resume);
     const rb = $('#resumeBtn'); if (rb) rb.addEventListener('click', resume);
     const nt = $('#navToggle'); if (nt) nt.addEventListener('click', () => { const n = $('.header .nav'); const on = !n.classList.contains('is-open'); n.classList.toggle('is-open', on); nt.setAttribute('aria-expanded', String(on)); });
     window.addEventListener('popstate', (e) => {
       const k = location.hash.slice(1); const st = e.state || {};
-      if (k === 'plan' || BQ.meta(k) || /^end-/.test(k)) BQ.open(k, { pos: st.pos, history: 'none', src: 'history' });
+      if (k === 'plan' || BQ.meta(k)) BQ.open(k, { pos: st.pos, history: 'none', src: 'history' });
     });
     window.addEventListener('hashchange', () => {
       const k = location.hash.slice(1);
-      if (k !== BQ.state.current && (k === 'plan' || BQ.meta(k) || /^end-(A|B|C|C1|C2)$/.test(k))) BQ.open(k, { history: 'replace', src: 'history' });
+      if (k !== BQ.state.current && (k === 'plan' || BQ.meta(k))) BQ.open(k, { history: 'replace', src: 'history' });
     });
     $('#planBtn').addEventListener('click', (e) => { e.preventDefault(); closeAdultPop(); BQ.open('plan'); });
     const hl = $('#homeLink'); if (hl) hl.addEventListener('click', (e) => { e.preventDefault(); if (BQ.state.current === 'plan') BQ.open(lastEl || BQ.path()[0].id); else toTop(); });
-    // «العناصر» (درج) و«للكبير» (قائمة منبثقة)
+    // «العناصر» (درج) و«للمعلّم» (قائمة منبثقة)
     const mb = $('#menuBtn'); if (mb) mb.addEventListener('click', () => ($('.menu').classList.contains('is-open') ? closeMenu(true) : openMenu()));
     const mx = $('#menuClose'); if (mx) mx.addEventListener('click', () => closeMenu(true));
     const ms = $('#menuScrim'); if (ms) ms.addEventListener('click', () => closeMenu(true));
@@ -1150,7 +1017,6 @@
     const hsh = location.hash.slice(1);
     const lp = store.get('last', null);
     if (hsh === 'plan') BQ.open('plan', { src: 'boot' });
-    else if (/^end-/.test(hsh) && SES[hsh.slice(4)]) BQ.open(hsh, { src: 'boot' });
     else if (BQ.meta(hsh)) BQ.open(hsh, { src: 'boot', pos: lp && lp.id === hsh ? lp.pos : undefined });
     else { const r = resumeTarget() || { id: BQ.path()[0].id, pos: 0 }; BQ.open(r.id, { src: 'boot', pos: r.pos }); }
     window.addEventListener('keydown', (e) => {

@@ -89,8 +89,44 @@
    "capTop": true
   }
  ],
- "sfx": [],
- "source": "v0-12 re-edit (video_src/build_v12.py): accepted Grok clips M-11…M-17 (v5/anim) + clean segments of GROK_CLIPS; M-11 lips driven frame-by-frame by the line audio",
+ "sfx": [
+  {
+   "id": "bariq_L1-01_sfx-water-pour-1s",
+   "t": 18.757,
+   "end": 19.817
+  },
+  {
+   "id": "bariq_L1-01_sfx-water-pour-1s",
+   "t": 19.707,
+   "end": 20.767
+  },
+  {
+   "id": "bariq_L1-01_sfx-water-pour-1s",
+   "t": 20.657,
+   "end": 21.717
+  },
+  {
+   "id": "bariq_L1-01_sfx-water-pour-1s",
+   "t": 21.607,
+   "end": 22.667
+  },
+  {
+   "id": "bariq_L1-01_sfx-water-pour-1s",
+   "t": 22.557,
+   "end": 23.617
+  },
+  {
+   "id": "bariq_L1-01_sfx-water-pour-1s",
+   "t": 23.507,
+   "end": 24.567
+  },
+  {
+   "id": "bariq_L1-01_sfx-water-pour-1s",
+   "t": 24.457,
+   "end": 25.157
+  }
+ ],
+ "source": "v0-13 (video_src/build_v13.py): v0-12 cut + Saif mouth close-ups = GPT viseme stills (V0–V5, pixel-registered) driven per frame by the audio (hum → lips pressed; vowel → open with 1–2 frame anticipation; hamza → open at the stop)",
  "edl": [
   {
    "t": 0.0,
@@ -101,8 +137,8 @@
   {
    "t": 3.378,
    "d": 4.25,
-   "clip": "M-11 lips",
-   "note": "M-11 مقودة بالصوت: «مْـ… مْـ…» مطبقة ثم «الميمُ في الفم!»"
+   "clip": "visemes",
+   "note": "فيزيمات GPT مقودة بالصوت: «مْـ… مْـ…» مطبقة ثم «الميمُ في الفم!»"
   },
   {
    "t": 7.618,
@@ -113,13 +149,13 @@
   {
    "t": 9.875,
    "d": 3.0833,
-   "clip": "M-11 lips",
+   "clip": "visemes",
    "note": "الشفتان مطبقتان — وقفة «قل» (الإطار المجمّد = شفتان مطبقتان)"
   },
   {
    "t": 12.975,
    "d": 3.3333,
-   "clip": "M-11 | 102-04b 0–2.55",
+   "clip": "visemes | 102-04b 0–2.55",
    "note": "شاشة مقسومة: شفتا سيف تقولان «هذه الميم: م.» | بارق مطبق + «م»"
   },
   {
@@ -137,7 +173,7 @@
   {
    "t": 25.157,
    "d": 5.5833,
-   "clip": "M-11 | 101-22a",
+   "clip": "visemes | 101-22a",
    "note": "شاشة مقسومة: شفتا سيف «ماءْ.» «مْـ… ماءْ.» | الماء في الصحن + «ماءْ» (بديل 102-09 بارق يصفّق بفم مفتوح بلا صوت)"
   }
  ],
@@ -158,5 +194,7 @@
    "t1": 30.752
   }
  ],
- "qa_v012": "v5/video/LIPSYNC_QA.md · v5/video/SHOT_AUDIT.md"
+ "qa_v012": "v5/video/LIPSYNC_QA.md · v5/video/SHOT_AUDIT.md",
+ "qa_v013": "v5/articulation/AV_SYNC_QA.md · v5/articulation/PHONETICS.md",
+ "status": "draft_unapproved"
 }

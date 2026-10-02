@@ -280,7 +280,7 @@ ${SC} button:focus-visible { outline: 4px solid var(--navy); outline-offset: 3px
       return { stop() { S.cancel(t); } };
     };
 
-    /** قسم أدوات الكبير يُلحق باللوحة الافتراضية (لا يستبدلها) */
+    /** قسم أدوات المعلّم يُلحق باللوحة الافتراضية (لا يستبدلها) */
     S.adultBox = function (title) {
       const panel = frame.querySelector('.bq-adult');
       const box = h('div.mk-adult', null, title ? h('h4', null, title) : null);
@@ -288,7 +288,7 @@ ${SC} button:focus-visible { outline: 4px solid var(--navy); outline-offset: 3px
       if (metaSec) panel.insertBefore(box, metaSec); else panel.append(box);
       return box;
     };
-    /** سجلّ مطويّ داخل أدوات الكبير (تفاصيل للمراجِع) */
+    /** سجلّ مطويّ داخل أدوات المعلّم (تفاصيل للمراجِع) */
     S.adultLog = function (box, summary, empty) {
       const p = h('p.log', null, empty || '');
       const metaEl = frame.querySelector('.elp-meta-el'); // المحرّك: قسم «ملاحظات المراجِع» المطويّ
@@ -334,7 +334,7 @@ ${SC} button:focus-visible { outline: 4px solid var(--navy); outline-offset: 3px
         S.cur = {
           R, wrap,
           replay() { if (phase !== 'await') return false; R.replays++; S.log.replays++; auto.stop(); cfg.stim(); return true; },
-          hide2() { // تلميح ٢ (من لوحة الكبير): إخفاء بديل غير صحيح — مساعدة
+          hide2() { // تلميح ٢ (من لوحة المعلّم): إخفاء بديل غير صحيح — مساعدة
             if (phase === 'done') return false;
             const vis = wrap.btns.filter((b) => !b.classList.contains('is-hidden'));
             const w = vis.filter((b) => b.dataset.id !== cfg.key);
@@ -389,7 +389,7 @@ ${SC} button:focus-visible { outline: 4px solid var(--navy); outline-offset: 3px
   return { v: 4, session, arrange, css, CMP_SVG, SC, AR };
 })());
 /* EL13 «تدرّب» — L1-01-AS-gme-001 · audio_match · المرصود الوحيد في الدرس.
-   v0-8: الجولة التي ساعد فيها الكبير (تلميح ٢ · «بمساعدة» · إظهار الجواب) لا تُحتسب «من أوّل مرّة» أبداً (QA-01)؛ لا رقم على شاشة الطفل.
+   v0-8: الجولة التي ساعد فيها المعلّم (تلميح ٢ · «بمساعدة» · إظهار الجواب) لا تُحتسب «من أوّل مرّة» أبداً (QA-01)؛ لا رقم على شاشة الطفل.
    ٥ جولات (محاولتان) ← جولة قراءة r1 غير مرصودة ← (إن < ٤ من ٥: ins-listen + إعادة واحدة بلقطات _b بدرجة منفصلة)
    ← «راجِعْ» للبنود التي لم تُصَب من المحاولة الأولى (غير محتسبة) ← «الميمُ في الماءِ!».
    البنود منسوخة من DIGITAL/games.json (gme-001 · items + items_alt_set من بيانات Godot) — لا يحمّل المتصفّح games.json. */
@@ -436,9 +436,9 @@ ${SC} .e13-close img { width: clamp(120px, 30cqi, 260px); aspect-ratio: 1; objec
     let firstDemo = true;
     let listenBtn = null, beads = null, hintEl = null;
 
-    /* ---- دليل الكبير: السطر المثبّت · تلميح ٢ · «بمساعدة» · النتيجة · السجلّ المطويّ ---- */
+    /* ---- دليل المعلّم: السطر المثبّت · تلميح ٢ · «بمساعدة» · النتيجة · السجلّ المطويّ ---- */
     const firstOK = (R) => R.first && !R.assisted; // «من أوّل مرّة» بلا أيّ مساعدة
-    const box = S.adultBox('أدوات الكبير · نشاط مرصود');
+    const box = S.adultBox('أدوات المعلّم · نشاط مرصود');
     S.adultPin(box);
     const b2 = h('button', { type: 'button', onclick: () => { if (S.cur && S.cur.hide2()) note('تلميح ٢: أُخفي بديل غير صحيح — سُجّلت الجولة «بمساعدة» ولا تُحتسب من أوّل مرّة.'); } }, 'تلميح ٢: أَخْفِ بديلاً');
     const bA = h('button', { type: 'button', onclick: () => { if (S.cur) { S.cur.assist(); note('سُجّلت هذه الجولة «بمساعدة» (قلتَ الكلمة أو أريتَه فمك) ولا تُحتسب من أوّل مرّة.'); } } }, 'سجّل «بمساعدة»');
@@ -600,21 +600,21 @@ ${SC} .e13-close img { width: clamp(120px, 30cqi, 260px); aspect-ratio: 1; objec
       if (BQ.ui.supportCard) return BQ.ui.supportCard();
       const go = (id, label) => h('button.bq-btn.ghost', { type: 'button', onclick: () => BQ.open(id, { src: 'menu' }) }, label);
       return h('div.bq-support', null,
-        h('p', null, h('b', null, 'يحتاج طفلك دعماً قبل «اقرأ»: '), 'أعيدا هذه الأنشطة في جلسة قصيرة، ثم «تدرّب» مرّة أخرى في يوم لاحق.'),
+        h('p', null, h('b', null, 'يحتاج الطفل دعماً قبل «اقرأ»: '), 'أعيدا هذه الأنشطة في جلسة قصيرة، ثم «تدرّب» مرّة أخرى في يوم لاحق.'),
         h('div', null, go('EL02', 'شاهد وتعلّم · الجزء ١'), go('EL04', 'مفرداتي'), go('EL03', 'لاحظ وتعلّم')));
     }
-    /** النتيجة للكبير وحده (في الدليل)؛ شاشة الطفل «أَحْسَنْتَ!» بلا رقم */
+    /** النتيجة للمعلّم وحده (في الدليل)؛ شاشة الطفل «أَحْسَنْتَ!» بلا رقم */
     function finish(score1, scoreB) {
       const cnt = (rs) => ({ first: rs.filter(firstOK).length, second: rs.filter((R) => R.second).length, shown: rs.filter((R) => R.shown).length, assisted: rs.filter((R) => R.assisted && !R.shown).length });
       const a = cnt(sets.main);
       const n = MK.AR;
       // الفاصل «،» لا «·» — النقطة الوسطى تُلتبس بالصفر العربيّ «٠»
-      const lines = [`الجولات الخمس: من أوّل مرّة بلا مساعدة ${n(a.first)} من ٥، وبعد إعادة ${n(a.second)}، وبمساعدة الكبير ${n(a.assisted)}، وأُظهر الجواب في ${n(a.shown)}.`];
+      const lines = [`الجولات الخمس: من أوّل مرّة بلا مساعدة ${n(a.first)} من ٥، وبعد إعادة ${n(a.second)}، وبمساعدة المعلّم ${n(a.assisted)}، وأُظهر الجواب في ${n(a.shown)}.`];
       if (sets.alt) { const b = cnt(sets.alt); lines.push(`الإعادة بتسجيل آخر (درجة منفصلة): من أوّل مرّة بلا مساعدة ${n(b.first)} من ٥، وبعد إعادة ${n(b.second)}، وبمساعدة ${n(b.assisted)}، وأُظهر الجواب في ${n(b.shown)}.`); }
       const mastery = score1 >= 4 ? 'بلغ العتبة: ٤ من ٥ فأكثر من أوّل مرّة بلا مساعدة.' : scoreB != null && scoreB >= 4 ? 'لم يبلغ العتبة في الجولات الخمس، وبلغها في الإعادة بتسجيل آخر (تُسجَّل الدرجتان منفصلتين).' : 'لم يبلغ العتبة بعد — أعيدا «تدرّب» في جلسة لاحقة.';
       resEl.hidden = false;
       const support = score1 < 4 && scoreB != null && scoreB < 4; // الجولتان دون العتبة ← بطاقة الدعم نفسها في نسخة اللعبة
-      resEl.innerHTML = '<b>النتيجة (للكبير وحده) — يربط «مْـ»/«ماءْ» بصورته ويميّز مصادر الأصوات:</b><br>' + mastery + '<br>' + lines.join('<br>') + '<br>أعاد الصوت ' + n(S.log.replays) + ' مرّة.';
+      resEl.innerHTML = '<b>النتيجة (للمعلّم وحده) — يربط «مْـ»/«ماءْ» بصورته ويميّز مصادر الأصوات:</b><br>' + mastery + '<br>' + lines.join('<br>') + '<br>أعاد الصوت ' + n(S.log.replays) + ' مرّة.';
       if (support) resEl.after(supportCard());
       note(null);
       ctx.done();
@@ -624,10 +624,10 @@ ${SC} .e13-close img { width: clamp(120px, 30cqi, 260px); aspect-ratio: 1; objec
     flow();
   }
 
-  // لعبة «رحلة الميم» · محطّة listen (المرصودة) هي التجربة الأساسية؛ هذه النسخة HTML بديل آليّ أو برابط الكبير.
-  // بعد انتهاء المحطّة: ورقة ختام «أَحْسَنْتَ!» بلا رقم — النتيجة في دليل الكبير (يملؤها godot.js).
+  // لعبة «رحلة الميم» · محطّة listen (المرصودة) هي التجربة الأساسية؛ هذه النسخة HTML بديل آليّ أو برابط المعلّم.
+  // بعد انتهاء المحطّة: ورقة ختام «أَحْسَنْتَ!» بلا رقم — النتيجة في دليل المعلّم (يملؤها godot.js).
   BQ.register('EL13', {
-    cover: 'يسمع طفلك صوتاً فيلمس صورته — خمس جولات، وهذا النشاط الوحيد المرصود.',
+    cover: 'يسمع الطفل صوتاً فيلمس صورته — خمس جولات، وهذا النشاط الوحيد المرصود.',
     render: BQ.ui.godotRender ? BQ.ui.godotRender('listen', render, { name: 'تدرّب', title: 'تدرّب', after(c, result, stage) { c.done(); BQ.ui.endCard(stage || c.stage, { title: 'أَحْسَنْتَ!', onReplay: () => BQ.open('EL13', { skipCover: true }) }); } }) : render,
   });
 })();

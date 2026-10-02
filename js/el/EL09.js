@@ -151,7 +151,7 @@ ${SC} .k9-foot { display: grid; place-items: center; min-height: 54px; }
   }
 
   BQ.register(ID, {
-    cover: 'يسمع طفلك «لعبة الأصوات» ويرتّب ما سمع، ثم يميّز: صوت واحد أم صوتان؟',
+    cover: 'يسمع الطفل «لعبة الأصوات» ويرتّب ما سمع، ثم يميّز: صوت واحد أم صوتان؟',
     render(stage, ctx) {
       const S = K.session(ctx);
       const age = ctx.age();
@@ -180,7 +180,7 @@ ${SC} .k9-foot { display: grid; place-items: center; min-height: 54px; }
         main: extra,
         meta: () => '<p><b>هدف العنصر:</b> مسموع جديد «لعبة الأصوات»: يتوقّع الطفل قبل السماع، ويستنتج مَن هناك في الوقفة، ثم يرتّب الصور بترتيب ما سمع. بعدها لعبة «سَمِعْتُ فَرْقاً!»: صوتان، أهما صوت واحد أم صوتان مختلفان؟ وفي «المختلفين» كلام مع كلام، وضجّة مع ضجّة.</p>' +
           '<p><b>العمر ' + K.ageName(age) + ':</b> ' + K.ageText(BQ.meta(ID), age, AGES) + '</p>' +
-          '<p>غير مرصود · لا مؤقّت · السجلّ للكبير وحده:</p>' + recordHtml(),
+          '<p>غير مرصود · لا مؤقّت · السجلّ للمعلّم وحده:</p>' + recordHtml(),
       });
       const upd = () => K.meta(ctx);
 

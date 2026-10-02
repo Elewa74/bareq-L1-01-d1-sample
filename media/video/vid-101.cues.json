@@ -5,7 +5,7 @@
  "duration": 107.542,
  "song": false,
  "bpm": null,
- "source": "v0-12 re-edit (video_src/build_v12.py): accepted Grok clips M-11…M-17 (v5/anim) + clean segments of GROK_CLIPS; M-11 lips driven frame-by-frame by the line audio",
+ "source": "v0-13 (video_src/build_v13.py): v0-12 cut + Saif mouth close-ups = GPT viseme stills (V0–V5, pixel-registered) driven per frame by the audio (hum → lips pressed; vowel → open with 1–2 frame anticipation; hamza → open at the stop)",
  "voices": "placeholder — re-run video_src/build101.py after re-recording",
  "scenes": [
   {
@@ -99,9 +99,11 @@
   },
   {
    "id": "bariq_L1-01_intro-1_02_ar",
-   "t": 21.833,
+   "t": 21.913,
    "end": 23.86,
-   "sp": "SAY"
+   "sp": "SAY",
+   "audio_t": 21.833,
+   "caption_fix_v013": "caption started >100 ms before the speech onset (file lead-in silence); audio placement unchanged (audio_t)"
   },
   {
    "id": "bariq_L1-01_d1-scr02_01_ar",
@@ -207,15 +209,19 @@
   },
   {
    "id": "L1-01_d1_s1_01",
-   "t": 91.691,
+   "t": 91.811,
    "end": 93.304,
-   "sp": "BRQ"
+   "sp": "BRQ",
+   "audio_t": 91.691,
+   "caption_fix_v013": "caption started >100 ms before the speech onset (file lead-in silence); audio placement unchanged (audio_t)"
   },
   {
    "id": "L1-01_d1_s1_01",
-   "t": 96.058,
+   "t": 96.178,
    "end": 97.671,
-   "sp": "BRQ"
+   "sp": "BRQ",
+   "audio_t": 96.058,
+   "caption_fix_v013": "caption started >100 ms before the speech onset (file lead-in silence); audio placement unchanged (audio_t)"
   },
   {
    "id": "bariq_L1-01_ins-say_ar",
@@ -243,13 +249,13 @@
   },
   {
    "id": "bariq_L1-01_sfx-door-knock",
-   "t": 19.905,
-   "end": 20.725
+   "t": 19.85,
+   "end": 20.17
   },
   {
    "id": "bariq_L1-01_sfx-door-knock-b",
-   "t": 20.625,
-   "end": 20.945
+   "t": 20.558,
+   "end": 20.878
   },
   {
    "id": "bariq_L1-01_sfx-compass",
@@ -263,13 +269,43 @@
   },
   {
    "id": "bariq_L1-01_sfx-water-pour-1s",
-   "t": 32.842,
-   "end": 33.902
+   "t": 32.542,
+   "end": 33.602
   },
   {
-   "id": "bariq_L1-01_sfx-water-drops",
+   "id": "bariq_L1-01_sfx-water-pour-1s",
+   "t": 33.492,
+   "end": 34.552
+  },
+  {
+   "id": "bariq_L1-01_sfx-water-pour-1s",
+   "t": 34.442,
+   "end": 35.502
+  },
+  {
+   "id": "bariq_L1-01_sfx-water-pour-1s",
+   "t": 35.292,
+   "end": 36.352
+  },
+  {
+   "id": "bariq_L1-01_sfx-water-pour-1s",
    "t": 36.292,
-   "end": 38.292
+   "end": 37.352
+  },
+  {
+   "id": "bariq_L1-01_sfx-water-pour-1s",
+   "t": 37.242,
+   "end": 38.302
+  },
+  {
+   "id": "bariq_L1-01_sfx-water-pour-1s",
+   "t": 38.192,
+   "end": 39.252
+  },
+  {
+   "id": "bariq_L1-01_sfx-water-pour-1s",
+   "t": 39.142,
+   "end": 40.202
   },
   {
    "id": "bariq_L1-01_sfx-water-pour-1s",
@@ -277,9 +313,19 @@
    "end": 75.185
   },
   {
+   "id": "bariq_L1-01_sfx-water-pour-1s",
+   "t": 75.125,
+   "end": 76.185
+  },
+  {
    "id": "bariq_L1-01_sfx-door-knock",
    "t": 75.335,
    "end": 76.155
+  },
+  {
+   "id": "bariq_L1-01_sfx-door-knock-b",
+   "t": 76.163,
+   "end": 76.483
   },
   {
    "id": "bariq_L1-01_sfx-water-pour-1s",
@@ -287,9 +333,19 @@
    "end": 89.393
   },
   {
+   "id": "bariq_L1-01_sfx-water-pour-1s",
+   "t": 89.333,
+   "end": 90.393
+  },
+  {
    "id": "bariq_L1-01_sfx-door-knock",
    "t": 89.543,
    "end": 90.363
+  },
+  {
+   "id": "bariq_L1-01_sfx-door-knock-b",
+   "t": 90.371,
+   "end": 90.691
   },
   {
    "id": "bariq_L1-01_sfx-water-drops",
@@ -389,8 +445,8 @@
   {
    "t": 40.167,
    "d": 9.4167,
-   "clip": "M-11 lips",
-   "note": "M-11 مقودة بالصوت: «ماءٌ ×3» ثم «مْـ… مْـ… ماءٌ!» — مطبقة طوال الهمهمتين، تنفتح عند الصائت (بديل 101-14 الماء من اليد + 101-15)"
+   "clip": "visemes",
+   "note": "فيزيمات GPT مقودة بالصوت: «ماءٌ ×3» ثم «مْـ… مْـ… ماءٌ!» — مطبقة طوال الهمهمتين، تنفتح عند الصائت (بديل 101-14 الماء من اليد + 101-15)"
   },
   {
    "t": 49.583,
@@ -418,9 +474,15 @@
   },
   {
    "t": 62.75,
-   "d": 4.9167,
-   "clip": "M-11 lips",
-   "note": "M-11: «مْـ» ×2 — الشفتان مطبقتان طوال الهمهمتين (بديل 101-20: فم بارق يتحرّك بلا صوت وفم سيف مفتوح مع «مْـ»)"
+   "d": 1.875,
+   "clip": "visemes",
+   "note": "الشفتان مطبقتان طوال «مْـ» الأولى (V1/V1b بالاهتزاز الخفيف)"
+  },
+  {
+   "t": 64.625,
+   "d": 3.0417,
+   "clip": "DIA + code arrow",
+   "note": "مخطّط النطق: الشفتان مطبقتان والصوت/الهواء يخرج من الأنف — سهم متحرّك أثناء «مْـ» الثانية"
   },
   {
    "t": 67.667,
@@ -489,5 +551,7 @@
    "note": "M-17 الوداع (بديل 101-29: أفواه مفتوحة بلا صوت)"
   }
  ],
- "qa_v012": "v5/video/LIPSYNC_QA.md · v5/video/SHOT_AUDIT.md"
+ "qa_v012": "v5/video/LIPSYNC_QA.md · v5/video/SHOT_AUDIT.md",
+ "qa_v013": "v5/articulation/AV_SYNC_QA.md · v5/articulation/PHONETICS.md",
+ "status": "draft_unapproved"
 }
