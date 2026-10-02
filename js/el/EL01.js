@@ -33,6 +33,87 @@ BQ.elGuard = BQ.elGuard || function (el) {
   el.addEventListener('touchmove', noScroll, { passive: false });
   el.addEventListener('contextmenu', (e) => e.preventDefault());
 };
+/* v0-12 r3 — زرّا الحكم ببارق بدل رمزَي الدائرتين/الدائرة والمربّع (المالك: «غير مفهومة»):
+   «صَوْتٌ واحِدٌ» = بارق يصفّق (brq clap) · «سَمِعْتُ فَرْقاً!» = بارق يقفز فاتحاً ذراعيه (brq cheer).
+   كلّ زرّ يتحرّك ويقول عبارته حين يُلمس (بصوت بارق: d1-EL02_01 · d1_s1_01). ساكنان حتى يتكلّما (لا حركة دائمة تشتّت).
+   BQ.elJudge(parent, {onPick(id, btn), speak:true}) → {el, btns, byId(id), lock(v), act(id, {line}) → Promise, reset()}
+   BQ.elJudge.evidence(parent, imgA, imgB) → دليل بصريّ: صورتا المصدرين جنباً إلى جنب (الصورة نفسها مرّتين = صوت واحد). */
+BQ.elJudge = BQ.elJudge || (function () {
+  const h = BQ.h;
+  const DEF = {
+    same: { pose: 'clap', line: 'bariq_L1-01_d1-EL02_01_ar', label: 'صَوْتٌ واحِدٌ', aria: 'صَوْتٌ واحِدٌ — بارِقٌ يُصَفِّقُ' },
+    diff: { pose: 'cheer', line: 'L1-01_d1_s1_01', label: 'سَمِعْتُ فَرْقاً!', aria: 'سَمِعْتُ فَرْقاً — بارِقٌ يَقْفِزُ' },
+  };
+  const CSS = `
+.bq-judge { display: flex; justify-content: center; align-items: stretch; gap: clamp(14px, 4cqi, 36px); flex-wrap: nowrap; padding-top: clamp(18px, 4cqi, 34px); } /* ذراعا بارق تعلوان الزرّ */
+.bq-judge-b { position: relative; width: clamp(128px, 30cqi, 230px); max-width: max(120px, calc(var(--play-h, 700px) - 360px)); display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 8px 8px 10px; border-radius: 26px; border: 4px solid var(--white); background: linear-gradient(180deg, var(--white), var(--sky-wash)); cursor: pointer;
+  box-shadow: 0 6px 0 var(--sky-line), 0 12px 24px var(--shade); transition: transform .2s ease-out, box-shadow .25s, opacity .3s, filter .3s;
+  touch-action: manipulation; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.bq-judge-b[data-id="diff"] { background: linear-gradient(180deg, var(--white), var(--sun-soft)); }
+.bq-judge-b .bq-brq { width: 100%; }
+.bq-judge-l { font: 700 clamp(17px, 2.6cqi, 24px)/1.35 var(--ff-child); color: var(--navy); white-space: nowrap; }
+.bq-judge-b:focus-visible { outline: 4px solid var(--navy); outline-offset: 4px; }
+.bq-judge-b:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--sky-line), 0 6px 14px var(--shade); }
+.bq-judge-b.is-act { transform: translateY(-6px) scale(1.04); box-shadow: 0 0 0 6px var(--sun-soft), 0 16px 30px var(--shade); }
+.bq-judge-b.is-picked { box-shadow: 0 0 0 5px var(--navy), 0 12px 24px var(--shade); }
+.bq-judge-b.is-ok { box-shadow: 0 0 0 6px var(--ok), 0 12px 24px var(--shade); }
+.bq-judge-b.is-dim { opacity: .55; filter: saturate(.6); }
+.bq-judge-b .bq-tick { position: absolute; top: 6px; inset-inline-end: 6px; width: 34px; height: 34px; border-radius: 50%; background: var(--ok); color: var(--white); display: none; place-items: center; padding: 6px; box-sizing: border-box; }
+.bq-judge-b.is-ok .bq-tick { display: grid; }
+.bq-judge.is-locked .bq-judge-b { cursor: default; }
+.bq-judge.is-waiting .bq-judge-b { filter: saturate(.85); }
+@media (hover: hover) { .bq-judge:not(.is-locked) .bq-judge-b:hover { transform: translateY(-4px); } }
+.bq-evid { display: flex; align-items: center; justify-content: center; gap: clamp(10px, 3cqi, 22px); animation: bqPop .35s ease-out; }
+.bq-evid img { width: clamp(78px, 17cqi, 140px); max-width: max(70px, calc((var(--play-h, 700px) - 420px) / 1.2)); aspect-ratio: 1; object-fit: cover; border-radius: 18px; border: 4px solid var(--white); box-shadow: 0 8px 18px var(--shade); }
+.bq-evid i { width: 12px; height: 12px; border-radius: 50%; background: var(--sky-line); flex: none; }
+.bq-evid.same img:last-child { animation: bqEvidSame .7s ease-out; }
+@keyframes bqEvidSame { from { transform: translateX(calc(-1 * clamp(40px, 9cqi, 80px))) scale(.9); opacity: .4; } }
+@container stage (max-width: 560px) { .bq-judge { gap: 10px; } .bq-judge-b { width: calc((100cqi - 30px) / 2); max-width: 180px; } }
+@media (prefers-reduced-motion: reduce) { .bq-judge-b, .bq-judge-b.is-act { transition: none; transform: none; } .bq-evid, .bq-evid.same img:last-child { animation: none; } }`;
+  function judge(parent, opt) {
+    opt = opt || {};
+    if (!document.getElementById('st-el-judge')) document.head.append(h('style', { id: 'st-el-judge' }, CSS));
+    const wrap = h('div.bq-judge', { role: 'group', 'aria-label': 'صَوْتٌ واحِدٌ، أَمْ سَمِعْتَ فَرْقاً؟' });
+    const btns = ['same', 'diff'].map((id) => {
+      const d = DEF[id];
+      const img = h('img', { alt: '', draggable: 'false', decoding: 'async', src: BQ.char.still(d.pose) });
+      const b = h('button.bq-judge-b', { type: 'button', 'aria-label': d.aria, dataset: { id } },
+        h('span.bq-brq', { 'aria-hidden': 'true' }, img), h('span.bq-judge-l', { lang: 'ar' }, d.label), h('span.bq-tick', { 'aria-hidden': 'true', html: BQ.icons.check }));
+      b.pose = (on) => { img.src = on && !BQ.reduced() ? BQ.char.anim(d.pose) : BQ.char.still(d.pose); b.classList.toggle('is-act', !!on); };
+      b.addEventListener('click', () => { if (wrap.classList.contains('is-locked') || b.classList.contains('is-hidden')) return; opt.onPick && opt.onPick(id, b); });
+      return b;
+    });
+    wrap.append(...btns);
+    parent.append(wrap);
+    const api = {
+      el: wrap, btns,
+      byId: (id) => btns.find((b) => b.dataset.id === id),
+      lock(v) { wrap.classList.toggle('is-locked', v !== false); },
+      /** الزرّ يتحرّك ويقول عبارته (line:false = حركة بلا صوت) */
+      async act(id, o) {
+        o = o || {};
+        const b = api.byId(id); if (!b) return;
+        b.pose(true);
+        if (o.line === false) await BQ.sleep(o.ms || 1500);
+        else if (o.play) await o.play(DEF[id].line);
+        else await BQ.audio.play(DEF[id].line);
+        if (b.isConnected) b.pose(false);
+      },
+      reset() { btns.forEach((b) => { b.classList.remove('is-ok', 'is-dim', 'is-picked', 'is-hidden'); b.pose(false); }); },
+    };
+    return api;
+  }
+  judge.DEF = DEF;
+  judge.evidence = function (parent, a, b) {
+    const same = a === b;
+    const el = h('div.bq-evid' + (same ? '.same' : ''), { role: 'img', 'aria-label': same ? 'صَوْتٌ واحِدٌ' : 'صَوْتانِ مُخْتَلِفانِ' },
+      h('img', { src: BQ.img(a), alt: '' }), h('i', { 'aria-hidden': 'true' }), h('img', { src: BQ.img(b), alt: '' }));
+    parent.append(el);
+    return el;
+  };
+  return judge;
+})();
 /* ---- BQ.mk: أدوات مشتركة لعناصر الاستماع EL01 · EL05 · EL13 · EL14 (نسخة واحدة مضمَّنة في كل ملف؛ أوّل ملف يُحمَّل يعرّفها) ----
    v0-8 (WP2): يستعمل عقد المحرّك حين يتوفّر (ctx.alive · BQ.ui.steps) مع بديل محلّيّ مطابق؛ كلّ متابعة غير متزامنة تُحرس بـS.ok().
    · جلسة تتوقّف عند مغادرة العنصر (S.play/S.sleep لا تُكمل بعد الخروج، ولا تتعلّق إذا قُطع الصوت بإعادة).
@@ -422,7 +503,7 @@ ${SC} button:focus-visible { outline: 4px solid var(--navy); outline-offset: 3px
 })());
 /* EL01 «تهيّأ للدرس (الاستدعاء)» — L1-01-AS-gme-006 · غير مرصود.
    §٦ يحكم: محاولة واحدة؛ أيّ لمس ينتهي بسماع صوت المصدر الصحيح وتكبّر صورته — لا حالة خطأ ولا «جرّب مرّة أخرى».
-   البند ١ صبّ الماء ← مصدره · البند ٢ طرقتان ← مصدرهما · البند ٣ صوتان ← ○○/○□ ← «سَمِعْتُ فَرْقاً!» (ماجد ثم بارق).
+   البند ١ صبّ الماء ← مصدره · البند ٢ طرقتان ← مصدرهما · البند ٣ صوتان ← زرّا بارق (يصفّق/يقفز) بعد عرض بارق ← «سَمِعْتُ فَرْقاً!» (ماجد ثم بارق).
    البنود من DIGITAL/games.json (gme-006)؛ لا تُقال «ماء» ولا «باب» هنا. */
 (function () {
   const h = BQ.h;
@@ -447,10 +528,10 @@ ${SC} .bq-choices.icons .bq-ic.big { color: var(--navy); width: 72%; }
 ${SC} .bq-choice.is-picked { transform: translateY(-6px); }
 ${SC} .e01-key { display: flex; gap: clamp(14px, 4cqi, 36px); align-items: center; justify-content: center; }
 ${SC} .e01-key img { width: clamp(110px, 30cqi, 260px); aspect-ratio: 1; object-fit: cover; border-radius: var(--r-lg); border: 4px solid var(--white); box-shadow: 0 12px 28px var(--shade); }
-${SC} .e01-diffic { width: clamp(60px, 12cqi, 110px); height: clamp(30px, 6cqi, 55px); color: var(--navy); flex: none; }
+${SC} .e01-key .e01-brq { width: clamp(90px, 17cqi, 160px); flex: none; }
 @container stage (max-width: 560px) {
   ${SC} .e01-key img { width: 34cqi; }
-  ${SC} .e01-diffic { width: 16cqi; height: 8cqi; }
+  ${SC} .e01-key .e01-brq { width: 22cqi; }
   ${SC} .bq-choices.icons .bq-choice { width: 42cqi; }
 }`;
 
@@ -490,8 +571,10 @@ ${SC} .e01-diffic { width: clamp(60px, 12cqi, 110px); height: clamp(30px, 6cqi, 
         } else row.append(listenBtn);
         S.body.append(row);
         const order = MK.arrange(it.opts, it.key, hist);
-        const items = order.map((id) => (it.pair ? { id, icon: id, aria: id === 'same' ? 'مُتَماثِلانِ' : 'مُخْتَلِفانِ' } : { id, img: id, aria: 'صورة' }));
-        const wrap = BQ.ui.choices(S.body, { items, cls: it.pair ? 'icons' : null, aria: 'صُوَرٌ لِلاخْتِيارِ', onPick });
+        // v0-12 r3: البند ٣ بزرّي بارق (يصفّق «صَوْتٌ واحِدٌ» · يقفز «سَمِعْتُ فَرْقاً!») بدل الرموز الهندسية
+        let J = null, wrap;
+        if (it.pair) { J = BQ.elJudge(S.body, { onPick: (id, b) => onPick({ id }, b) }); wrap = { btns: J.btns, lock: J.lock, classList: J.el.classList }; }
+        else wrap = BQ.ui.choices(S.body, { items: order.map((id) => ({ id, img: id, aria: 'صورة' })), aria: 'صُوَرٌ لِلاخْتِيارِ', onPick });
         wrap.lock(true); wrap.classList.add('is-waiting');
         const R = { item: it.item, first: null, replays: 0, order };
         let phase = 'intro', auto = { stop() {} };
@@ -500,7 +583,18 @@ ${SC} .e01-diffic { width: clamp(60px, 12cqi, 110px); height: clamp(30px, 6cqi, 
         cur = { replay() { if (phase !== 'await') return; R.replays++; auto.stop(); playStim(it, tokens); } };
 
         (async () => {
-          if (it.pair) { ctx.instruction('هَلْ هُما صَوْتٌ واحِدٌ؟'); await S.play('bariq_L1-01_ins-same_ar'); }
+          if (it.pair) {
+            // عرض بارق مرّة واحدة قبل السؤال: صوتان متماثلان ← يصفّق · صوتان مختلفان ← يقفز ويقول «سَمِعْتُ فَرْقاً!» (زوج غير زوج البند)
+            ctx.instruction('هَيّا، أَصْغوا مَعي!');
+            await S.play('bariq_L1-01_ins-listen_ar');
+            await playStim({ stim: [SFX.knock, 'bariq_L1-01_sfx-door-knock-b'] }, tokens);
+            await J.act('same', { play: (id) => S.play(id) });
+            await S.sleep(350);
+            await playStim({ stim: [SFX.compass, SFX.knock] }, tokens);
+            await J.act('diff', { play: (id) => S.play(id) });
+            await S.sleep(400);
+            ctx.instruction('هَلْ هُما صَوْتٌ واحِدٌ؟'); await S.play('bariq_L1-01_ins-same_ar');
+          }
           else { ctx.instruction('أَيْنَ هَذا الصَّوْتُ؟'); await S.play('bariq_L1-01_ins-where_ar'); }
           if (firstDemo) { firstDemo = false; await S.ghost([listenBtn, ...wrap.btns]); } // يد شبحية لا تستقرّ على بطاقة
           await S.sleep(250);
@@ -514,6 +608,12 @@ ${SC} .e01-diffic { width: clamp(60px, 12cqi, 110px); height: clamp(30px, 6cqi, 
           setPhase('fb'); wrap.lock(true); auto.stop();
           R.first = o.id === it.key;
           const good = wrap.btns.find((b) => b.dataset.id === it.key);
+          if (it.pair) { // الزرّ الملموس يتحرّك ويقول عبارته — بلا حكم
+            btn.classList.add('is-picked');
+            await J.act(o.id, { play: (id) => S.play(id) });
+            btn.classList.remove('is-picked');
+            await S.sleep(200);
+          }
           if (!R.first && !it.pair) { // ما لُمس يُسمِع صوته هو — بلا حكم ولا اهتزاز
             btn.classList.add('is-picked');
             await S.play(OWN[o.id], { noCaption: true });
@@ -523,7 +623,12 @@ ${SC} .e01-diffic { width: clamp(60px, 12cqi, 110px); height: clamp(30px, 6cqi, 
           // صوت المصدر الصحيح يُعاد وصورته تكبر ١٠٨٪ (حلقة + ✓ صغيرة)
           wrap.btns.forEach((b) => { if (b !== good) b.classList.add('is-dim'); });
           BQ.ui.ok(good); S.sparkle(good, 6);
-          if (it.pair) { S.contrast(wrap.btns[0], wrap.btns[1]); await playStim(it, tokens); }
+          if (it.pair) {
+            // الدليل: صورتا المصدرين جنباً إلى جنب (ماء · طرق = صوتان مختلفان) مع إعادة الصوتين، ثم يقفز بارق إن لم يكن هو الملموس
+            row.append(BQ.elJudge.evidence(h('div'), W, K));
+            await playStim(it, tokens);
+            if (!R.first) await J.act('diff', { play: (id) => S.play(id) });
+          }
           else { listenBtn.playing(true); await S.play(it.stim[0], { noCaption: true }); listenBtn.playing(false); }
           await S.fly(good, beads.bead(idx)); beads.set(idx, 'on');
           res.push(R); showLog();
@@ -540,7 +645,7 @@ ${SC} .e01-diffic { width: clamp(60px, 12cqi, 110px); height: clamp(30px, 6cqi, 
       // العبارة المحورية: ماجد ثم بارق — «سَمِعْتُ فَرْقاً!»
       S.clear();
       ctx.instruction('سَمِعْتُ فَرْقاً!');
-      const key = h('div.e01-key', { 'aria-hidden': 'true' }, h('img', { src: BQ.img(W), alt: '' }), BQ.icon('diff', 'e01-diffic'), h('img', { src: BQ.img(K), alt: '' }));
+      const key = h('div.e01-key', { 'aria-hidden': 'true' }, h('img', { src: BQ.img(W), alt: '' }), BQ.ui.brq ? BQ.ui.brq('cheer', 'e01-brq') : h('span'), h('img', { src: BQ.img(K), alt: '' }));
       S.body.append(key);
       await S.play('bariq_L1-01_key_ar');
       await S.sleep(250);

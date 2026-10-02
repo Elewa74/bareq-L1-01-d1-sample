@@ -544,7 +544,7 @@ ${S} .bq-adult .t8-rec .bq-btn { font-size: 15px; min-height: 44px; }
       function finish() {
         gen++; clearTimers(); BQ.audio.stop(); noteAdult(false);
         ctx.done();
-        BQ.ui.endCard(stage, { title: 'أَحْسَنْتَ!', note: 'للمعلّم: كلّ جواب مقبول؛ أسئلة «لماذا؟» في دليل المعلّم.', onReplay: () => go(0) });
+        BQ.ui.endCard(stage, { title: 'أَحْسَنْتَ!', onReplay: () => go(0) });
       }
       go(0);
     },

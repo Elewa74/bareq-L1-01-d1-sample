@@ -121,7 +121,7 @@
         await BQ.ui.bariq(stage, 'bariq_L1-01_d1-FB_03_ar');
         if (!G.alive()) return;
         ctx.done();
-        BQ.ui.endCard(stage, { title: 'أَحْسَنْتَ!', note: 'للمعلّم: رأى الصوت في الفم، ولمس الحرف، وتتبّعه مرّة. التتبّع الكامل في «اكتب».', onReplay: () => BQ.open('EL03', { skipCover: true }) });
+        BQ.ui.endCard(stage, { title: 'أَحْسَنْتَ!', onReplay: () => BQ.open('EL03', { skipCover: true }) });
       },
     });
     guide = h('span', { 'aria-hidden': 'true', html:

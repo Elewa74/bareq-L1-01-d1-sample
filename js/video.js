@@ -681,31 +681,8 @@
         } else if (kind === 'phrase') {
           lay.append(h('div.vp-banner', { lang: 'ar' }, o.text || 'سَمِعْتُ فَرْقاً!'));
           await wait(r, o.ms || BQ.silence('say'));
-        } else if (kind === 'judge' || kind === 'stop') {
-          const row = h('div.vp-pick', { role: 'group', 'aria-label': 'صُوَرٌ لِلاخْتِيارِ' });
-          const mk = (id, ic, lab) => h('button', { type: 'button', 'aria-label': lab, dataset: { id } }, BQ.icon(ic), h('span.tick', { 'aria-hidden': 'true', html: BQ.icons.check }));
-          const bs = [mk('same', 'same', 'مُتَماثِلانِ'), mk('diff', 'diff', 'مُخْتَلِفانِ')];
-          let tapRes; const tapped = new Promise((res) => { tapRes = res; });
-          bs.forEach((b) => b.addEventListener('click', () => {
-            bs.forEach((x) => x.classList.toggle('picked', x === b));
-            if (!rm()) b.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.22)', offset: .5 }, { transform: 'scale(1.14)' }], { duration: 220, easing: 'ease-out' });
-            picked = b.dataset.id; o.onPick && o.onPick(picked); tapRes(picked);
-          }));
-          row.append(...bs); lay.append(row);
-          const needGo = kind === 'judge' || (kind === 'stop' && AGE() === '4-6');
-          if (needGo) {
-            let goRes; const went = new Promise((res) => { goRes = res; });
-            const go = h('button.vp-go', { type: 'button', 'aria-label': 'أَكْمِلْ', onclick: () => goRes() }, BQ.icon('play'), 'أَكْمِلْ');
-            lay.append(go);
-            if (kind === 'stop' && o.hint) { const hint = race(r, Promise.race([tapped, wait(r, 3500).then(() => 'none')])).then((v) => { if (v === 'none' && !r.dead) o.hint(); }).catch(() => {}); void hint; }
-            setTimeout(() => { try { (kind === 'judge' ? bs[0] : go).focus({ preventScroll: true }); } catch (e) {} }, 60);
-            await race(r, went);
-          } else {
-            const v = await race(r, Promise.race([tapped, wait(r, o.ms || 2000).then(() => 'none')]));
-            if (v === 'none' && o.hint) { await o.hint(); await race(r, Promise.race([tapped, wait(r, o.ms || 2000)])); }
-            else await wait(r, 450);
-          }
         }
+        // v0-12 r3: لا طبقة «صوت واحد/مختلفان» بالرموز في مشغّل المشاهد أيضاً — يُكمل بلا سؤال.
       } finally { if (lay.parentNode) finish(); }
       return { picked };
     }
@@ -818,7 +795,7 @@
   /* ================================================================================================
      BQ.video.mp4(stage, ctx, o) — المقطع المُصيَّر (MP4) في إطار فيديو المنصّة (خلفية سوداء · تشغيل/إيقاف · تقدّم)
      مع وقفات الدعوة ونقاط اللمس نفسها تقودها ملفّات media/video/<id>.cues.json:
-     عند كلّ وقفة يتوقّف الفيديو، تظهر الطبقة (قُل / ما؟ / ○○ ○□)، ثم يُستأنف من resume بعد فعل الطفل/المعلّم.
+     عند كلّ وقفة يتوقّف الفيديو، تظهر الطبقة (قُل / ما؟)، ثم يُستأنف من resume (وقفات الحكم بلا طبقة منذ v0-12 r3؛ o.noCues يلغي الوقفات كلّها).
      إن تعذّر تحميل الفيديو أو ملفّ الوقفات → o.fallback() (مشغّل المشاهد في الصفحة) تلقائياً.
      o = { id:'vid-102', aria, captions:true|false, adultExtra: () => Node, fallback: () => player }
      يعيد واجهة المشغّل نفسها: { root, done, goto(i), destroy(), scene, ended, pause(), play(), toggle() }
@@ -1094,39 +1071,8 @@
         } else if (c.kind === 'phrase') {
           lay.append(h('div.vp-banner', { lang: 'ar' }, c.text || 'سَمِعْتُ فَرْقاً!'));
           await wait(c.ms || BQ.silence('say'));
-        } else if (c.kind === 'stop' || c.kind === 'judge') {
-          const row = h('div.vp-pick', { role: 'group', 'aria-label': 'صُوَرٌ لِلاخْتِيارِ' });
-          const mk = (id, ic, lab) => h('button', { type: 'button', 'aria-label': lab, dataset: { id } }, BQ.icon(ic), h('span.tick', { 'aria-hidden': 'true', html: BQ.icons.check }));
-          const bs = [mk('same', 'same', 'مُتَماثِلانِ'), mk('diff', 'diff', 'مُخْتَلِفانِ')];
-          let tapRes; const tapped = new Promise((res) => { tapRes = res; });
-          bs.forEach((b) => b.addEventListener('click', () => {
-            bs.forEach((x) => x.classList.toggle('picked', x === b));
-            if (!rm()) b.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.22)', offset: .5 }, { transform: 'scale(1.14)' }], { duration: 220, easing: 'ease-out' });
-            if (o.onPick) o.onPick(b.dataset.id, c);
-            tapRes(b.dataset.id);
-          }));
-          row.append(...bs); lay.append(row);
-          const hint = () => (c.hint ? BQ.audio.fx(c.hint, 0.9).done : Promise.resolve());
-          // وقفة الطرق في الأنشودة: السؤال «هَلْ هُما صَوْتٌ واحِدٌ؟» مرّة واحدة قبل الانتظار (P2-14)
-          if (c.ask) { await guard(BQ.audio.play(c.ask)); }
-          const needGo = c.kind === 'judge' || age === '4-6';
-          if (needGo) {
-            let goRes; const went = new Promise((res) => { goRes = res; });
-            const go = page
-              ? h('button.bq-btn.vp-go2', { type: 'button', onclick: () => goRes() }, 'أَكْمِلْ', BQ.icon('play'))
-              : h('button.vp-go', { type: 'button', 'aria-label': 'أَكْمِلْ', onclick: () => goRes() }, BQ.icon('play'), 'أَكْمِلْ');
-            // v0-12: «أَكْمِلْ» فوق الصورة (زاوية الطرف الأيسر) في الوضعين — لا تحتها، فلا يقع خارج الشاشة ولا يحتاج تمريراً
-            if (page) go.classList.add('vp-go-ov');
-            lay.append(go);
-            if (c.hint) Promise.race([tapped, wait(3500).then(() => 'none')]).then((v) => { if (v === 'none' && inCue === c) hint(); }).catch(() => {});
-            setTimeout(() => { try { go.focus({ preventScroll: true }); } catch (e) {} }, 60);
-            try { await guard(went); } finally { go.remove(); }
-          } else {
-            const v = await Promise.race([guard(tapped), wait(c.ms || 2000).then(() => 'none')]);
-            if (v === 'none' && c.hint) { await guard(hint()); await Promise.race([guard(tapped), wait(c.ms || 2000)]); }
-            else await wait(450);
-          }
         }
+        // v0-12 r3 (المالك: «المقطع مقطع» و«الرموز غير مفهومة»): وقفات judge/stop لا تعرض طبقة أسئلة ولا رموزاً — يُكمل المقطع؛ يوقفه المعلّم إن شاء.
       } catch (e) { if (e !== CANCEL) console.error(e); lay.remove(); return; }
       lay.remove(); dim.classList.remove('on');
       inCue = null;
@@ -1191,6 +1137,7 @@
     fetch(base + '.cues.json').then((r) => { if (!r.ok) throw new Error('cues ' + r.status); return r.json(); }).then((j) => {
       if (!alive || fell) return;
       cues = j; cues.cues = (cues.cues || []).slice().sort((a, b) => a.t - b.t);
+      if (o.noCues) cues.cues = []; // v0-12 r3: «المقطع مقطع» — بلا وقفات ولا طبقات داخل الفيديو (EL02)
       buildScenes(); paint(video.currentTime || 0);
       if (j.src && !video.currentSrc.endsWith(j.src)) { video.src = j.src; video.load(); }
       raf = requestAnimationFrame(tick);

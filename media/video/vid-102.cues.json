@@ -126,7 +126,7 @@
    "end": 25.157
   }
  ],
- "source": "v0-13 (video_src/build_v13.py): v0-12 cut + Saif mouth close-ups = GPT viseme stills (V0–V5, pixel-registered) driven per frame by the audio (hum → lips pressed; vowel → open with 1–2 frame anticipation; hamza → open at the stop)",
+ "source": "v0-14 (video_src/build_v14.py): v0-13 + realistic event chain (REALISM_AUDIT.md) — physically wrong / illogical shots replaced by Grok clips R-01…R-06 from GPT start frames; native 1920×1080; audio, captions, cues and v13 mouth close-ups unchanged",
  "edl": [
   {
    "t": 0.0,
@@ -143,8 +143,8 @@
   {
    "t": 7.618,
    "d": 2.25,
-   "clip": "102-03_r01 0–2.26",
-   "note": "ماجد يدخل ويضع إصبعه على شفتيه «الميم في الفم!»"
+   "clip": "102-03_r01 0.88–2.3",
+   "note": "ماجد (بلا قفزة دخول من خارج الكادر — كان بجانب سيف): إطار ثابت بفم مطبق (0.88) حتى سطره ثم يتكلّم ويضع إصبعه على شفتيه"
   },
   {
    "t": 9.875,
@@ -167,14 +167,14 @@
   {
    "t": 18.757,
    "d": 6.4167,
-   "clip": "102-08_r01 0–6.0",
-   "note": "يد تمسك الجرّة وتصبّ — «هيّا: ما هذا؟» ووقفة «ما؟» (بديل 102-06 الجرّة الطائرة)"
+   "clip": "R-04 0–6.0",
+   "note": "R-04: يدا سيف تصبّان من فوهة الجرّة في الصحن على العتبة — «هيّا: ما هذا؟» ووقفة «ما؟»"
   },
   {
    "t": 25.157,
    "d": 5.5833,
-   "clip": "visemes | 101-22a",
-   "note": "شاشة مقسومة: شفتا سيف «ماءْ.» «مْـ… ماءْ.» | الماء في الصحن + «ماءْ» (بديل 102-09 بارق يصفّق بفم مفتوح بلا صوت)"
+   "clip": "visemes | R-04",
+   "note": "شاشة مقسومة: شفتا سيف «ماءْ.» «مْـ… ماءْ.» | يدا سيف تصبّان في الصحن + «ماءْ»"
   }
  ],
  "overlays": [
@@ -196,5 +196,7 @@
  ],
  "qa_v012": "v5/video/LIPSYNC_QA.md · v5/video/SHOT_AUDIT.md",
  "qa_v013": "v5/articulation/AV_SYNC_QA.md · v5/articulation/PHONETICS.md",
- "status": "draft_unapproved"
+ "status": "draft_unapproved",
+ "qa_v014": "v5/video/REALISM_AUDIT.md · v5/realism/qa/",
+ "resolution": "1920x1080"
 }

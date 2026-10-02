@@ -156,7 +156,7 @@
   function supportCard() {
     const go = (id, label) => h('button.bq-btn.ghost', { type: 'button', onclick: () => BQ.open(id, { src: 'menu' }) }, label);
     return h('div.bq-support', null,
-      h('p', null, h('b', null, 'يحتاج الطفل دعماً قبل «اقرأ»: '), 'أعِد معه هذه الأنشطة في جلسة قصيرة، ثم «تدرّب» مرّة أخرى في يوم لاحق.'),
+      h('p', null, h('b', null, 'يحتاج الطفل دعماً قبل «اقرأ»: '), 'أعِد معه هذه الأنشطة مرّة قصيرة، ثم «تدرّب» مرّة أخرى في يوم لاحق.'),
       h('div', null, go('EL02', 'شاهد وتعلّم · الجزء ١'), go('EL04', 'مفرداتي'), go('EL03', 'لاحظ وتعلّم')));
   }
 

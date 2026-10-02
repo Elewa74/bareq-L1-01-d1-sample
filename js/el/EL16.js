@@ -371,15 +371,22 @@ ${S} .t16-rev .it .bq-listen { width: 56px; border-width: 3px; }
         ctx.onReplay(replay);
         if (it.key === 'C2') main.append(h('span.t16-glyph.t16-in', { role: 'img', 'aria-label': 'حَرْفٌ' }, 'م'));
         else if (!isIcons) main.append(listen);
-        const ch = BQ.ui.choices(main, {
-          cls: isIcons ? 'icons' : null,
+        // v0-12 r3: ت٤ (التمييز) بزرّي بارق بدل الرموز الهندسية — يصفّق «صَوْتٌ واحِدٌ» (img-009) · يقفز «سَمِعْتُ فَرْقاً!» (img-010)؛ الزرّ يقول عبارته ولا حكم
+        const GID = { same: 'img-009', diff: 'img-010' };
+        let J = null;
+        const ch = isIcons
+          ? (J = BQ.elJudge(main, { onPick: (id, b) => onPickC(id, b) }), { btns: J.btns, lock: J.lock, el: J.el })
+          : BQ.ui.choices(main, {
           aria: 'صُوَرٌ لِلاخْتِيارِ',
-          items: order.map((id) => ({ id, img: id, aria: isIcons ? (id === 'img-009' ? 'مُتَماثِلانِ' : 'مُخْتَلِفانِ') : 'صُورَةٌ' })),
-          async onPick(item, btn) {
+          items: order.map((id) => ({ id, img: id, aria: 'صُورَةٌ' })),
+          onPick: (item, btn) => onPickC(item.id, btn) });
+        async function onPickC(pid, btn) {
+            const item = { id: isIcons ? GID[pid] : pid };
             if (r.answered) return;
             ch.lock(); BQ.audio.stop(); clearTimers(); listen.classList.remove('is-playing');
             btn.classList.add('is-picked');
             r.pick = item.id; r.first_attempt = item.id === it.correct;
+            if (J) await J.act(pid, { play: (x) => say(x) }); if (!live()) return; // بارق الملموس يقول عبارته (عبارة الطفل نفسه، لا حكم)
             await answered(k, tick); if (!live()) return;
             panel(k, '<p>إن لم يجب فالمس «التّالي»؛ يُسجَّل البند «لم يُجِب».</p>');
             if (it.key === 'C4') {
@@ -392,11 +399,10 @@ ${S} .t16-rev .it .bq-listen { width: 56px; border-width: 3px; }
               return;
             }
             later(() => nextOf(k)(), 900);
-          },
-        });
+        }
         ch.btns.forEach((b, j) => { b.classList.add('t16-in'); b.style.animationDelay = (0.08 * j) + 's'; });
         if (it.key === 'C2') ch.btns.forEach((b) => b.querySelector('img').setAttribute('alt', ''));
-        if (isIcons) main.insertBefore(listen, ch);
+        if (isIcons) main.insertBefore(listen, ch.el);
         ctx.instruction(it.key === 'C1' ? 'أَيْنَ هَذا الصَّوْتُ؟' : it.key === 'C2' ? 'هَذا الحَرْفُ مَعَ مَنْ؟' : 'هَلْ هُما صَوْتٌ واحِدٌ؟');
         panel(k, '<p>إن لم يجب فالمس «التّالي»؛ يُسجَّل البند «لم يُجِب».</p>');
         advance = () => nextOf(k)(); // الانتقال بلا جواب ← «لم يُجِب»
@@ -566,7 +572,8 @@ ${S} .t16-rev .it .bq-listen { width: 56px; border-width: 3px; }
           const stim = it.key === 'C4' ? ['bariq_L1-01_sfx-water-pour-1s', 'bariq_L1-01_sfx-compass-b'] : STIM[it.key];
           const tile = h('div.bq-choice.is-ok', { style: it.key === 'C4' ? { aspectRatio: '4 / 3', background: 'var(--paper)' } : null },
             it.key === 'C2' ? h('span.bq-glyph', { style: { position: 'absolute', insetInlineStart: '6%', top: '2%', fontSize: 'clamp(26px, 5cqi, 40px)', color: 'var(--coral)' } }, 'م') : null,
-            h('img', { src: BQ.img(it.correct), alt: '', style: it.key === 'C4' ? { objectFit: 'contain', padding: '12%' } : null }),
+            it.key === 'C4' ? h('span.bq-brq', { style: { width: '78%', margin: 'auto' } }, h('img', { src: BQ.char.still('cheer'), alt: '' })) // بارق يقفز = «سَمِعْتُ فَرْقاً!» (لا رمز هندسيّ)
+              : h('img', { src: BQ.img(it.correct), alt: '' }),
             h('span.bq-tick', { 'aria-hidden': 'true', html: BQ.icons.check }));
           its.append(h('div.it', null, tile, h('button.bq-hear.sx-hear', { type: 'button', 'aria-label': 'اسْمَعْ', onclick: async () => { for (const x of stim) { if (typeof x === 'string' && !(await say(x))) break; } } }, BQ.icon('ear'))));
         });
@@ -579,7 +586,7 @@ ${S} .t16-rev .it .bq-listen { width: 56px; border-width: 3px; }
         gen++; clearTimers(); BQ.audio.stop(); advance = null;
         stage.querySelectorAll('.bq-end, .t16-rev').forEach((n) => n.remove());
         ctx.done();
-        BQ.ui.endCard(stage, { title: 'أَحْسَنْتَ!', note: 'للمعلّم: التقرير بالمهارة للمعلّم في الشاشة السابقة.', onReplay: () => { res.forEach((r) => Object.assign(r, blank())); item(0); } });
+        BQ.ui.endCard(stage, { title: 'أَحْسَنْتَ!', onReplay: () => { res.forEach((r) => Object.assign(r, blank())); item(0); } });
       }
       item(0);
     },

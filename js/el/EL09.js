@@ -1,7 +1,7 @@
 /* EL09 · استمع وتعلّم — غير مرصود
    scr00 (gme-114) مسموع جديد «لعبة الأصوات»: قبل (صورة الموقف + الصور الثلاث ٥ ث، توقّع حرّ) · أثناء (صوت فقط: موجة بلا صورة مصدر،
          ووقفة «مَنْ هُناكَ؟» يلمس فيها إطار شخصية) · بعد (يرتّب الصور الثلاث في خانات ● ●● ●●● سحباً أو لمساً متتابعاً).
-   scr01 (gme-102) «سَمِعْتُ فَرْقاً!»: ست جولات (٨ لـ١٠–١٢) صوتان ← متماثلان ○○ / مختلفان ○□ — المثير صوت حقيقيّ والجواب أيقونة بلا كلمة. */
+   scr01 (gme-102) «سَمِعْتُ فَرْقاً!»: ست جولات (٨ لـ١٠–١٢) صوتان ← زرّا بارق: يصفّق «صَوْتٌ واحِدٌ» · يقفز «سَمِعْتُ فَرْقاً!» (v0-12 r3، بعد عرض بارق مرّة) ← صورتا المصدرين دليلاً. */
 (function () {
   'use strict';
   function init() {
@@ -59,10 +59,10 @@ ${SC} .k9-line { position: absolute; inset: 0; width: 100%; height: 100%; pointe
 ${SC} .k9-line path { fill: none; stroke: var(--sun); stroke-width: 6; stroke-dasharray: 3 14; stroke-linecap: round; }
 ${SC} .k9-sd { display: flex; flex-direction: column; align-items: center; gap: clamp(16px, 3cqi, 28px); width: 100%; }
 ${SC} .k9-pair { display: flex; align-items: center; gap: clamp(18px, 5cqi, 48px); }
-${SC} .k9-ring { width: clamp(64px, 12cqi, 104px); aspect-ratio: 1; border-radius: 50%; border: 3px dashed var(--sky-2); background: var(--white); display: grid; place-items: center; color: var(--navy); position: relative; overflow: hidden; transition: transform .9s ease-in-out, border-color .2s, background .2s; }
+${SC} .k9-ring { width: clamp(64px, 12cqi, 104px); aspect-ratio: 1; border-radius: 22px; border: 4px solid var(--white); background: var(--white); display: grid; place-items: center; color: var(--sky-2); position: relative; overflow: hidden; box-shadow: 0 6px 16px var(--shade); transition: transform .4s cubic-bezier(.3,1.2,.5,1), border-color .25s; } /* v0-12 r3: بطاقة صوت (سمّاعة) لا دائرة متقطّعة */
 ${SC} .k9-ring.is-on { border-style: solid; border-color: var(--sun); background: var(--paper); animation: k9Ping .6s ease-out infinite; }
-${SC} .k9-ring svg { width: 60%; height: 60%; opacity: 0; transform: scale(.4); transition: opacity .25s, transform .3s cubic-bezier(.2,1.4,.4,1); }
-${SC} .k9-ring.is-shape svg { opacity: 1; transform: none; }
+${SC} .k9-ring svg { width: 54%; height: 54%; opacity: .7; transition: opacity .25s, transform .3s; }
+${SC} .k9-ring.is-on svg { opacity: 1; transform: scale(1.12); color: var(--navy); }
 ${SC} .k9-ring img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .3s; }
 ${SC} .k9-ring.is-src img { opacity: 1; }
 ${SC} .k9-pair.is-near .k9-ring:first-child { transform: translateX(-3cqi); }
@@ -400,15 +400,16 @@ ${SC} .k9-foot { display: grid; place-items: center; min-height: 54px; }
 
       /* =============== scr01 — متماثلان أم مختلفان (gme-102) =============== */
       async function scr01() {
-        adultBase('<p>دَعْه يختار بلا تلميح؛ الصوتان يُعادان بلا حدّ بزرّ السمّاعة.</p><p>الدائرتان = صوت واحد · الدائرة والمربّع = صوتان مختلفان.</p><p>إن تردّد بين «مْـ» و«ماءْ» فلا تقل الجواب؛ أعِد الصوتين فقط.</p>');
+        adultBase('<p>دَعْه يختار بلا تلميح؛ الصوتان يُعادان بلا حدّ بزرّ السمّاعة.</p><p><b>زرّا بارق:</b> بارق يصفّق = «صَوْتٌ واحِدٌ» · بارق يقفز فاتحاً ذراعيه = «سَمِعْتُ فَرْقاً!». كلّ زرّ يقول عبارته حين يُلمس، وبعد الاختيار تظهر صورتا المصدرين دليلاً.</p><p>إن تردّد بين «مْـ» و«ماءْ» فلا تقل الجواب؛ أعِد الصوتين فقط.</p>');
         steps.set(3);
         const rounds = mixRounds(PAIRS_BY_AGE[age] || PAIRS_BY_AGE['7-9']);
         steps.resize(rounds.length, 0);   // المؤشّر الموحَّد يتحوّل إلى جولات هذه اللعبة (بلا خرزات نتيجة)
         const beads = { cur: (i) => steps.set(i), set() {} };
         const wrap = h('div.k9-sd' + (age === '4-6' ? '.age46' : ''));
         root.append(wrap);
-        const ringA = h('div.k9-ring', null, h('span', { html: '' }), h('img', { alt: '' }));
-        const ringB = h('div.k9-ring', null, h('span', { html: '' }), h('img', { alt: '' }));
+        // v0-12 r3: بطاقتا الصوتين (سمّاعة تضيء لحظة كلّ صوت؛ بعد الاختيار تظهر فيها صورة المصدر) — بلا أشكال هندسية
+        const ringA = h('div.k9-ring', null, h('span', { html: BQ.icons.speaker }), h('img', { alt: '' }));
+        const ringB = h('div.k9-ring', null, h('span', { html: BQ.icons.speaker }), h('img', { alt: '' }));
         let playing = false;
         const listen = BQ.ui.listenBtn(() => { if (!playing) { log.replays++; pair(cur, gap); } });
         const pairRow = h('div.k9-pair', null, ringA, listen, ringB);
@@ -417,13 +418,12 @@ ${SC} .k9-foot { display: grid; place-items: center; min-height: 54px; }
         wrap.append(choiceHost);
         let cur = null;
         const setRing = (ring, id, mode) => {
-          const [shape, img] = SRC[id] || ['circle', 'img-001'];
-          ring.firstChild.innerHTML = SHAPE[shape];
+          const img = (SRC[id] || ['', 'img-001'])[1];
           ring.lastChild.src = BQ.img(img);
-          ring.classList.toggle('is-shape', mode === 'shape');
           ring.classList.toggle('is-src', mode === 'src');
         };
-        const resetRings = () => { [ringA, ringB].forEach((r) => r.classList.remove('is-on', 'is-shape', 'is-src')); pairRow.classList.remove('is-near', 'is-far'); };
+        const showSrc = (r) => { setRing(ringA, r.a, 'src'); setRing(ringB, r.b, 'src'); };
+        const resetRings = () => { [ringA, ringB].forEach((x) => x.classList.remove('is-on', 'is-src')); pairRow.classList.remove('is-near', 'is-far'); };
         async function pair(r, g, mode) {
           playing = true; listen.classList.add('is-playing');
           resetRings();
@@ -436,38 +436,68 @@ ${SC} .k9-foot { display: grid; place-items: center; min-height: 54px; }
           ringB.classList.remove('is-on');
           listen.classList.remove('is-playing'); playing = false;
         }
+        const say = (id) => S.play(id);
         ctx.onReplay(() => { if (!playing && cur) { log.replays++; pair(cur, gap); } });
         ctx.instruction('هَيّا، أَصْغوا مَعي!', null, { icon: 'ear' });
         await S.play('bariq_L1-01_ins-listen_ar');
+        /* عرض بارق مرّة واحدة: صوتان متماثلان ← يصفّق «هُما صَوْتٌ واحِدٌ.» · صوتان مختلفان ← يقفز «سَمِعْتُ فَرْقاً!» (زوجان خارج الجولات) */
+        {
+          const D = BQ.elJudge(choiceHost, {}); D.lock(true);
+          const dSame = { a: 'bariq_L1-01_sfx-compass', b: 'bariq_L1-01_sfx-compass-b' };
+          const dDiff = { a: 'bariq_L1-01_sfx-water-pour-1s', b: 'bariq_L1-01_sfx-compass-b' };
+          await pair(dSame, gap); showSrc(dSame); await D.act('same', { play: say }); await S.sleep(500);
+          await pair(dDiff, gap); showSrc(dDiff); await D.act('diff', { play: say }); await S.sleep(600);
+          resetRings(); choiceHost.replaceChildren();
+        }
         const missed = [];
+        /** جولة بزرّي بارق — ثلاث درجات: صواب (الدليل + تعزيز) · خطأ أوّل (أَصْغوا مرّة أخرى + فاصل أطول) · خطأ ثانٍ (الصورتان + الجواب بلا احتفال) */
+        const judgeRound = (r) => new Promise((resolve) => {
+          choiceHost.replaceChildren();
+          let tries = 0, phase = 'intro', auto = 0;
+          const J = BQ.elJudge(choiceHost, { onPick });
+          J.lock(true); J.el.classList.add('is-waiting');
+          const setPhase = (v) => { phase = v; stage.dataset.phase = v; };
+          stage.dataset.key = r.key; setPhase('intro');
+          const arm = () => { setPhase('await'); J.lock(false); J.el.classList.remove('is-waiting');
+            if (age === '4-6') auto = S.later(async () => { if (phase !== 'await') return; J.lock(true); await pair(r, gap); if (phase === 'await') J.lock(false); }, 6000); };
+          (async () => { await pair(r, gap); await S.play('bariq_L1-01_ins-same_ar'); arm(); })();
+          async function onPick(id, btn) {
+            if (phase !== 'await') return;
+            setPhase('fb'); J.lock(true); if (auto) { S.clear(auto); auto = 0; }
+            btn.classList.add('is-picked');
+            await J.act(id, { play: say });                       // بارق الملموس يتحرّك ويقول عبارته
+            btn.classList.remove('is-picked');
+            const good = J.byId(r.key);
+            if (id === r.key) {
+              BQ.ui.ok(btn); S.fx(BQ.sfx.ok, 0.45);
+              showSrc(r);                                          // الدليل: صورتا المصدرين
+              await S.gate(BQ.ui.bariq(stage, r.key === 'diff' ? 'bariq_L1-01_d1-FB_01_ar' : 'bariq_L1-01_d1-FB_02_ar'));
+              resolve({ first: tries === 0, shown: false }); return;
+            }
+            tries++;
+            BQ.ui.shake(btn); S.later(() => btn.classList.remove('is-dim'), 800);
+            if (tries === 1) {
+              await S.play('bariq_L1-01_d1-EL02_04_ar');           // «هَيّا، أَصْغوا مَرَّةً أُخْرى!»
+              await pair(r, 1500);                                 // تلميح ١: فاصل أطول وإضاءة كلّ بطاقة لحظة صوتها
+              await S.play('bariq_L1-01_ins-same_ar');
+              btn.classList.remove('is-dim'); arm(); return;
+            }
+            // خطأ ثانٍ: الجواب بلا احتفال — كلّ صوت مع صورة مصدره ثم بارق الصحيح يتحرّك ويقول عبارته
+            btn.classList.add('is-dim');
+            await S.play('bariq_L1-01_d1-FB_04_ar');               // «أَصْغوا: هَذا، وَهَذا.»
+            await pair(r, 1000, 'src');
+            pairRow.classList.add(r.key === 'same' ? 'is-near' : 'is-far');
+            BQ.ui.ok(good); await J.act(r.key, { play: say });
+            await S.sleep(600);
+            resolve({ first: false, shown: true });
+          }
+        });
         const runRound = async (r, i, review) => {
           cur = r;
-          choiceHost.replaceChildren();
           resetRings();
           beads.cur(i);
           ctx.instruction('هَلْ هُما صَوْتٌ واحِدٌ؟', null, { icon: 'ear' });
-          const res = await K.round(S, choiceHost, {
-            items: [{ id: 'same', icon: 'same', aria: 'مُتَماثِلانِ' }, { id: 'diff', icon: 'diff', aria: 'مُخْتَلِفانِ' }],
-            correct: r.key, cls: 'icons', noShuffle: true,
-            autoReplayMs: age === '4-6' ? 6000 : 0,
-            prompt: async () => { await pair(r, gap); await S.play('bariq_L1-01_ins-same_ar'); },
-            onCorrect: async () => {
-              setRing(ringA, r.a, 'shape'); setRing(ringB, r.b, 'shape');
-              await S.gate(BQ.ui.bariq(stage, r.key === 'diff' ? 'bariq_L1-01_d1-FB_01_ar' : 'bariq_L1-01_d1-FB_02_ar'));
-            },
-            onWrong1: async () => {
-              await S.play('bariq_L1-01_d1-EL02_04_ar');           // «هَيّا، أَصْغوا مَرَّةً أُخْرى!»
-              await pair(r, 1500, 'shape');                          // تلميح ١: فاصل أطول وحلقة لكل صوت لحظة سماعه
-              await S.play('bariq_L1-01_ins-same_ar');
-            },
-            onWrong2: async () => {
-              await S.play('bariq_L1-01_d1-FB_04_ar');              // «أَصْغوا: هَذا، وَهَذا.»
-              await pair(r, 1000, 'src');                            // كلّ صوت مع صورة مصدره
-              pairRow.classList.add(r.key === 'same' ? 'is-near' : 'is-far');
-              setRing(ringA, r.a, 'shape'); setRing(ringB, r.b, 'shape');
-              await S.sleep(1100);
-            },
-          });
+          const res = await S.gate(judgeRound(r));
           log.rounds.push({ review, key: r.key, res: res.first ? 'first' : res.shown ? 'shown' : 'second' }); upd();
           if (!review) { beads.set(i, res.first ? 'on' : 'help'); if (!res.first) missed.push(r); }
           await S.sleep(700);
@@ -477,7 +507,8 @@ ${SC} .k9-foot { display: grid; place-items: center; min-height: 54px; }
         for (const r of BQ.shuffle(missed)) await runRound(r, rounds.length - 1, true);
         choiceHost.replaceChildren();
         resetRings();
-        await S.play('bariq_L1-01_key_ar');                                // ماجد: «سَمِعْتُ فَرْقاً!»
+        delete stage.dataset.phase; delete stage.dataset.key;
+        await S.play('bariq_L1-01_key_ar');                                // «سَمِعْتُ فَرْقاً!»
         upd();
       }
 

@@ -366,7 +366,9 @@ ${S} .t12-big .t12-big-bar { display: flex; gap: 10px; align-items: center; just
   function endCard12(stage, ctx, onReplay) {
     stage.querySelectorAll('.bq-end').forEach((n) => n.remove());
     ctx.done();
-    return sxEnd(stage, { title: 'أَحْسَنْتَ!', line: 'bariq_L1-01_d1-FB_03_ar', note: 'تتبّعتَ «م» من نقطة البدء.', home: HOME12, onReplay });
+    const ab = ctx.frame && ctx.frame.querySelector('.elp-adult-body');
+    if (ab && !ab.querySelector('.t12-home')) ab.insertAdjacentHTML('beforeend', '<div class="t12-home"><p class="lbl">في البيت اليوم</p><ul>' + HOME12.map((t) => '<li>' + t + '</li>').join('') + '</ul></div>');
+    return sxEnd(stage, { title: 'أَحْسَنْتَ!', line: 'bariq_L1-01_d1-FB_03_ar', note: 'تَتَبَّعْتَ «م» مِنْ نُقْطَةِ البَدْءِ.', onReplay }); // v0-12 r3b: «في البيت اليوم» للمعلّم في الدليل لا على ورقة الطفل
   }
 
   const touchGuard = (el) => { if (BQ.elGuard) BQ.elGuard(el); }; // v0-12: حارس اللمس المشترك (EL01.js)

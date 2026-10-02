@@ -60,13 +60,13 @@
         c.glyph ? h('span.g', { 'aria-hidden': 'true' }, c.glyph) : h('img', { src: BQ.img(c.img), alt: '', style: { objectPosition: c.pos, transform: c.zoom ? 'scale(' + c.zoom + ')' : '', transformOrigin: c.pos } }));
       strip.append(el); return el;
     });
-    const refrain = h('div.e6-refrain', { 'aria-hidden': 'true' }, BQ.icon('diff'));
+    const refrain = h('div.e6-refrain'); // v0-12 r3: لا رمز هندسيّ للّازمة — بارق يقفز معها (cheer) وهو الإشارة المفهومة؛ العنصر لا يُعرض
     const pp = h('button.bq-btn', { type: 'button' }, BQ.icon('pause'), h('span', null, 'إيقاف'));
     const rp = h('button.bq-btn.ghost', { type: 'button' }, BQ.icon('replay'), 'من البداية');
     const anim = BQ.ui.brq('idle'); // [brq-anim v1] cheer مع اللازمة · idle غير ذلك/عند الإيقاف
     const brq = h('div.e6-brq.has-anim', { 'aria-hidden': 'true' }, anim);
     const notes = h('div.e6-notes', { 'aria-hidden': 'true' }, ...['♪', '♫', '♪', '♬'].map((n, i) => h('span.e6-note', { style: { insetInlineStart: (12 + i * 24) + '%' } }, n)));
-    scr.append(notes, refrain, strip, h('div.e6-ctl', null, brq, pp, rp));
+    scr.append(notes, strip, h('div.e6-ctl', null, brq, pp, rp));
     let bed = null, raf = 0, t0 = 0, pausedAt = 0, ended = false, alive = true, lastBeat = -1;
     const DUR = 66.5;
     const now = () => (bed && bed.el ? bed.el.currentTime : ((pausedAt || performance.now()) / 1000 - t0));
@@ -148,7 +148,7 @@
       const end = () => {
         if (!G.alive()) return;
         ctx.done();
-        BQ.ui.endCard(stage, { title: 'سَمِعْتُ فَرْقاً!', note: 'للمعلّم: غنّيتما الأنشودة. أعيدا الغناء متى شئتما بلا أصوات الشخصيات.', onReplay: () => BQ.open('EL06', { skipCover: true }) });
+        BQ.ui.endCard(stage, { title: 'سَمِعْتُ فَرْقاً!', onReplay: () => BQ.open('EL06', { skipCover: true }) });
       };
       const video = (then) => {
         const s = go();

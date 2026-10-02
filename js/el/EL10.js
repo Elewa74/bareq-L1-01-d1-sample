@@ -308,8 +308,8 @@ ${S} .t10-next.soft { background: var(--white); color: var(--navy); box-shadow: 
         const pics = h('div.t10-pics');
         let lipCard = null; const cards = {};
         if (it.key === 'phrase') {
-          cards.water = h('div.sx-photo.t10-sq.sx-in', { role: 'img', 'aria-label': 'ماءْ' }, h('img', { src: BQ.img('img-001'), alt: '' }), h('span.t10-shape', { 'aria-hidden': 'true', html: SHAPE.circle }));
-          cards.door = h('div.sx-photo.t10-sq.sx-in', { role: 'img', 'aria-label': 'مَصْدَرُ صَوْتٍ', style: { animationDelay: '.12s' } }, h('img', { src: BQ.img('img-007'), alt: '' }), h('span.t10-shape', { 'aria-hidden': 'true', html: SHAPE.square }));
+          cards.water = h('div.sx-photo.t10-sq.sx-in', { role: 'img', 'aria-label': 'ماءْ' }, h('img', { src: BQ.img('img-001'), alt: '' }));
+          cards.door = h('div.sx-photo.t10-sq.sx-in', { role: 'img', 'aria-label': 'مَصْدَرُ صَوْتٍ', style: { animationDelay: '.12s' } }, h('img', { src: BQ.img('img-007'), alt: '' }));
           pics.append(cards.water, cards.door);
         } else {
           lipCard = h('div.sx-photo.t10-big.sx-in', { role: 'img', 'aria-label': it.key === 'm' ? 'فَمُ سَيْفٍ' : 'ماءْ' },
@@ -319,7 +319,7 @@ ${S} .t10-next.soft { background: var(--white); color: var(--navy); box-shadow: 
           pics.append(lipCard);
         }
         // «دورك»: بارق في البند الأوّل (يقول الطفل العبارة في دوره) · فم في غيره · يد+فم للمعيار الذاتيّ
-        const turn = h('div.t10-turn', { 'aria-hidden': 'true' }, it.key === 'phrase' ? (BQ.ui.brq ? BQ.ui.brq('wave', 't10-brq') : h('img', { src: BQ.char.BRQ, alt: '' })) : BQ.icon('mouth'));
+        const turn = h('div.t10-turn', { 'aria-hidden': 'true' }, it.key === 'phrase' ? (BQ.ui.brq ? BQ.ui.brq('cheer', 't10-brq') : h('img', { src: BQ.char.BRQ, alt: '' })) : BQ.icon('mouth'));
         // «اسمع النموذج» — زرّ أزرق بأذن (غير سمّاعة التعليمة الصفراء)
         const listen = h('button.bq-hear.sx-hear', { type: 'button', 'aria-label': 'اسْمَعِ النَّموذَجَ', onclick: () => replayModel(true) }, BQ.icon('ear'));
         const dock = h('div.t10-dock', null, listen, turn);
@@ -427,8 +427,8 @@ ${S} .t10-next.soft { background: var(--white); color: var(--navy); box-shadow: 
         gen++; clearTimers(); BQ.audio.stop();
         stage.querySelectorAll('.bq-end').forEach((n) => n.remove());
         ctx.done();
-        sxEnd(stage, { title: 'أَحْسَنْتَ!', note: 'للمعلّم: ملاحظاتك الثلاث في دليل المعلّم.', home: HOME, onReplay: () => { log.forEach((l) => { l.level = null; l.replays = 0; }); s1(); } });
-        panel('<p>انتهت البنود الثلاثة؛ السجلّ في «ملاحظات المراجِع».</p>');
+        sxEnd(stage, { title: 'أَحْسَنْتَ!', onReplay: () => { log.forEach((l) => { l.level = null; l.replays = 0; }); s1(); } });
+        panel('<p>انتهت البنود الثلاثة؛ السجلّ في «ملاحظات المراجِع».</p><p class="lbl">في البيت اليوم</p><ul>' + HOME.map((t) => '<li>' + t + '</li>').join('') + '</ul>'); // v0-12 r3b: نصّ المعلّم في الدليل لا على ورقة الطفل
       }
       s1();
     },
